@@ -6,6 +6,8 @@ using Kentico.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Disqus.Components.DisqusComponent
@@ -27,16 +29,24 @@ namespace Disqus.Components.DisqusComponent
                 throw new ArgumentNullException(nameof(widgetProperties));
             }
 
+            var model = new DisqusComponentViewModel()
+            {
+                Header = widgetProperties.Properties.Header
+            };
             var identifier = string.IsNullOrEmpty(widgetProperties.Properties.ThreadIdentifier) ?
                 widgetProperties.Page.DocumentGUID.ToString() : widgetProperties.Properties.ThreadIdentifier;
-            var threadId = await disqusService.GetThreadByIdentifier(identifier, widgetProperties.Page);
-            var posts = await disqusService.GetThreadPosts(threadId);
+            
+            try
+            {
+                model.ThreadID = await disqusService.GetThreadByIdentifier(identifier, widgetProperties.Page);
+                model.Posts = await disqusService.GetThreadPosts(model.ThreadID);
+            }
+            catch(DisqusException e)
+            {
+                model.Exception = e;
+            }
 
-            return View("~/Views/Shared/Components/_DisqusComponent.cshtml", new DisqusComponentViewModel() {
-                Posts = posts,
-                ThreadID = threadId,
-                Header = widgetProperties.Properties.Header
-            });
+            return View("~/Views/Shared/Components/_DisqusComponent.cshtml", model);
         }
     }
 }

@@ -11,16 +11,18 @@
 }
 else
 {
-    <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true" onsubmit="replaceForm(event)">
-        <page-data />
+<form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true" onsubmit="replaceForm(event)">
+    <input asp-for="Thread" />
+    <input asp-for="Parent" />
+    <page-data />
 
-        <div class="form-group">
-            <div class="form-group-input">
-                <input asp-for="Message" />
-                <span asp-validation-for="Message" class="message message-error"></span>
-            </div>
+    <div class="form-group">
+        <div class="form-group-input">
+            <input asp-for="Message" />
+            <span asp-validation-for="Message" class="message message-error"></span>
         </div>
+    </div>
 
-        <input type="submit" value="Submit" class="btn btn-primary" />
-    </form>
+    <input type="submit" value="Submit" class="btn btn-primary" />
+</form>
 }

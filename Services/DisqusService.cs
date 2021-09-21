@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Disqus.Services
 {
@@ -81,11 +82,11 @@ namespace Disqus.Services
         public async Task<string> GetThreadByIdentifier(string identifier, TreeNode node)
         {
             var url = string.Format(IDisqusService.THREAD_LISTING, mSite, mSecret);
-            var result = await MakeRequest(url);
-            if (result.Value<int>("code") == 0)
+            var getThreadsResponse = await MakeGetRequest(url);
+            if (getThreadsResponse.Value<int>("code") == 0)
             {
                 // Success
-                var foundThread = result.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier}')].id");
+                var foundThread = getThreadsResponse.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier}')].id");
                 if (foundThread.Count() > 0)
                 {
                     return foundThread.FirstOrDefault().Value<string>();
@@ -94,35 +95,57 @@ namespace Disqus.Services
                 {
                     // Thread with identifier doesn't exist yet
                     var pageUrl = pageUrlRetriever.Retrieve(node).AbsoluteUrl;
-                    var response = await CreateThread(identifier, node.DocumentName, pageUrl);
-                    if (response.Value<int>("code") == 0)
+                    var createResponse = await CreateThread(identifier, node.DocumentName, pageUrl);
+                    if (createResponse.Value<int>("code") == 0)
                     {
                         // Thread created
-                        return response.SelectToken("$.response.id").ToString();
+                        return createResponse.SelectToken("$.response.id").ToString();
                     }
                     else
                     {
-                        throw new Exception(response.Value<string>("response"));
+                        throw new DisqusException(createResponse.Value<int>("code"), createResponse.Value<string>("response"));
                     }
                 }
             }
             else
             {
                 // Failure
-                throw new Exception(result.Value<string>("response"));
+                throw new DisqusException(getThreadsResponse.Value<int>("code"), getThreadsResponse.Value<string>("response"));
             }
         }
 
         public async Task<JObject> CreateThread(string identifier, string title, string pageUrl)
         {
-            var url = string.Format(IDisqusService.THREAD_CREATE, mSite, title, identifier, mSecret, pageUrl);
-            return await MakePost(url, null);          
+            // TODO: Add URL parameter to thread create
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("forum", mSite),
+                new KeyValuePair<string, string>("title", title),
+                new KeyValuePair<string, string>("identifier", identifier),
+                new KeyValuePair<string, string>("api_secret", mSecret)
+            };
+            return await MakePostRequest(IDisqusService.THREAD_CREATE, data);          
+        }
+
+        public async Task<JObject> CreatePost(DisqusPost post)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("message", post.Message),
+                new KeyValuePair<string, string>("thread", post.Thread),
+                //new KeyValuePair<string, string>("author_name", UserName),
+                new KeyValuePair<string, string>("api_secret", mSecret)
+            };
+            if(!string.IsNullOrEmpty(post.Parent))
+            {
+                data.Add(new KeyValuePair<string, string>("parent", post.Parent));
+            }
+
+            return await MakePostRequest(IDisqusService.POST_CREATE, data);
         }
 
         public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
             var url = string.Format(IDisqusService.POSTS_BY_THREAD, threadId, mSecret);
-            var result = await MakeRequest(url);
+            var result = await MakeGetRequest(url);
             if (result.Value<int>("code") == 0)
             {
                 // Success
@@ -142,7 +165,7 @@ namespace Disqus.Services
             else
             {
                 // Failure
-                throw new Exception(result.Value<string>("response"));
+                throw new DisqusException(result.Value<int>("code"), result.Value<string>("response"));
             }
         }
 
@@ -159,7 +182,7 @@ namespace Disqus.Services
         public async Task<string> GetUserDetails()
         {
             var url = string.Format(IDisqusService.USER_DETAILS, mSecret);
-            var result = await MakeRequest(url);
+            var result = await MakeGetRequest(url);
             if (result.Value<int>("code") == 0)
             {
                 // Success
@@ -170,11 +193,11 @@ namespace Disqus.Services
             else
             {
                 // Failure
-                throw new Exception(result.Value<string>("response"));
+                throw new DisqusException(result.Value<int>("code"), result.Value<string>("response"));
             }
         }
 
-        public async Task<JObject> MakeRequest(string url)
+        public async Task<JObject> MakeGetRequest(string url)
         {
             if(!string.IsNullOrEmpty(UserToken))
             {
@@ -191,17 +214,17 @@ namespace Disqus.Services
             }
         }
 
-        public async Task<JObject> MakePost(string url, HttpContent data)
+        public async Task<JObject> MakePostRequest(string url, List<KeyValuePair<string, string>> data)
         {
             if (!string.IsNullOrEmpty(UserToken))
             {
-                url += $"&access_token={UserToken}";
+                data.Add(new KeyValuePair<string, string>("access_token", UserToken));
             }
 
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                var response = await client.PostAsync(url, data);
+                var response = await client.PostAsync(url, new FormUrlEncodedContent(data));
                 var content = await response.Content.ReadAsStringAsync();
                 client.Dispose();
 

@@ -19,7 +19,7 @@ namespace Disqus.Components.DisqusComponent
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SubmitPost(DisqusComponentViewModel model)
+        public async Task<ActionResult> SubmitPost(DisqusPost post)
         {
             /*if (string.IsNullOrEmpty(model.Comment))
             {
@@ -28,7 +28,13 @@ namespace Disqus.Components.DisqusComponent
                 return PartialView("~/Views/Shared/Components/_DisqusComponent.cshtml", model);
             }*/
 
-            return Content("Done");
+            //TODO: Check response, reload page or async refresh of comments
+            var response = await disqusService.CreatePost(post);
+
+            return PartialView("~/Views/Shared/Components/_DisqusPostForm.cshtml", new DisqusPost() {
+                Thread = post.Thread,
+                Parent = post.Parent
+            });
         }
 
         public async Task<ActionResult> Auth()

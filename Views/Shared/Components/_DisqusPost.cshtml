@@ -28,13 +28,16 @@
         </div>
         <div id="post-reply-container-@Model.Id" class="post-reply-container col collapse">
             @{
-                await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost());
+                await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+                {
+                    Thread = Model.Thread,
+                    Parent = Model.Id
+                });
             }
         </div>
     </div>
+    @foreach (var child in Model.ChildPosts)
+    {
+        await Html.RenderPartialAsync("_DisqusPost.cshtml", child);
+    }
 </div>
-
-@foreach (var child in Model.ChildPosts)
-{
-    await Html.RenderPartialAsync("_DisqusPost.cshtml", child);
-}

@@ -1,13 +1,14 @@
 ﻿#disqus_thread .disqus-post {
     background-color: rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    margin: 10px 0px;
     padding: 10px 0px;
+    border-left: 4px solid rgba(0, 0, 0, 0.3);
 }
 
 #disqus_thread .child-post {
-    margin-left: 30px;
-    margin-bottom: 20px;
-    border-left: 4px solid rgba(0, 0, 0, 0.3);
+    margin-left: 40px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 #disqus_thread .post-author {
@@ -33,4 +34,13 @@
 
 #disqus_thread .post-reply-container {
     padding-top: 20px;
+}
+
+#disqus_thread .disqus-login-box {
+    width: 100%;
+    overflow-wrap: break-word;
+    background-color: #ddd;
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 10px;
 }

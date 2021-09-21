@@ -1,11 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 
 namespace Disqus.Models
 {
     public class DisqusPost
     {
+        [HiddenInput]
         public string Id { get; set; }
+
+        [HiddenInput]
+        public string Thread { get; set; }
 
         public string Message { get; set; }
 
@@ -39,7 +44,8 @@ namespace Disqus.Models
 
         public bool CanVote { get; set; }
 
-        public string Parent { get; set; }
+        [HiddenInput]
+        public string Parent { get; set; } = string.Empty;
 
         public bool IsNewUserNeedsApproval { get; set; }
     }

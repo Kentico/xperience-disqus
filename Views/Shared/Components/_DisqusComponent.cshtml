@@ -3,14 +3,19 @@
 
 <link rel="stylesheet" href="/disqus.css" />
 
-<h1>@Model.Header</h1>
 <div id="disqus_thread" class="container">
-    @foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
+    @if (Model.Exception != null)
     {
-        await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
+        await Html.RenderPartialAsync("_DisqusException.cshtml", Model.Exception);
     }
-    @if(Model.Posts.Count() == 0)
+    else
     {
+        <h1>@Model.Header</h1>
+        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost() { Thread = Model.ThreadID });
 
+        foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
+        {
+            await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
+        }
     }
 </div>

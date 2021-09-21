@@ -12,18 +12,15 @@ namespace Disqus.Services
         // Endpoints
         private static string BASE_URL = "https://disqus.com/api/3.0/";
         public static string THREAD_LISTING = BASE_URL + "forums/listThreads.json?forum={0}&api_secret={1}";
-        public static string THREAD_CREATE = BASE_URL + "threads/create.json?forum={0}&title={1}&identifier={2}&api_secret={3}&url={4}";
+        public static string THREAD_CREATE = BASE_URL + "threads/create.json";
         public static string POSTS_BY_THREAD = BASE_URL + "threads/listPosts.json?thread={0}&api_secret={1}";
         public static string USER_DETAILS = BASE_URL + "users/details.json?api_secret={0}";
+        public static string POST_CREATE = BASE_URL + "posts/create.json";
 
         // Authentication
         public static string AUTH_COOKIE_TOKEN = "kx_disqus_token";
         public static string AUTH_COOKIE_NAME = "kx_disqus_un";
-        public static string AUTH_URL = @"https://disqus.com/api/oauth/2.0/authorize/?
-client_id={0}&
-scope=read,write&
-response_type=code&
-redirect_uri={1}";
+        public static string AUTH_URL = "https://disqus.com/api/oauth/2.0/authorize/?client_id={0}&response_type=code&redirect_uri={1}";
 
         public string UserToken { get; set; }
 
@@ -44,6 +41,8 @@ redirect_uri={1}";
         /// <returns>The response from the Disqus server</returns>
         public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl);
 
+        public abstract Task<JObject> CreatePost(DisqusPost post);
+
         public abstract Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId);
 
         public abstract Task<string> GetUserDetails();
@@ -54,7 +53,7 @@ redirect_uri={1}";
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public abstract Task<JObject> MakeRequest(string url);
+        public abstract Task<JObject> MakeGetRequest(string url);
 
         /// <summary>
         /// Makes a POST request to the provided URL with data. Automatically adds the 'access_token' parameter if
@@ -63,7 +62,7 @@ redirect_uri={1}";
         /// <param name="url"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public abstract Task<JObject> MakePost(string url, HttpContent data);
+        public abstract Task<JObject> MakePostRequest(string url, List<KeyValuePair<string, string>> data);
 
         public abstract bool IsAuthenticated();
 
