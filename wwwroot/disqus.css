@@ -1,0 +1,36 @@
+﻿#disqus_thread .disqus-post {
+    background-color: rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 10px 0px;
+}
+
+#disqus_thread .child-post {
+    margin-left: 30px;
+    margin-bottom: 20px;
+    border-left: 4px solid rgba(0, 0, 0, 0.3);
+}
+
+#disqus_thread .post-author {
+    font-weight: 500;
+    font-size: 13px;
+}
+
+#disqus_thread .post-date {
+    font-size: 10px;
+}
+
+#disqus_thread .post-footer .btn {
+    color: #333;
+    padding: 0px;
+    letter-spacing: 0.5px;
+    font-size: 10px;
+}
+
+#disqus_thread .post-sidebar a {
+    color: #333;
+    text-decoration: none;
+}
+
+#disqus_thread .post-reply-container {
+    padding-top: 20px;
+}

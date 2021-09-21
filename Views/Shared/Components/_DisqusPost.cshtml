@@ -1,0 +1,40 @@
+﻿@using Disqus.Models
+@model DisqusPost
+
+@{
+    var cssClass = string.IsNullOrEmpty(Model.Parent) ? "disqus-post" : "child-post";
+    var avatarUrl = Model.Author.Avatar.Value<string>("permalink");
+}
+
+<div id="post-@Model.Id" class="row @cssClass">
+    <div class="post-sidebar col-auto">
+        <a href="@Model.Author.ProfileUrl" target="_blank">
+            <img src="@avatarUrl" />
+            <br /><span class="post-author">@Model.Author.Name</span>
+        </a>
+    </div>
+    <div class="post-main col">
+        <div class="post-header">
+            <span class="post-date">&commat; @Model.CreatedAt.ToString()</span>
+        </div>
+        <div class="post-content">
+            @Html.Raw(Model.Message)
+        </div>
+        <div class="post-footer">
+            <a class="btn btn-link" data-toggle="collapse" data-target="#post-reply-container-@Model.Id"
+               role="button" aria-expanded="false" aria-controls="post-reply-container-@Model.Id">
+                Reply
+            </a>
+        </div>
+        <div id="post-reply-container-@Model.Id" class="post-reply-container col collapse">
+            @{
+                await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost());
+            }
+        </div>
+    </div>
+</div>
+
+@foreach (var child in Model.ChildPosts)
+{
+    await Html.RenderPartialAsync("_DisqusPost.cshtml", child);
+}

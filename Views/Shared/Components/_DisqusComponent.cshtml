@@ -1,0 +1,16 @@
+﻿@using Disqus.Models
+@model DisqusComponentViewModel
+
+<link rel="stylesheet" href="/disqus.css" />
+
+<h1>@Model.Header</h1>
+<div id="disqus_thread" class="container">
+    @foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
+    {
+        await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
+    }
+    @if(Model.Posts.Count() == 0)
+    {
+
+    }
+</div>
