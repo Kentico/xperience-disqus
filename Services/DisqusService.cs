@@ -50,8 +50,8 @@ namespace Disqus.Services
         public DisqusService(IConfiguration config, IPageUrlRetriever pageUrlRetriever)
         {
             mSite = config.GetValue<string>("Disqus:Site");
-            mSecret = config.GetValue<string>("Disqus:SecretKey");
-            mPublicKey = config.GetValue<string>("Disqus:PublicKey");
+            mSecret = config.GetValue<string>("Disqus:ApiSecret");
+            mPublicKey = config.GetValue<string>("Disqus:ApiKey");
             mAuthRedirect = config.GetValue<string>("Disqus:AuthenticationRedirect");
 
             this.pageUrlRetriever = pageUrlRetriever;
