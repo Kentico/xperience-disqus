@@ -3,13 +3,12 @@
 
 @{
     var cssClass = string.IsNullOrEmpty(Model.Parent) ? "disqus-post" : "child-post";
-    var avatarUrl = Model.Author.Avatar.Value<string>("permalink");
 }
 
-<div id="post-@Model.Id" class="row @cssClass">
+<div id="post_@Model.Id" class="row @cssClass">
     <div class="post-sidebar col-auto">
         <a href="@Model.Author.ProfileUrl" target="_blank">
-            <img src="@avatarUrl" />
+            <img class="disqus-user-avatar" src="@Model.Author.GetAvatarUrl()" />
             <br /><span class="post-author">@Model.Author.Name</span>
         </a>
     </div>
@@ -21,12 +20,15 @@
             @Html.Raw(Model.Message)
         </div>
         <div class="post-footer">
-            <a class="btn btn-link" data-toggle="collapse" data-target="#post-reply-container-@Model.Id"
-               role="button" aria-expanded="false" aria-controls="post-reply-container-@Model.Id">
-                Reply
-            </a>
+            @{
+                await Html.RenderPartialAsync("_DisqusPostFooter.cshtml", new DisqusPostFooterModel() {
+                    PostId = Model.Id,
+                    Likes = Model.Likes,
+                    Dislikes = Model.Dislikes
+                });
+            }
         </div>
-        <div id="post-reply-container-@Model.Id" class="post-reply-container col collapse">
+        <div id="post_reply_container_@Model.Id" class="post-reply-container col collapse">
             @{
                 await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
                 {

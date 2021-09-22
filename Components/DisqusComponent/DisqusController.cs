@@ -21,20 +21,33 @@ namespace Disqus.Components.DisqusComponent
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SubmitPost(DisqusPost post)
         {
-            /*if (string.IsNullOrEmpty(model.Comment))
-            {
-                ModelState.AddModelError("Comment", "Please enter your message");
-
-                return PartialView("~/Views/Shared/Components/_DisqusComponent.cshtml", model);
-            }*/
-
-            //TODO: Check response, reload page or async refresh of comments
             var response = await disqusService.CreatePost(post);
+            if(response.Value<int>("code") == 0)
+            {
+                return Content("Your comment has been posted.");
+            }
+            else
+            {
+                var ex = new DisqusException(response.Value<int>("code"), response.Value<string>("response"));
+                return PartialView("_DisqusException.cshtml", ex);
+            }
+        }
 
-            return PartialView("~/Views/Shared/Components/_DisqusPostForm.cshtml", new DisqusPost() {
-                Thread = post.Thread,
-                Parent = post.Parent
-            });
+        public async Task<ActionResult> VotePost(bool isLike, string id)
+        {
+            //TODO: Check if user has already voted (repeat voting doesn't work, but still should prevent it)
+            var response = await disqusService.SubmitVote(id, isLike ? 1 : -1);
+            if(response.Value<int>("code") == 0)
+            {
+                return View("~/Views/Shared/Components/_DisqusPostFooter.cshtml", new DisqusPostFooterModel()
+                {
+                    PostId = response.SelectToken("$.response.post.id").ToString(),
+                    Likes = int.Parse(response.SelectToken("$.response.post.likes").ToString()),
+                    Dislikes = int.Parse(response.SelectToken("$.response.post.dislikes").ToString())
+                });
+            }
+
+            throw new DisqusException(response.Value<int>("code"), response.Value<string>("response"));
         }
 
         public async Task<ActionResult> Auth()
@@ -45,13 +58,23 @@ namespace Disqus.Components.DisqusComponent
 
             using (var client = new HttpClient())
             {
-                var response = await client.PostAsync(url, data);
-                var content = await response.Content.ReadAsStringAsync();
+                var tokenResponse = await client.PostAsync(url, data);
+                var content = await tokenResponse.Content.ReadAsStringAsync();
                 client.Dispose();
 
                 var json = JObject.Parse(content);
-                disqusService.UserName = json.Value<string>("username");
-                disqusService.UserToken = json.Value<string>("access_token");
+                var currentUser = new DisqusCurrentUser()
+                {
+                    UserName = json.Value<string>("username"),
+                    Token = json.Value<string>("access_token"),
+                    UserID = json.Value<int>("user_id")
+                };
+
+                // Get full user details
+                var userResponse = await disqusService.GetUserDetails(currentUser.UserID);
+                currentUser.FullName = userResponse.SelectToken("$.response.name").ToString();
+                currentUser.Avatar = userResponse.SelectToken("$.response.avatar.cache").ToString();
+                disqusService.CurrentUser = currentUser;
 
                 return new RedirectResult("/");
             }

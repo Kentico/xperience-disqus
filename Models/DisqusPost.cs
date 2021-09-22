@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Disqus.Models
 {
@@ -12,6 +13,7 @@ namespace Disqus.Models
         [HiddenInput]
         public string Thread { get; set; }
 
+        [Required]
         public string Message { get; set; }
 
         public int NumReports { get; set; }

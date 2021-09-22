@@ -2,6 +2,31 @@
 @model DisqusComponentViewModel
 
 <link rel="stylesheet" href="/disqus.css" />
+<script>
+    function setVoteClick(postId) {
+        $("#disqus_thread #post_"+postId+" .vote-button").click(function () {
+
+            var id = $(this).data('post-id');
+            var isLike = $(this).data('like');
+            var container = $('#post_' + id + ' .post-footer');
+            $.ajax({
+                method: 'POST',
+                url: '@Url.Action("VotePost", "Disqus")',
+                data: {
+                    id: id,
+                    isLike: isLike
+                }
+            }).done(function (data, statusText, xhdr) {
+                console.log(data);
+                container.html(data);
+            }).fail(function (xhdr, statusText, errorText) {
+                alert('An error occurred. Please check your browser console.');
+                console.log(JSON.stringify(xhdr));
+            });
+
+        });
+    }
+</script>
 
 <div id="disqus_thread" class="container">
     @if (Model.Exception != null)

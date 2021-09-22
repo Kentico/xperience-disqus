@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 
 namespace Disqus.Models
 {
@@ -25,5 +22,10 @@ namespace Disqus.Models
         public bool IsAnonymous { get; set; }
 
         public JToken Avatar { get; set; }
+
+        public string GetAvatarUrl()
+        {
+            return Avatar.SelectToken("$.large.cache").ToString();
+        }
     }
 }

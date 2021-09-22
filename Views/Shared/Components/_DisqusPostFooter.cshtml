@@ -1,0 +1,18 @@
+﻿@using Disqus.Models 
+@model DisqusPostFooterModel
+@{ 
+    Layout = null;
+}
+
+<script>
+    $(function () {
+        setVoteClick('@Model.PostId');
+    });
+</script>
+
+<button data-post-id="@Model.PostId" data-like="true" class="vote-button">&#9650; @Model.Likes</button>
+<button data-post-id="@Model.PostId" data-like="false" class="vote-button">&#9660; @Model.Dislikes</button>
+<a class="btn btn-link" data-toggle="collapse" data-target="#post_reply_container_@Model.PostId"
+   role="button" aria-expanded="false" aria-controls="post_reply_container_@Model.PostId">
+    Reply
+</a>

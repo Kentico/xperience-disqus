@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Disqus.Services
 {
@@ -23,28 +22,23 @@ namespace Disqus.Services
 
         private readonly IPageUrlRetriever pageUrlRetriever;
 
-        public string UserToken {
-            get
-            {
-                return CookieHelper.GetValue(IDisqusService.AUTH_COOKIE_TOKEN);
-            }
-
-            set
-            {
-                CookieHelper.SetValue(IDisqusService.AUTH_COOKIE_TOKEN, value, DateTime.Now.AddDays(90), sameSiteMode: CMS.Base.SameSiteMode.None, secure: true);
-            }
-        }
-
-        public string UserName
+        public DisqusCurrentUser CurrentUser
         {
             get
             {
-                return CookieHelper.GetValue(IDisqusService.AUTH_COOKIE_NAME);
+                var data = CookieHelper.GetValue(IDisqusService.AUTH_COOKIE_DATA);
+                if(!string.IsNullOrEmpty(data))
+                {
+                    return JsonConvert.DeserializeObject<DisqusCurrentUser>(data);
+                }
+
+                return null;
             }
 
             set
             {
-                CookieHelper.SetValue(IDisqusService.AUTH_COOKIE_NAME, value, DateTime.Now.AddDays(90), sameSiteMode: CMS.Base.SameSiteMode.None, secure: true);
+                var json = JsonConvert.SerializeObject(value);
+                CookieHelper.SetValue(IDisqusService.AUTH_COOKIE_DATA, json, DateTime.Now.AddDays(90), sameSiteMode: CMS.Base.SameSiteMode.None, secure: true);
             }
         }
 
@@ -60,7 +54,7 @@ namespace Disqus.Services
 
         public bool IsAuthenticated()
         {
-            return !string.IsNullOrEmpty(UserToken);
+            return CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.Token);
         }
 
         public string GetAuthenticationUrl()
@@ -131,7 +125,6 @@ namespace Disqus.Services
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("message", post.Message),
                 new KeyValuePair<string, string>("thread", post.Thread),
-                //new KeyValuePair<string, string>("author_name", UserName),
                 new KeyValuePair<string, string>("api_secret", mSecret)
             };
             if(!string.IsNullOrEmpty(post.Parent))
@@ -179,16 +172,14 @@ namespace Disqus.Services
             }).ToList();
         }
 
-        public async Task<string> GetUserDetails()
+        public async Task<JObject> GetUserDetails(int userId)
         {
-            var url = string.Format(IDisqusService.USER_DETAILS, mSecret);
+            var url = string.Format(IDisqusService.USER_DETAILS, mSecret, userId);
             var result = await MakeGetRequest(url);
             if (result.Value<int>("code") == 0)
             {
                 // Success
-                var user = result.Value<JArray>("response");
-
-                return user.ToString();
+                return result;
             }
             else
             {
@@ -197,11 +188,22 @@ namespace Disqus.Services
             }
         }
 
+        public async Task<JObject> SubmitVote(string postId, int value)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("post", postId),
+                new KeyValuePair<string, string>("vote", value.ToString()),
+                new KeyValuePair<string, string>("api_secret", mSecret)
+            };
+
+            return await MakePostRequest(IDisqusService.POST_VOTE, data);
+        }
+
         public async Task<JObject> MakeGetRequest(string url)
         {
-            if(!string.IsNullOrEmpty(UserToken))
+            if(IsAuthenticated())
             {
-                url += $"&access_token={UserToken}";
+                url += $"&access_token={CurrentUser.Token}";
             }
 
             using (var client = new HttpClient())
@@ -216,9 +218,9 @@ namespace Disqus.Services
 
         public async Task<JObject> MakePostRequest(string url, List<KeyValuePair<string, string>> data)
         {
-            if (!string.IsNullOrEmpty(UserToken))
+            if (IsAuthenticated())
             {
-                data.Add(new KeyValuePair<string, string>("access_token", UserToken));
+                data.Add(new KeyValuePair<string, string>("access_token", CurrentUser.Token));
             }
 
             using (var client = new HttpClient())

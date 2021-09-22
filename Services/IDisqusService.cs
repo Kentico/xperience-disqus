@@ -14,17 +14,15 @@ namespace Disqus.Services
         public static string THREAD_LISTING = BASE_URL + "forums/listThreads.json?forum={0}&api_secret={1}";
         public static string THREAD_CREATE = BASE_URL + "threads/create.json";
         public static string POSTS_BY_THREAD = BASE_URL + "threads/listPosts.json?thread={0}&api_secret={1}";
-        public static string USER_DETAILS = BASE_URL + "users/details.json?api_secret={0}";
+        public static string USER_DETAILS = BASE_URL + "users/details.json?api_secret={0}&user={1}";
         public static string POST_CREATE = BASE_URL + "posts/create.json";
+        public static string POST_VOTE = BASE_URL + "posts/vote.json";
 
         // Authentication
-        public static string AUTH_COOKIE_TOKEN = "kx_disqus_token";
-        public static string AUTH_COOKIE_NAME = "kx_disqus_un";
+        public static string AUTH_COOKIE_DATA = "kx_disqus_currentuser";
         public static string AUTH_URL = "https://disqus.com/api/oauth/2.0/authorize/?client_id={0}&response_type=code&redirect_uri={1}";
 
-        public string UserToken { get; set; }
-
-        public string UserName { get; set; }
+        public DisqusCurrentUser CurrentUser { get; set; }
 
         /// <summary>
         /// Returns the thread ID of an existing thread, or creates a new thread if one doesn't exist
@@ -43,9 +41,17 @@ namespace Disqus.Services
 
         public abstract Task<JObject> CreatePost(DisqusPost post);
 
+        /// <summary>
+        /// Submits a like or dislike to a post
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="value">1 or -1 for like and dislike respectively</param>
+        /// <returns></returns>
+        public abstract Task<JObject> SubmitVote(string postId, int value);
+
         public abstract Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId);
 
-        public abstract Task<string> GetUserDetails();
+        public abstract Task<JObject> GetUserDetails(int userId);
 
         /// <summary>
         /// Makes a GET request to the provided URL. Automatically adds the 'access_token' parameter if
