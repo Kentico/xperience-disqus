@@ -50,5 +50,7 @@ namespace Disqus.Models
         public string Parent { get; set; } = string.Empty;
 
         public bool IsNewUserNeedsApproval { get; set; }
+
+        public DisqusThread ThreadObject { get; set; }
     }
 }

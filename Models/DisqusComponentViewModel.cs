@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Disqus.Models
@@ -14,7 +13,7 @@ namespace Disqus.Models
 
         public string Header { get; set; }
 
-        public string ThreadID { get; set; }
+        public DisqusThread Thread { get; set; }
 
         public IEnumerable<DisqusPost> Posts { get; set; } = Enumerable.Empty<DisqusPost>();
     }

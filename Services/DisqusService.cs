@@ -26,7 +26,7 @@ namespace Disqus.Services
         {
             get
             {
-                var data = CookieHelper.GetValue(IDisqusService.AUTH_COOKIE_DATA);
+                var data = CookieHelper.GetValue(DisqusConstants.AUTH_COOKIE_DATA);
                 if(!string.IsNullOrEmpty(data))
                 {
                     return JsonConvert.DeserializeObject<DisqusCurrentUser>(data);
@@ -38,7 +38,7 @@ namespace Disqus.Services
             set
             {
                 var json = JsonConvert.SerializeObject(value);
-                CookieHelper.SetValue(IDisqusService.AUTH_COOKIE_DATA, json, DateTime.Now.AddDays(90), sameSiteMode: CMS.Base.SameSiteMode.None, secure: true);
+                CookieHelper.SetValue(DisqusConstants.AUTH_COOKIE_DATA, json, DateTime.Now.AddDays(90), sameSiteMode: CMS.Base.SameSiteMode.None, secure: true);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Disqus.Services
 
         public string GetAuthenticationUrl()
         {
-            return string.Format(IDisqusService.AUTH_URL, mPublicKey, mAuthRedirect);
+            return string.Format(DisqusConstants.AUTH_URL, mPublicKey, mAuthRedirect);
         }
 
         public HttpContent GetTokenPostData(string code)
@@ -73,9 +73,25 @@ namespace Disqus.Services
             });
         }
 
-        public async Task<string> GetThreadByIdentifier(string identifier, TreeNode node)
+        public async Task<DisqusThread> GetThread(string threadId)
         {
-            var url = string.Format(IDisqusService.THREAD_LISTING, mSite, mSecret);
+            var url = string.Format(DisqusConstants.THREAD_DETAILS, threadId, mSecret);
+            var response = await MakeGetRequest(url);
+            if(response.Value<int>("code") == 0)
+            {
+                var threadJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
+                var thread = JsonConvert.DeserializeObject<DisqusThread>(threadJson);
+                return thread;
+            }
+            else
+            {
+                throw new DisqusException(response.Value<int>("code"), response.Value<string>("response"));
+            }
+        }
+
+        public async Task<string> GetThreadIdByIdentifier(string identifier, TreeNode node)
+        {
+            var url = string.Format(DisqusConstants.THREAD_LISTING, mSite, mSecret);
             var getThreadsResponse = await MakeGetRequest(url);
             if (getThreadsResponse.Value<int>("code") == 0)
             {
@@ -117,7 +133,7 @@ namespace Disqus.Services
                 new KeyValuePair<string, string>("identifier", identifier),
                 new KeyValuePair<string, string>("api_secret", mSecret)
             };
-            return await MakePostRequest(IDisqusService.THREAD_CREATE, data);          
+            return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }
 
         public async Task<JObject> CreatePost(DisqusPost post)
@@ -132,12 +148,16 @@ namespace Disqus.Services
                 data.Add(new KeyValuePair<string, string>("parent", post.Parent));
             }
 
-            return await MakePostRequest(IDisqusService.POST_CREATE, data);
+            return await MakePostRequest(DisqusConstants.POST_CREATE, data);
         }
 
         public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
-            var url = string.Format(IDisqusService.POSTS_BY_THREAD, threadId, mSecret);
+            // Get thread
+            var thread = await GetThread(threadId);
+
+            // Get posts
+            var url = string.Format(DisqusConstants.POSTS_BY_THREAD, threadId, mSecret);
             var result = await MakeGetRequest(url);
             if (result.Value<int>("code") == 0)
             {
@@ -149,7 +169,8 @@ namespace Disqus.Services
                 var topLevelPosts = allPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
                 var hierarchicalPosts = topLevelPosts.Select(p =>
                 {
-                    p.ChildPosts = GetPostChildren(p, allPosts);
+                    p.ThreadObject = thread;
+                    p.ChildPosts = GetPostChildren(p, allPosts, thread);
                     return p;
                 }).ToList();
 
@@ -162,19 +183,20 @@ namespace Disqus.Services
             }
         }
 
-        public List<DisqusPost> GetPostChildren(DisqusPost post, List<DisqusPost> allPosts)
+        public List<DisqusPost> GetPostChildren(DisqusPost post, List<DisqusPost> allPosts, DisqusThread thread)
         {
             var directChildren = allPosts.Where(p => p.Parent == post.Id).ToList();
             return directChildren.Select(p =>
             {
-                p.ChildPosts = GetPostChildren(p, allPosts);
+                p.ThreadObject = thread;
+                p.ChildPosts = GetPostChildren(p, allPosts, thread);
                 return p;
             }).ToList();
         }
 
         public async Task<JObject> GetUserDetails(int userId)
         {
-            var url = string.Format(IDisqusService.USER_DETAILS, mSecret, userId);
+            var url = string.Format(DisqusConstants.USER_DETAILS, mSecret, userId);
             var result = await MakeGetRequest(url);
             if (result.Value<int>("code") == 0)
             {
@@ -196,7 +218,7 @@ namespace Disqus.Services
                 new KeyValuePair<string, string>("api_secret", mSecret)
             };
 
-            return await MakePostRequest(IDisqusService.POST_VOTE, data);
+            return await MakePostRequest(DisqusConstants.POST_VOTE, data);
         }
 
         public async Task<JObject> MakeGetRequest(string url)

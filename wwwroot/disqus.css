@@ -66,6 +66,10 @@
     cursor: pointer;
 }
 
+#disqus_thread .vote-button:disabled {
+    color: #ccc;
+}
+
 #disqus_thread .post-form .btn {
     font-size: 12px;
 }

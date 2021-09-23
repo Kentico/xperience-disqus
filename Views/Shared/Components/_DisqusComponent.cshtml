@@ -6,8 +6,10 @@
     function setVoteClick(postId) {
         $("#disqus_thread #post_"+postId+" .vote-button").click(function () {
 
-            var id = $(this).data('post-id');
-            var isLike = $(this).data('like');
+            var btn = $(this);
+            btn.prop("disabled", true);
+            var id = btn.data('post-id');
+            var isLike = btn.data('like');
             var container = $('#post_' + id + ' .post-footer');
             $.ajax({
                 method: 'POST',
@@ -17,11 +19,10 @@
                     isLike: isLike
                 }
             }).done(function (data, statusText, xhdr) {
-                console.log(data);
                 container.html(data);
             }).fail(function (xhdr, statusText, errorText) {
-                alert('An error occurred. Please check your browser console.');
-                console.log(JSON.stringify(xhdr));
+                alert(xhdr.responseText);
+                btn.prop("disabled", false);
             });
 
         });
@@ -36,7 +37,9 @@
     else
     {
         <h1>@Model.Header</h1>
-        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost() { Thread = Model.ThreadID });
+        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost() {
+            Thread = Model.Thread.Id
+        });
 
         foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
         {

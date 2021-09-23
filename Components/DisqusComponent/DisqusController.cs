@@ -1,8 +1,16 @@
-﻿using CMS.Helpers;
+﻿using Azure.AI.TextAnalytics;
+using CMS.Activities;
+using CMS.Core;
+using CMS.DataEngine;
+using CMS.Helpers;
+using CMS.SiteProvider;
+using CMS.TextAnalytics.Azure;
 using Disqus.Models;
+using Disqus.OnlineMarketing;
 using Disqus.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -11,10 +19,19 @@ namespace Disqus.Components.DisqusComponent
     public class DisqusController : Controller
     {
         private readonly IDisqusService disqusService;
+        private readonly IActivityLogService activityLogService;
+        private readonly ISentimentAnalysisService sentimentAnalysisService;
+        private readonly IEventLogService eventLogService;
 
-        public DisqusController(IDisqusService disqusService)
+        public DisqusController(IDisqusService disqusService,
+            IActivityLogService activityLogService,
+            ISentimentAnalysisService sentimentAnalysisService,
+            IEventLogService eventLogService)
         {
             this.disqusService = disqusService;
+            this.activityLogService = activityLogService;
+            this.sentimentAnalysisService = sentimentAnalysisService;
+            this.eventLogService = eventLogService;
         }
 
         [HttpPost]
@@ -22,8 +39,9 @@ namespace Disqus.Components.DisqusComponent
         public async Task<ActionResult> SubmitPost(DisqusPost post)
         {
             var response = await disqusService.CreatePost(post);
-            if(response.Value<int>("code") == 0)
+            if (response.Value<int>("code") == 0)
             {
+                await LogCommentActivity(post);
                 return Content("Your comment has been posted.");
             }
             else
@@ -33,12 +51,48 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        public async Task LogCommentActivity(DisqusPost post)
+        {
+            // Reconstruct thread object as it cannot be passed via the form
+            post.ThreadObject = await disqusService.GetThread(post.Thread);
+
+            // Perform Sentiment Analysis
+            var isNegative = false;
+            if (SettingsKeyInfoProvider.GetBoolValue("CMSEnableSentimentAnalysis") &&
+                !string.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIEndpoint")) &&
+                !string.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIKey")))
+            {
+                try
+                {
+                    DocumentSentiment result = sentimentAnalysisService.AnalyzeText(post.Message, "en-US", SiteContext.CurrentSiteName);
+                    if (result.Sentiment == TextSentiment.Negative)
+                    {
+                        isNegative = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    eventLogService.LogError(nameof(DisqusController), nameof(LogCommentActivity), e.Message);
+                }
+            }
+
+            // Log OM activity
+            var activityInitializer = new DisqusActivityInitializer(post.ThreadObject, isNegative);
+            activityLogService.Log(activityInitializer);
+        }
+
         public async Task<ActionResult> VotePost(bool isLike, string id)
         {
-            //TODO: Check if user has already voted (repeat voting doesn't work, but still should prevent it)
             var response = await disqusService.SubmitVote(id, isLike ? 1 : -1);
-            if(response.Value<int>("code") == 0)
+            var code = response.Value<int>("code");
+            if (code == 0)
             {
+                var voteChange = int.Parse(response.SelectToken("$.response.delta").ToString());
+                if (voteChange == 0)
+                {
+                    return new ContentResult() { Content = "You can only vote once on posts.", StatusCode = 403 };
+                }
+
                 return View("~/Views/Shared/Components/_DisqusPostFooter.cshtml", new DisqusPostFooterModel()
                 {
                     PostId = response.SelectToken("$.response.post.id").ToString(),
@@ -46,8 +100,12 @@ namespace Disqus.Components.DisqusComponent
                     Dislikes = int.Parse(response.SelectToken("$.response.post.dislikes").ToString())
                 });
             }
+            else if (code == (int)DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
+            {
+                return new ContentResult() { Content = "You must log in to vote on posts.", StatusCode = 401 };
+            }
 
-            throw new DisqusException(response.Value<int>("code"), response.Value<string>("response"));
+            throw new DisqusException(code, response.Value<string>("response"));
         }
 
         public async Task<ActionResult> Auth()

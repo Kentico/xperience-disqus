@@ -1,13 +1,8 @@
 ﻿using Disqus.Models;
 using Disqus.Services;
-using Kentico.Content.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc;
-using Kentico.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Disqus.Components.DisqusComponent
@@ -38,8 +33,9 @@ namespace Disqus.Components.DisqusComponent
             
             try
             {
-                model.ThreadID = await disqusService.GetThreadByIdentifier(identifier, widgetProperties.Page);
-                model.Posts = await disqusService.GetThreadPosts(model.ThreadID);
+                var threadId = await disqusService.GetThreadIdByIdentifier(identifier, widgetProperties.Page);
+                model.Thread = await disqusService.GetThread(threadId);
+                model.Posts = await disqusService.GetThreadPosts(threadId);
             }
             catch(DisqusException e)
             {
