@@ -28,6 +28,23 @@ namespace Disqus.Services
         /// <returns>The response from the Disqus server</returns>
         public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl);
 
+        /// <summary>
+        /// Gets a post and its children by parsing a thread's full post listing
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public abstract Task<DisqusPost> GetPost(string id);
+
+        /// <summary>
+        /// Gets a list of a post's children in a heirarchal view by recursively calling itself. Also sets
+        /// <see cref="DisqusPost.ChildPosts"/> of all children found this way.
+        /// </summary>
+        /// <param name="post"></param>
+        /// <param name="allPosts">All posts of a thread. Must be flat (non-hierarchical)</param>
+        /// <param name="thread"></param>
+        /// <returns>A list of the post's children</returns>
+        public abstract List<DisqusPost> GetPostChildren(DisqusPost post, List<DisqusPost> allPosts, DisqusThread thread);
+
         public abstract Task<JObject> CreatePost(DisqusPost post);
 
         /// <summary>
@@ -38,9 +55,14 @@ namespace Disqus.Services
         /// <returns></returns>
         public abstract Task<JObject> SubmitVote(string postId, int value);
 
+        /// <summary>
+        /// Returns a thread's posts in a hierarchical view
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
         public abstract Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId);
 
-        public abstract Task<JObject> GetUserDetails(int userId);
+        public abstract Task<JObject> GetUserDetails(string userId);
 
         /// <summary>
         /// Makes a GET request to the provided URL. Automatically adds the 'access_token' parameter if

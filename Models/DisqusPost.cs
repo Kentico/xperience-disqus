@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Disqus.Models
 {
@@ -28,7 +29,7 @@ namespace Disqus.Models
 
         public DisqusAuthor Author { get; set; }
 
-        public IEnumerable<DisqusPost> ChildPosts { get; set; }
+        public IEnumerable<DisqusPost> ChildPosts { get; set; } = Enumerable.Empty<DisqusPost>();
 
         public bool IsSpam { get; set; }
 

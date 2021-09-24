@@ -3,41 +3,42 @@
 
 <link rel="stylesheet" href="/disqus.css" />
 <script>
-    function setVoteClick(postId) {
-        $("#disqus_thread #post_"+postId+" .vote-button").click(function () {
+    function voteClick(sender) {
 
-            var btn = $(this);
-            btn.prop("disabled", true);
-            var id = btn.data('post-id');
-            var isLike = btn.data('like');
-            var container = $('#post_' + id + ' .post-footer');
-            $.ajax({
-                method: 'POST',
-                url: '@Url.Action("VotePost", "Disqus")',
-                data: {
-                    id: id,
-                    isLike: isLike
-                }
-            }).done(function (data, statusText, xhdr) {
-                container.html(data);
-            }).fail(function (xhdr, statusText, errorText) {
-                alert(xhdr.responseText);
-                btn.prop("disabled", false);
-            });
-
+        var btn = $(sender);
+        btn.prop('disabled', true);
+        var id = btn.data('post-id');
+        var isLike = btn.data('is-like');
+        var container = $('#post_' + id);
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("VotePost", "Disqus")',
+            data: {
+                id: id,
+                isLike: isLike
+            }
+        }).done(function (data, statusText, xhdr) {
+            container.before(data);
+            container.remove();
+        }).fail(function (xhdr, statusText, errorText) {
+            alert(xhdr.responseText);
+            btn.prop("disabled", false);
         });
+
     }
 </script>
 
 <div id="disqus_thread" class="container">
+    <h1>@Model.Header</h1>
+
     @if (Model.Exception != null)
     {
         await Html.RenderPartialAsync("_DisqusException.cshtml", Model.Exception);
     }
     else
     {
-        <h1>@Model.Header</h1>
-        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost() {
+        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+        {
             Thread = Model.Thread.Id
         });
 

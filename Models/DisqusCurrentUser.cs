@@ -4,7 +4,7 @@
     {
         public string Token { get; set; }
 
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         public string UserName { get; set; }
 

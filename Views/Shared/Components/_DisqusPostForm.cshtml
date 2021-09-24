@@ -7,25 +7,24 @@
 
 @if (!disqusService.IsAuthenticated())
 {
-    <p>Please <a href="@disqusService.GetAuthenticationUrl()" target="_blank">login</a> to post</p>
+    await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
 }
 else
 {
-<form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true" onsubmit="replaceForm(event)">
-    <input asp-for="Thread" />
-    <input asp-for="Parent" />
-    <page-data />
+    <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true" onsubmit="replaceForm(event)">
+        <input asp-for="Thread" />
+        <input asp-for="Parent" />
 
-    <div class="form-group row">
-        <div class="col-auto">
-            <img class="disqus-user-avatar-sm" src="@disqusService.CurrentUser.Avatar" />
+        <div class="form-group row">
+            <div class="col-auto">
+                <img class="disqus-user-avatar-sm" src="@disqusService.CurrentUser.Avatar" />
+            </div>
+            <div class="col p-0 form-group-input">
+                <input asp-for="Message" />
+                <span asp-validation-for="Message" class="message message-error"></span>
+            </div>
+            <span class="form-posting-as">You're posting as @disqusService.CurrentUser.FullName</span>
         </div>
-        <div class="col p-0 form-group-input">
-            <input asp-for="Message" />
-            <span asp-validation-for="Message" class="message message-error"></span>
-        </div>
-        <span class="form-posting-as">You're posting as @disqusService.CurrentUser.FullName</span>
-    </div>
-    <input type="submit" value="Submit" class="btn btn-secondary btn-sm" />
-</form>
+        <input type="submit" value="Submit" class="btn btn-secondary btn-sm" />
+    </form>
 }

@@ -1,7 +1,10 @@
 ﻿@using Disqus.Models
+@using Disqus.Services
 @model DisqusPost
+@inject IDisqusService disqusService
 
 @{
+    Layout = null;
     var cssClass = string.IsNullOrEmpty(Model.Parent) ? "disqus-post" : "child-post";
 }
 
@@ -20,12 +23,15 @@
             @Html.Raw(Model.Message)
         </div>
         <div class="post-footer">
-            @{
-                await Html.RenderPartialAsync("_DisqusPostFooter.cshtml", new DisqusPostFooterModel() {
-                    PostId = Model.Id,
-                    Likes = Model.Likes,
-                    Dislikes = Model.Dislikes
-                });
+            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="vote-button">&#9650; @Model.Likes</button>
+            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="vote-button">&#9660; @Model.Dislikes</button>
+            <a class="btn btn-link" data-toggle="collapse" data-target="#post_reply_container_@Model.Id"
+               role="button" aria-expanded="false" aria-controls="post_reply_container_@Model.Id">
+                Reply
+            </a>
+            @if (disqusService.CurrentUser.UserID == Model.Author.Id)
+            {
+                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" href="">Edit</a></span>
             }
         </div>
         <div id="post_reply_container_@Model.Id" class="post-reply-container col collapse">

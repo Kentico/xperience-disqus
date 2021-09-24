@@ -38,6 +38,10 @@
     font-size: 10px;
 }
 
+#disqus_thread .post-sidebar {
+    text-align: center;
+}
+
 #disqus_thread .post-sidebar a {
     color: #333;
     text-decoration: none;

@@ -1,21 +1,14 @@
 ﻿@using Disqus
 @using Disqus.Services
-@using Kentico.Web.Mvc
-@using Kentico.Content.Web.Mvc
-@using Microsoft.AspNetCore.Http
 @model DisqusException
 @inject IDisqusService disqusService
-@inject IHttpContextAccessor httpContextAccessor
 
-@if (Model.ErrorCode == DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED
-   && httpContextAccessor.HttpContext.Kentico().Preview().Enabled)
+@if (Model.ErrorCode == DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
 {
-    <p>You must be logged in to Disqus with an admin account when adding the widget to a page.
-    Please copy the link below and open it in a new tab to log in:</p>
-    <div class="disqus-login-box">@disqusService.GetAuthenticationUrl()</div>
+    await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
 }
 else
 {
-    <h3>Error code @Model.ErrorCode</h3>
+    <h3>@Model.ErrorCode</h3>
     <p>@Model.Message</p>
 }

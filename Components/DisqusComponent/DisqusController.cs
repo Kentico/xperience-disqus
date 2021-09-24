@@ -38,16 +38,21 @@ namespace Disqus.Components.DisqusComponent
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SubmitPost(DisqusPost post)
         {
-            var response = await disqusService.CreatePost(post);
-            if (response.Value<int>("code") == 0)
+            //TODO: Disable submit button while processing
+            //TODO: Fix nesting for new posts
+            try
             {
+                var response = await disqusService.CreatePost(post);
                 await LogCommentActivity(post);
-                return Content("Your comment has been posted.");
+
+                // Get full post object for view
+                var fullPost = await disqusService.GetPost(response.SelectToken("$.response.id").ToString());
+
+                return PartialView("~/Views/Shared/Components/_DisqusPost.cshtml", fullPost);
             }
-            else
+            catch(DisqusException ex)
             {
-                var ex = new DisqusException(response.Value<int>("code"), response.Value<string>("response"));
-                return PartialView("_DisqusException.cshtml", ex);
+                return PartialView("~/Views/Shared/Components/_DisqusException.cshtml", ex);
             }
         }
 
@@ -90,15 +95,13 @@ namespace Disqus.Components.DisqusComponent
                 var voteChange = int.Parse(response.SelectToken("$.response.delta").ToString());
                 if (voteChange == 0)
                 {
-                    return new ContentResult() { Content = "You can only vote once on posts.", StatusCode = 403 };
+                    var message = $"You cannot {(isLike ? "upvote" : "downvote")} this post.";
+                    return new ContentResult() { Content = message, StatusCode = 403 };
                 }
 
-                return View("~/Views/Shared/Components/_DisqusPostFooter.cshtml", new DisqusPostFooterModel()
-                {
-                    PostId = response.SelectToken("$.response.post.id").ToString(),
-                    Likes = int.Parse(response.SelectToken("$.response.post.likes").ToString()),
-                    Dislikes = int.Parse(response.SelectToken("$.response.post.dislikes").ToString())
-                });
+                // Get post (and children) so we can refresh view
+                var post = await disqusService.GetPost(id);
+                return View("~/Views/Shared/Components/_DisqusPost.cshtml", post);
             }
             else if (code == (int)DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
             {
@@ -125,7 +128,7 @@ namespace Disqus.Components.DisqusComponent
                 {
                     UserName = json.Value<string>("username"),
                     Token = json.Value<string>("access_token"),
-                    UserID = json.Value<int>("user_id")
+                    UserID = json.Value<string>("user_id")
                 };
 
                 // Get full user details

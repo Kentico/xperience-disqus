@@ -1,0 +1,24 @@
+﻿@using Disqus.Services
+@using Kentico.Web.Mvc
+@using Kentico.Content.Web.Mvc
+@using Microsoft.AspNetCore.Http
+@inject IDisqusService disqusService
+@inject IHttpContextAccessor httpContextAccessor
+
+@{
+    var isPreview = httpContextAccessor.HttpContext.Kentico().Preview().Enabled;
+}
+
+@if (isPreview)
+{
+    @*
+        The login link is unclickable in the admin UI, so print the URL out
+    *@
+    <p>Please login to Disqus. Copy and paste the below URL into a new browser tab:</p>
+    <p style="font-size:10px">@disqusService.GetAuthenticationUrl()</p>
+}
+else
+{
+    <p>Please <a href="@disqusService.GetAuthenticationUrl()" target="_blank">login</a> to Disqus.</p>
+}
+

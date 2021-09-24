@@ -4,13 +4,17 @@
     {
         // Endpoints
         private static string BASE_URL = "https://disqus.com/api/3.0/";
-        public static string THREAD_LISTING = BASE_URL + "forums/listThreads.json?forum={0}&api_secret={1}";
+
+        public static string USER_DETAILS = BASE_URL + "users/details.json?user={0}";
+
+        public static string THREAD_LISTING = BASE_URL + "forums/listThreads.json?forum={0}";
         public static string THREAD_CREATE = BASE_URL + "threads/create.json";
-        public static string THREAD_DETAILS = BASE_URL + "threads/details.json?thread={0}&api_secret={1}";
-        public static string POSTS_BY_THREAD = BASE_URL + "threads/listPosts.json?thread={0}&api_secret={1}";
-        public static string USER_DETAILS = BASE_URL + "users/details.json?api_secret={0}&user={1}";
+        public static string THREAD_DETAILS = BASE_URL + "threads/details.json?thread={0}";
+        
         public static string POST_CREATE = BASE_URL + "posts/create.json";
         public static string POST_VOTE = BASE_URL + "posts/vote.json";
+        public static string POST_DETAILS = BASE_URL + "posts/details.json?post={0}";
+        public static string POSTS_BY_THREAD = BASE_URL + "threads/listPosts.json?thread={0}";
 
         // Authentication
         public static string AUTH_COOKIE_DATA = "kx_disqus_currentuser";
