@@ -127,13 +127,24 @@ namespace Disqus.Services
             post.ThreadObject = thread;
 
             // Get all posts in thread
-            var url = string.Format(DisqusConstants.POSTS_BY_THREAD, post.Thread);
+            var url = string.Format(DisqusConstants.THREAD_POSTS, post.Thread);
             var result = await MakeGetRequest(url);
             var posts = result.Value<JArray>("response");
             var allPosts = posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
 
             post.ChildPosts = GetPostChildren(post, allPosts.ToList(), thread);
             return post;
+        }
+
+        public async Task<JObject> UpdatePost(DisqusPost post)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("message", post.Message),
+                new KeyValuePair<string, string>("post", post.Id),
+                new KeyValuePair<string, string>("api_secret", mSecret)
+            };
+
+            return await MakePostRequest(DisqusConstants.POST_UPDATE, data);
         }
 
         public async Task<JObject> CreatePost(DisqusPost post)
@@ -151,13 +162,23 @@ namespace Disqus.Services
             return await MakePostRequest(DisqusConstants.POST_CREATE, data);
         }
 
+        public async Task<JObject> DeletePost(string id)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("post", id),
+                new KeyValuePair<string, string>("api_secret", mSecret)
+            };
+
+            return await MakePostRequest(DisqusConstants.POST_DELETE, data);
+        }
+
         public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
             // Get thread
             var thread = await GetThread(threadId);
 
             // Get posts
-            var url = string.Format(DisqusConstants.POSTS_BY_THREAD, threadId);
+            var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
             var result = await MakeGetRequest(url);
             var posts = result.Value<JArray>("response");
             var allPosts = posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();

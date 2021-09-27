@@ -9,6 +9,7 @@ using Disqus.Models;
 using Disqus.OnlineMarketing;
 using Disqus.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
@@ -34,25 +35,102 @@ namespace Disqus.Components.DisqusComponent
             this.eventLogService = eventLogService;
         }
 
+        /// <summary>
+        /// Returns the view for a post and its children, for use in async post updates
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<ActionResult> GetPostBody(string id)
+        {
+            var post = await disqusService.GetPost(id);
+            return PartialView("~/Views/Shared/Components/_DisqusPost.cshtml", post);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SubmitPost(DisqusPost post)
         {
-            //TODO: Disable submit button while processing
-            //TODO: Fix nesting for new posts
+            // This is the default "empty" text that Quill returns
+            if(post.Message == "<p><br></p>")
+            {
+                return Json(new
+                {
+                    success = false,
+                    id = post.Id,
+                    parent = post.Parent,
+                    message = "Please enter a message."
+                });
+            }
+
+            if(post.IsEditing)
+            {
+                return await UpdatePost(post);
+            }
+            else
+            {
+                return await CreatePost(post);
+            }
+            
+        }
+
+        private async Task<ActionResult> UpdatePost(DisqusPost post)
+        {
+            try
+            {
+                var response = await disqusService.UpdatePost(post);
+                await LogCommentActivity(post);
+
+                return Json(new
+                {
+                    success = true,
+                    action = "update",
+                    id = response.SelectToken("$.response.id").ToString(),
+                    parent = response.SelectToken("$.response.parent").ToString()
+                });
+            }
+            catch (DisqusException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    action = "update",
+                    id = post.Id,
+                    parent = post.Parent,
+                    message = $"{ex.Message} Please reload the page and try again."
+                });
+            }
+        }
+
+        public async Task<ActionResult> DeletePost(string id)
+        {
+            var response = await disqusService.DeletePost(id);
+            return Content(JsonConvert.SerializeObject(response));
+        }
+
+        private async Task<ActionResult> CreatePost(DisqusPost post)
+        {
             try
             {
                 var response = await disqusService.CreatePost(post);
                 await LogCommentActivity(post);
 
-                // Get full post object for view
-                var fullPost = await disqusService.GetPost(response.SelectToken("$.response.id").ToString());
-
-                return PartialView("~/Views/Shared/Components/_DisqusPost.cshtml", fullPost);
+                return Json(new {
+                    success = true,
+                    action = "create",
+                    id = response.SelectToken("$.response.id").ToString(),
+                    parent = response.SelectToken("$.response.parent").ToString()
+                });
             }
-            catch(DisqusException ex)
+            catch (DisqusException ex)
             {
-                return PartialView("~/Views/Shared/Components/_DisqusException.cshtml", ex);
+                return Json(new
+                {
+                    success = false,
+                    action = "create",
+                    id = post.Id,
+                    parent = post.Parent,
+                    message = $"{ex.Message} Please reload the page and try again."
+                });
             }
         }
 
@@ -84,6 +162,18 @@ namespace Disqus.Components.DisqusComponent
             // Log OM activity
             var activityInitializer = new DisqusActivityInitializer(post.ThreadObject, isNegative);
             activityLogService.Log(activityInitializer);
+        }
+
+        /// <summary>
+        /// Returns the editing form for the specified post
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<ActionResult> EditPost(string id)
+        {
+            var post = await disqusService.GetPost(id);
+            post.IsEditing = true;
+            return View("~/Views/Shared/Components/_DisqusPostForm.cshtml", post);
         }
 
         public async Task<ActionResult> VotePost(bool isLike, string id)

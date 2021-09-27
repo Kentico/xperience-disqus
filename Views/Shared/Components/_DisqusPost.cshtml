@@ -6,6 +6,7 @@
 @{
     Layout = null;
     var cssClass = string.IsNullOrEmpty(Model.Parent) ? "disqus-post" : "child-post";
+    var voteDisabled = Model.CanVote ? "" : "disabled";
 }
 
 <div id="post_@Model.Id" class="row @cssClass">
@@ -17,33 +18,49 @@
     </div>
     <div class="post-main col">
         <div class="post-header">
-            <span class="post-date">&commat; @Model.CreatedAt.ToString()</span>
+            <span class="post-date">
+                &commat; @Model.CreatedAt.ToString()
+                @if (Model.IsEdited) {
+                    <i>(Edited)</i>
+                }
+            </span>
         </div>
         <div class="post-content">
-            @Html.Raw(Model.Message)
+            @Html.Raw(Model.Raw_Message)
         </div>
         <div class="post-footer">
-            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="vote-button">&#9650; @Model.Likes</button>
-            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="vote-button">&#9660; @Model.Dislikes</button>
+            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="vote-button" @voteDisabled>
+                &#9650; @Model.Likes
+            </button>
+            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="vote-button" @voteDisabled>
+                &#9660; @Model.Dislikes
+            </button>
             <a class="btn btn-link" data-toggle="collapse" data-target="#post_reply_container_@Model.Id"
                role="button" aria-expanded="false" aria-controls="post_reply_container_@Model.Id">
                 Reply
             </a>
-            @if (disqusService.CurrentUser.UserID == Model.Author.Id)
+            @if (disqusService.IsAuthenticated() &&
+               disqusService.CurrentUser.UserID == Model.Author.Id &&
+               DateTime.Now < Model.EditableUntil)
             {
-                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" href="">Edit</a></span>
+                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-post-id="@Model.Id">Edit</a></span>
             }
-        </div>
-        <div id="post_reply_container_@Model.Id" class="post-reply-container col collapse">
-            @{
-                await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
-                {
-                    Thread = Model.Thread,
-                    Parent = Model.Id
-                });
+            @if (disqusService.IsAuthenticated() &&
+               disqusService.CurrentUser.UserID == Model.Author.Id &&
+               DateTime.Now < Model.EditableUntil)
+            {
+                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>
             }
         </div>
     </div>
+    <div class="w-100"></div>
+    @{
+        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+        {
+            Thread = Model.Thread,
+            Parent = Model.Id
+        });
+    }
     @foreach (var child in Model.ChildPosts)
     {
         await Html.RenderPartialAsync("_DisqusPost.cshtml", child);

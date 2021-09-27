@@ -15,7 +15,10 @@ namespace Disqus.Models
         public string Thread { get; set; }
 
         [Required]
+        [HiddenInput]
         public string Message { get; set; }
+
+        public string Raw_Message { get; set; }
 
         public int NumReports { get; set; }
 
@@ -24,6 +27,8 @@ namespace Disqus.Models
         public int Dislikes { get; set; }
 
         public int Points { get; set; }
+
+        public DateTime EditableUntil { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
@@ -46,6 +51,9 @@ namespace Disqus.Models
         public bool IsEdited { get; set; }
 
         public bool CanVote { get; set; }
+
+        [HiddenInput]
+        public bool IsEditing { get; set; }
 
         [HiddenInput]
         public string Parent { get; set; } = string.Empty;

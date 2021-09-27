@@ -47,6 +47,10 @@ namespace Disqus.Services
 
         public abstract Task<JObject> CreatePost(DisqusPost post);
 
+        public abstract Task<JObject> UpdatePost(DisqusPost post);
+
+        public abstract Task<JObject> DeletePost(string id);
+
         /// <summary>
         /// Submits a like or dislike to a post
         /// </summary>
