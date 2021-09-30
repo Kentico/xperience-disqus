@@ -9,7 +9,29 @@
     var voteDisabled = Model.CanVote ? "" : "disabled";
 }
 
+<script>
+    $(document).ready(function () {
+
+        // Reveal report button on hover
+        $('#post_@Model.Id').hover(function (e) {
+            $('#post_@Model.Id .post-flag-container').show();
+        }, function (e) {
+            $('#post_@Model.Id .post-flag-container').hide();
+        });
+
+        // Transfer post ID when report button is clicked
+        $('#post_@Model.Id .report-button').click(function () {
+            $('#reportReasonModal').data('post-id', '@Model.Id');
+        });
+    });
+</script>
+
 <div id="post_@Model.Id" class="row @cssClass">
+    <div class="post-flag-container">
+        <button class="report-button" title="Report post" data-post-id="@Model.Id" data-toggle="modal" data-target="#reportReasonModal">
+            &#127988
+        </button>
+    </div>
     <div class="post-sidebar col-auto">
         <a href="@Model.Author.ProfileUrl" target="_blank">
             <img class="disqus-user-avatar" src="@Model.Author.GetAvatarUrl()" />
@@ -29,32 +51,41 @@
             @Html.Raw(Model.Raw_Message)
         </div>
         <div class="post-footer">
-            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="vote-button" @voteDisabled>
-                &#9650; @Model.Likes
-            </button>
-            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="vote-button" @voteDisabled>
-                &#9660; @Model.Dislikes
-            </button>
-            <a class="btn btn-link" data-toggle="collapse" data-target="#post_reply_container_@Model.Id"
-               role="button" aria-expanded="false" aria-controls="post_reply_container_@Model.Id">
-                Reply
-            </a>
+            @if (Model.CanVote)
+            {
+                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="vote-button" @voteDisabled>
+                    &#9650; @Model.Likes
+                </button>
+                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="vote-button" @voteDisabled>
+                    &#9660; @Model.Dislikes
+                </button>
+            }
+            @if (!Model.ThreadObject.IsClosed)
+            {
+                <a class="btn btn-link" data-toggle="collapse" data-target="#post_reply_container_reply_@Model.Id"
+                   role="button" aria-expanded="false" aria-controls="post_reply_container_reply_@Model.Id">
+                    Reply
+                </a>
+            }
+
             @if (disqusService.IsAuthenticated() &&
-               disqusService.CurrentUser.UserID == Model.Author.Id &&
-               DateTime.Now < Model.EditableUntil)
+             disqusService.CurrentUser.UserID == Model.Author.Id &&
+             !Model.ThreadObject.IsClosed &&
+             DateTime.Now < Model.EditableUntil)
             {
                 <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-post-id="@Model.Id">Edit</a></span>
             }
             @if (disqusService.IsAuthenticated() &&
-               disqusService.CurrentUser.UserID == Model.Author.Id &&
-               DateTime.Now < Model.EditableUntil)
+             disqusService.CurrentUser.UserID == Model.Author.Id &&
+             !Model.ThreadObject.IsClosed)
             {
                 <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>
             }
         </div>
     </div>
     <div class="w-100"></div>
-    @{
+    @if (!Model.ThreadObject.IsClosed)
+    {
         await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
         {
             Thread = Model.Thread,

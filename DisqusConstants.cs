@@ -1,6 +1,6 @@
 ﻿namespace Disqus
 {
-    public class DisqusConstants
+    public static class DisqusConstants
     {
         // Endpoints
         private static string BASE_URL = "https://disqus.com/api/3.0/";
@@ -17,7 +17,8 @@
         public static string POST_DELETE = BASE_URL + "posts/remove.json";
         public static string POST_VOTE = BASE_URL + "posts/vote.json";
         public static string POST_DETAILS = BASE_URL + "posts/details.json?post={0}";
-        
+        public static string POST_REPORT = BASE_URL + "posts/report.json";
+
         // Authentication
         public static string AUTH_COOKIE_DATA = "kx_disqus_currentuser";
         public static string AUTH_URL = "https://disqus.com/api/oauth/2.0/authorize/?client_id={0}&response_type=code&redirect_uri={1}";

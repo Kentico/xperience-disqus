@@ -8,27 +8,34 @@
 @{ 
     Layout = null;
     var doCollapse = Model.IsEditing || string.IsNullOrEmpty(Model.Parent) ? "" : "collapse";
+
+    // If creating a new reply, Model.Id will be empty, set to parent (the post we're replying to)
+    var id = string.IsNullOrEmpty(Model.Id) ? $"reply_{Model.Parent}" : Model.Id;
 }
 
 <script>
     $(document).ready(function () {
-        console.log('quill init parent @Model.Parent');
-        var quill = new Quill('#post_reply_container_@Model.Parent #editor', {
-            bounds: '#post_reply_container_@Model.Parent #editor_container',
+        var quill = new window.Quill('#post_reply_container_@id #editor', {
+            bounds: '#post_reply_container_@id #editor_container',
             theme: 'snow',
             placeholder: 'Join the discussion..'
         });
-        quill.root.innerHTML = '@Model.Message';
 
-        // Get Quill text before form submits
-        $('#post_reply_container_@Model.Parent form').submit(function () {
+        // Set HTML content (if editing)
+        if ('@Model.IsEditing.ToString()' === 'True') {
+            const delta = quill.clipboard.convert('@Html.Raw(Model.Raw_Message)');
+            quill.setContents(delta, 'silent');
+        }
+
+        // Update Message value when Quill changes
+        quill.on('text-change', function (delta, oldDelta, source) {
             var richText = quill.root.innerHTML;
-            $('#post_reply_container_@Model.Parent #Message').val(richText);
+            $('#post_reply_container_@id #Message').val(richText);
         });
     });
 </script>
 
-<div id="post_reply_container_@Model.Parent" class="post-reply-container col @doCollapse">
+<div id="post_reply_container_@id" class="post-reply-container col @doCollapse">
     @if (!disqusService.IsAuthenticated())
     {
         await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
@@ -56,6 +63,12 @@
                 </div>
                 <div class="col-4 pt-3">
                     <input type="submit" name="submitButton" value="Submit" class="btn btn-secondary btn-sm" />
+                    @if (Model.IsEditing)
+                    {
+                        <div class="pt-1">
+                            <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel" class="btn btn-danger btn-sm" />
+                        </div>
+                    }
                 </div>
             </div>
         </form>

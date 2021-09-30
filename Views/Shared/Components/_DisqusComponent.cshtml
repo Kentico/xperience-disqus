@@ -49,13 +49,13 @@
                     var container;
                     if (response.parent === '') {
                         // Not a reply. The first submit form has no id so add after that
-                        container = $('#disqus_thread #post_reply_container_');
+                        container = $('#disqus_thread #post_reply_container_reply_');
                         // Clear the main post input
                         container.find('.ql-editor').html('');
                     }
                     else {
                         // Reply, add after the reply form for parent
-                        container = $('#disqus_thread #post_reply_container_' + response.parent);
+                        container = $('#disqus_thread #post_reply_container_reply_' + response.parent);
                         // Collapse the reply container on parent
                         container.toggleClass('show');
                         // Clear the input on the parent's reply form
@@ -87,14 +87,29 @@
         }
     }
 
+    function reportPost() {
+        // Get post id from modal data
+        var id = $('#reportReasonModal').data('post-id');
+        // TODO: Get report reason
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("ReportPost", "Disqus")',
+            data: {
+                id: id
+            }
+        }).done(function (data, statusText, xhdr) {
+            
+        }).fail(function (xhdr, statusText, errorText) {
+            alert(xhdr.responseText);
+        });
+    }
+
     // Called from a post's edit button
     function editPost(sender) {
 
-        // TODO: Editing is broken after introducing WYSIWYG
         var btn = $(sender);
         btn.prop('disabled', true);
         var id = btn.data('post-id');
-        console.log('editPost ' + id);
         var container = $('#post_' + id + '> .post-main');
         $.ajax({
             method: 'POST',
@@ -107,6 +122,27 @@
         }).fail(function (xhdr, statusText, errorText) {
             alert(xhdr.responseText);
             btn.prop("disabled", false);
+        });
+    }
+
+    function cancelEdit(sender) {
+
+        var btn = $(sender);
+        btn.prop('disabled', true);
+        var id = btn.data('post-id');
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("GetPostBody", "Disqus")',
+            data: {
+                id: id
+            }
+        }).done(function (data, statusText, xhdr) {
+
+            var container = $('#disqus_thread #post_' + id);
+            container.before(data);
+            container.remove();
+        }).fail(function (xhdr, statusText, errorText) {
+            alert(xhdr.responseText);
         });
     }
 
@@ -152,10 +188,17 @@
     }
     else
     {
-        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+        if (!Model.Thread.IsClosed)
         {
-            Thread = Model.Thread.Id
-        });
+            await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+            {
+                Thread = Model.Thread.Id
+            });
+        }
+        else
+        {
+            <p>This thread is closed.</p>
+        }
 
         foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
         {
@@ -163,3 +206,7 @@
         }
     }
 </div>
+
+@{
+    await Html.RenderPartialAsync("_DisqusReportReason.cshtml");
+}

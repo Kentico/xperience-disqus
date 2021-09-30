@@ -1,31 +1,34 @@
-﻿using CMS.Activities;
+﻿using Azure.AI.TextAnalytics;
+using CMS.Activities;
 using Disqus.Models;
 
 namespace Disqus.OnlineMarketing
 {
     public class DisqusActivityInitializer : CustomActivityInitializerBase
     {
-        private readonly DisqusThread thread;
-        private readonly bool isNegative;
+        private readonly DisqusPost post;
+        private readonly TextSentiment sentiment;
 
         public override string ActivityType
         {
             get
             {
-                return isNegative ? "DisqusNegativeCommentActivity" : "DisqusPositiveCommentActivity";
+                return "disquscomment";
             }
         }
 
-        public DisqusActivityInitializer(DisqusThread thread, bool isNegative)
+        public DisqusActivityInitializer(DisqusPost post, TextSentiment sentiment)
         {
-            this.thread = thread;
-            this.isNegative = isNegative;
+            this.post = post;
+            this.sentiment = sentiment;
         }
 
         public override void Initialize(IActivityInfo activity)
         {
-            activity.ActivityTitle = $"Comment on thread '{thread.GetIdentifier()}'";
-            activity.ActivityValue = thread.Id;
+            activity.ActivityTitle = $"Comment on thread '{post.ThreadObject.GetIdentifier()}'";
+            activity.ActivityValue = sentiment.ToString().ToLower();
+            activity.ActivityComment = post.Message;
+            activity.ActivityNodeID = post.ThreadObject.GetNodeId();
         }
     }
 }

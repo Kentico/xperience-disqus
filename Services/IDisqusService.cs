@@ -26,7 +26,7 @@ namespace Disqus.Services
         /// </summary>
         /// <param name="identifier">An arbitrary identifier</param>
         /// <returns>The response from the Disqus server</returns>
-        public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl);
+        public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId);
 
         /// <summary>
         /// Gets a post and its children by parsing a thread's full post listing
@@ -58,6 +58,8 @@ namespace Disqus.Services
         /// <param name="value">1 or -1 for like and dislike respectively</param>
         /// <returns></returns>
         public abstract Task<JObject> SubmitVote(string postId, int value);
+
+        public abstract Task<JObject> ReportPost(string postId, int reason);
 
         /// <summary>
         /// Returns a thread's posts in a hierarchical view

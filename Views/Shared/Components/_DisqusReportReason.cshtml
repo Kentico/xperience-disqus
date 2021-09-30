@@ -1,0 +1,32 @@
+﻿@using Disqus 
+
+<div class="modal fade" id="reportReasonModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Report comment</h5>
+            </div>
+            <div class="modal-body">
+                For what reason are you reporting this comment?
+                <div class="mt-3">
+                    @{
+                        var reasons = Enum.GetValues(typeof(ReportReason)).Cast<ReportReason>();
+                        foreach (var reason in reasons)
+                        {
+                            <div class="form-check">
+                                <input value="@((int)reason)" id="reason-@((int)reason)" type="radio"
+                                       name="report-reason" class="form-check-input" />
+                                <label class="form-check-label" for="reason-@((int)reason)">@Html.Raw(reason.GetStringRepresentation())</label>
+                            </div>
+                            
+                        }
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button onclick="reportPost()" type="button" class="btn btn-primary">Send report</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -86,7 +86,7 @@ namespace Disqus.Services
         {
             var url = string.Format(DisqusConstants.THREAD_LISTING, mSite);
             var getThreadsResponse = await MakeGetRequest(url);
-            var foundThread = getThreadsResponse.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier}')].id");
+            var foundThread = getThreadsResponse.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier};{node.NodeID}')].id");
 
             if (foundThread.Count() > 0)
             {
@@ -96,20 +96,19 @@ namespace Disqus.Services
             {
                 // Thread with identifier doesn't exist yet
                 var pageUrl = pageUrlRetriever.Retrieve(node).AbsoluteUrl;
-                var createResponse = await CreateThread(identifier, node.DocumentName, pageUrl);
+                var createResponse = await CreateThread(identifier, node.DocumentName, pageUrl, node.NodeID);
                     
                 return createResponse.SelectToken("$.response.id").ToString();
             }
         }
 
-        public async Task<JObject> CreateThread(string identifier, string title, string pageUrl)
+        public async Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId)
         {
             // TODO: Add URL parameter to thread create
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("forum", mSite),
                 new KeyValuePair<string, string>("title", title),
-                new KeyValuePair<string, string>("identifier", identifier),
-                new KeyValuePair<string, string>("api_secret", mSecret)
+                new KeyValuePair<string, string>("identifier", $"{identifier};{nodeId}")
             };
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }
@@ -140,8 +139,7 @@ namespace Disqus.Services
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("message", post.Message),
-                new KeyValuePair<string, string>("post", post.Id),
-                new KeyValuePair<string, string>("api_secret", mSecret)
+                new KeyValuePair<string, string>("post", post.Id)
             };
 
             return await MakePostRequest(DisqusConstants.POST_UPDATE, data);
@@ -151,8 +149,7 @@ namespace Disqus.Services
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("message", post.Message),
-                new KeyValuePair<string, string>("thread", post.Thread),
-                new KeyValuePair<string, string>("api_secret", mSecret)
+                new KeyValuePair<string, string>("thread", post.Thread)
             };
             if(!string.IsNullOrEmpty(post.Parent))
             {
@@ -165,8 +162,7 @@ namespace Disqus.Services
         public async Task<JObject> DeletePost(string id)
         {
             var data = new List<KeyValuePair<string, string>>() {
-                new KeyValuePair<string, string>("post", id),
-                new KeyValuePair<string, string>("api_secret", mSecret)
+                new KeyValuePair<string, string>("post", id)
             };
 
             return await MakePostRequest(DisqusConstants.POST_DELETE, data);
@@ -212,12 +208,21 @@ namespace Disqus.Services
             return await MakeGetRequest(url);
         }
 
+        public async Task<JObject> ReportPost(string postId, int reason)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("post", postId),
+                new KeyValuePair<string, string>("reason", reason.ToString())
+            };
+
+            return await MakePostRequest(DisqusConstants.POST_REPORT, data);
+        }
+
         public async Task<JObject> SubmitVote(string postId, int value)
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("post", postId),
-                new KeyValuePair<string, string>("vote", value.ToString()),
-                new KeyValuePair<string, string>("api_secret", mSecret)
+                new KeyValuePair<string, string>("vote", value.ToString())
             };
 
             return await MakePostRequest(DisqusConstants.POST_VOTE, data);

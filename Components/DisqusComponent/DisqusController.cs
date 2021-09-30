@@ -40,6 +40,7 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [HttpPost]
         public async Task<ActionResult> GetPostBody(string id)
         {
             var post = await disqusService.GetPost(id);
@@ -73,6 +74,7 @@ namespace Disqus.Components.DisqusComponent
             
         }
 
+        [HttpPost]
         private async Task<ActionResult> UpdatePost(DisqusPost post)
         {
             try
@@ -101,12 +103,14 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        [HttpPost]
         public async Task<ActionResult> DeletePost(string id)
         {
             var response = await disqusService.DeletePost(id);
             return Content(JsonConvert.SerializeObject(response));
         }
 
+        [HttpPost]
         private async Task<ActionResult> CreatePost(DisqusPost post)
         {
             try
@@ -134,13 +138,31 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        [HttpPost]
+        public async Task<ActionResult> ReportPost(string id)
+        {
+            try
+            {
+                var response = disqusService.ReportPost(id);
+                return Json(new
+                {
+                    success = true,
+                    action = "report",
+                    id = id
+                });
+            }
+        }
+
         public async Task LogCommentActivity(DisqusPost post)
         {
             // Reconstruct thread object as it cannot be passed via the form
-            post.ThreadObject = await disqusService.GetThread(post.Thread);
+            if(post.ThreadObject == null)
+            {
+                post.ThreadObject = await disqusService.GetThread(post.Thread);
+            }
 
             // Perform Sentiment Analysis
-            var isNegative = false;
+            var sentiment = TextSentiment.Neutral;
             if (SettingsKeyInfoProvider.GetBoolValue("CMSEnableSentimentAnalysis") &&
                 !string.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIEndpoint")) &&
                 !string.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIKey")))
@@ -148,10 +170,7 @@ namespace Disqus.Components.DisqusComponent
                 try
                 {
                     DocumentSentiment result = sentimentAnalysisService.AnalyzeText(post.Message, "en-US", SiteContext.CurrentSiteName);
-                    if (result.Sentiment == TextSentiment.Negative)
-                    {
-                        isNegative = true;
-                    }
+                    sentiment = result.Sentiment;
                 }
                 catch (Exception e)
                 {
@@ -160,7 +179,7 @@ namespace Disqus.Components.DisqusComponent
             }
 
             // Log OM activity
-            var activityInitializer = new DisqusActivityInitializer(post.ThreadObject, isNegative);
+            var activityInitializer = new DisqusActivityInitializer(post, sentiment);
             activityLogService.Log(activityInitializer);
         }
 
@@ -169,6 +188,7 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [HttpPost]
         public async Task<ActionResult> EditPost(string id)
         {
             var post = await disqusService.GetPost(id);
@@ -176,6 +196,7 @@ namespace Disqus.Components.DisqusComponent
             return View("~/Views/Shared/Components/_DisqusPostForm.cshtml", post);
         }
 
+        [HttpPost]
         public async Task<ActionResult> VotePost(bool isLike, string id)
         {
             var response = await disqusService.SubmitVote(id, isLike ? 1 : -1);

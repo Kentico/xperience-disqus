@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Disqus.Services;
+using Newtonsoft.Json.Linq;
 
 namespace Disqus.Models
 {
@@ -14,6 +15,8 @@ namespace Disqus.Models
 
         public string SignedLink { get; set; }
 
+        public string Message { get; set; }
+
         public int Likes { get; set; }
 
         public int Dislikes { get; set; }
@@ -26,9 +29,26 @@ namespace Disqus.Models
 
         public bool ValidateAllPosts { get; set; }
 
+        /// <summary>
+        /// Returns the identifier of the thread by trimming the NodeId
+        /// </summary>
+        /// <returns></returns>
         public string GetIdentifier()
         {
-            return Identifiers[0].ToString();
+            var identifier = Identifiers[0].ToString();
+            return identifier.Split(";")[0];
+        }
+
+        /// <summary>
+        /// Returns the NodeID of the page the thread was created on by trimming the identifier
+        /// </summary>
+        /// <returns></returns>
+        public int GetNodeId()
+        {
+            var id = 0;
+            var identifier = Identifiers[0].ToString().Split(";");
+            int.TryParse(identifier[1], out id);
+            return id;
         }
     }
 }
