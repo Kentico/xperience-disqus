@@ -21,7 +21,7 @@
 
         // Transfer post ID when report button is clicked
         $('#post_@Model.Id .report-button').click(function () {
-            $('#reportReasonModal').data('post-id', '@Model.Id');
+            $('#reportReasonModal #report_button').data('post-id', '@Model.Id');
         });
     });
 </script>
@@ -53,10 +53,10 @@
         <div class="post-footer">
             @if (Model.CanVote)
             {
-                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="vote-button" @voteDisabled>
+                <button onclick="voteClick(this)" data-url="@Url.Action("VotePost", "Disqus")" data-post-id="@Model.Id" data-is-like="true" class="btn vote-button" @voteDisabled>
                     &#9650; @Model.Likes
                 </button>
-                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="vote-button" @voteDisabled>
+                <button onclick="voteClick(this)" data-url="@Url.Action("VotePost", "Disqus")" data-post-id="@Model.Id" data-is-like="false" class="btn vote-button" @voteDisabled>
                     &#9660; @Model.Dislikes
                 </button>
             }
@@ -73,13 +73,13 @@
              !Model.ThreadObject.IsClosed &&
              DateTime.Now < Model.EditableUntil)
             {
-                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-post-id="@Model.Id">Edit</a></span>
+                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-url="@Url.Action("EditPost", "Disqus")" data-post-id="@Model.Id">Edit</a></span>
             }
             @if (disqusService.IsAuthenticated() &&
              disqusService.CurrentUser.UserID == Model.Author.Id &&
              !Model.ThreadObject.IsClosed)
             {
-                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>
+                <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-url="@Url.Action("DeletePost", "Disqus")" data-post-id="@Model.Id">Delete</a></span>
             }
         </div>
     </div>

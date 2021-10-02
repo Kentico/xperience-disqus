@@ -86,6 +86,7 @@ namespace Disqus.Components.DisqusComponent
                 {
                     success = true,
                     action = "update",
+                    url = Url.Action("GetPostBody", "Disqus"),
                     id = response.SelectToken("$.response.id").ToString(),
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
@@ -98,7 +99,7 @@ namespace Disqus.Components.DisqusComponent
                     action = "update",
                     id = post.Id,
                     parent = post.Parent,
-                    message = $"{ex.Message} Please reload the page and try again."
+                    message = ex.Message
                 });
             }
         }
@@ -121,6 +122,7 @@ namespace Disqus.Components.DisqusComponent
                 return Json(new {
                     success = true,
                     action = "create",
+                    url = Url.Action("GetPostBody", "Disqus"),
                     id = response.SelectToken("$.response.id").ToString(),
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
@@ -139,11 +141,11 @@ namespace Disqus.Components.DisqusComponent
         }
 
         [HttpPost]
-        public async Task<ActionResult> ReportPost(string id)
+        public async Task<ActionResult> ReportPost(string id, int reason)
         {
             try
             {
-                var response = disqusService.ReportPost(id);
+                var response = await disqusService.ReportPost(id, reason);
                 return Json(new
                 {
                     success = true,
@@ -151,11 +153,20 @@ namespace Disqus.Components.DisqusComponent
                     id = id
                 });
             }
+            catch(DisqusException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    action = "report",
+                    id = id,
+                    message = ex.Message
+                });
+            }
         }
 
         public async Task LogCommentActivity(DisqusPost post)
         {
-            // Reconstruct thread object as it cannot be passed via the form
             if(post.ThreadObject == null)
             {
                 post.ThreadObject = await disqusService.GetThread(post.Thread);
@@ -178,7 +189,6 @@ namespace Disqus.Components.DisqusComponent
                 }
             }
 
-            // Log OM activity
             var activityInitializer = new DisqusActivityInitializer(post, sentiment);
             activityLogService.Log(activityInitializer);
         }
@@ -210,7 +220,7 @@ namespace Disqus.Components.DisqusComponent
                     return new ContentResult() { Content = message, StatusCode = 403 };
                 }
 
-                // Get post (and children) so we can refresh view
+                // Get post (and children) to refresh view
                 var post = await disqusService.GetPost(id);
                 return View("~/Views/Shared/Components/_DisqusPost.cshtml", post);
             }

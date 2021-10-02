@@ -35,6 +35,7 @@
 }
 
 #disqus_thread .post-content {
+    margin-top: 10px;
     font-size: 14px;
 }
 
@@ -44,7 +45,7 @@
 }
 
 #disqus_thread .post-date {
-    font-size: 10px;
+    font-size: 11px;
     color: #888;
 }
 
@@ -52,7 +53,11 @@
     color: #333;
     padding: 0px;
     letter-spacing: 0.5px;
-    font-size: 10px;
+    font-size: 11px;
+}
+
+#disqus_thread .post-footer .btn:hover {
+    background-color: transparent;
 }
 
 #disqus_thread .post-sidebar {
@@ -98,6 +103,7 @@
 }
 
 #disqus_thread .post-form .form-posting-as {
+    font-size: 14px;
     color: #888;
 }
 

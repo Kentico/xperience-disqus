@@ -24,11 +24,15 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Kentico.Xperience.AspNetCore.WebApp" Version="13.0.34" />
+    <PackageReference Include="Kentico.Xperience.AspNetCore.WebApp" Version="13.0.32" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\disqus.js" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

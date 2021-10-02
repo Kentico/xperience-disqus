@@ -104,10 +104,11 @@ namespace Disqus.Services
 
         public async Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId)
         {
-            // TODO: Add URL parameter to thread create
+            // TODO: Verify URL parameter works when not running localhost
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("forum", mSite),
                 new KeyValuePair<string, string>("title", title),
+                new KeyValuePair<string, string>("url", pageUrl),
                 new KeyValuePair<string, string>("identifier", $"{identifier};{nodeId}")
             };
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
@@ -115,17 +116,14 @@ namespace Disqus.Services
 
         public async Task<DisqusPost> GetPost(string id)
         {
-            // Get post
             var postUrl = string.Format(DisqusConstants.POST_DETAILS, id);
             var postResult = await MakeGetRequest(postUrl);
             var postJson = JsonConvert.SerializeObject(postResult.Value<JToken>("response"));
             var post = JsonConvert.DeserializeObject<DisqusPost>(postJson);
 
-            // Get thread
             var thread = await GetThread(post.Thread);
             post.ThreadObject = thread;
 
-            // Get all posts in thread
             var url = string.Format(DisqusConstants.THREAD_POSTS, post.Thread);
             var result = await MakeGetRequest(url);
             var posts = result.Value<JArray>("response");
@@ -170,10 +168,7 @@ namespace Disqus.Services
 
         public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
-            // Get thread
             var thread = await GetThread(threadId);
-
-            // Get posts
             var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
             var result = await MakeGetRequest(url);
             var posts = result.Value<JArray>("response");

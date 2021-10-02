@@ -15,7 +15,7 @@
                         {
                             <div class="form-check">
                                 <input value="@((int)reason)" id="reason-@((int)reason)" type="radio"
-                                       name="report-reason" class="form-check-input" />
+                                       name="report-reason" class="form-check-input" @(reason == ReportReason.HARASSMENT ? "checked" : "")/>
                                 <label class="form-check-label" for="reason-@((int)reason)">@Html.Raw(reason.GetStringRepresentation())</label>
                             </div>
                             
@@ -25,7 +25,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button onclick="reportPost()" type="button" class="btn btn-primary">Send report</button>
+                <button id="report_button" onclick="reportPost(this)" data-url="@Url.Action("ReportPost", "Disqus")" data-dismiss="modal" type="button" class="btn btn-primary">Send report</button>
             </div>
         </div>
     </div>
