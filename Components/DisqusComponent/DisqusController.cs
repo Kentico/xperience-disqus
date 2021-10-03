@@ -36,7 +36,7 @@ namespace Disqus.Components.DisqusComponent
         }
 
         /// <summary>
-        /// Returns the view for a post and its children, for use in async post updates
+        /// Returns the full HTML for a post and its children, for use in async post updates
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -44,9 +44,14 @@ namespace Disqus.Components.DisqusComponent
         public async Task<ActionResult> GetPostBody(string id)
         {
             var post = await disqusService.GetPost(id);
-            return PartialView("~/Views/Shared/Components/_DisqusPost.cshtml", post);
+            return PartialView("~/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml", post);
         }
 
+        /// <summary>
+        /// Called from the submit button on the _DisqusPostForm.cshtml, creates or updates a post in Disqus
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SubmitPost(DisqusPost post)
@@ -74,6 +79,12 @@ namespace Disqus.Components.DisqusComponent
             
         }
 
+        /// <summary>
+        /// Called from the submit button on the _DisqusPostForm.cshtml, updates an existing post in Disqus.
+        /// Logs a custom On-line Marketing activity with Sentiment Analysis results
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
         private async Task<ActionResult> UpdatePost(DisqusPost post)
         {
@@ -104,6 +115,11 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        /// <summary>
+        /// Deletes a post in Disqus
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>The JSON response from the Disqus server</returns>
         [HttpPost]
         public async Task<ActionResult> DeletePost(string id)
         {
@@ -111,6 +127,12 @@ namespace Disqus.Components.DisqusComponent
             return Content(JsonConvert.SerializeObject(response));
         }
 
+        /// <summary>
+        /// Called from the submit button on the _DisqusPostForm.cshtml, creates a new post in Disqus.
+        /// Logs a custom On-line Marketing activity with Sentiment Analysis results
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
         private async Task<ActionResult> CreatePost(DisqusPost post)
         {
@@ -140,12 +162,22 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        /// <summary>
+        /// Flags a post for review by moderators
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
         public async Task<ActionResult> ReportPost(string id, int reason)
         {
             try
             {
                 var response = await disqusService.ReportPost(id, reason);
+                var post = await disqusService.GetPostShallow(id);
+                var thread = await disqusService.GetThread(post.Thread);
+                post.ThreadObject = thread;
+                LogReportActivity(post, (ReportReason)reason);
+
                 return Json(new
                 {
                     success = true,
@@ -165,6 +197,23 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        /// <summary>
+        /// Logs an activity stating the contact has reported a post
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
+        public void LogReportActivity(DisqusPost post, ReportReason reason)
+        {
+            var activityInitializer = new DisqusReportActivityInitializer(post, reason);
+            activityLogService.Log(activityInitializer);
+        }
+
+        /// <summary>
+        /// Performs Sentiment Analysis on the <see cref="DisqusPost.Message"/>, then logs an
+        /// On-line Marketing activity with the results set to <see cref="ActivityInfo.ActivityValue"/>
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
         public async Task LogCommentActivity(DisqusPost post)
         {
             if(post.ThreadObject == null)
@@ -189,7 +238,7 @@ namespace Disqus.Components.DisqusComponent
                 }
             }
 
-            var activityInitializer = new DisqusActivityInitializer(post, sentiment);
+            var activityInitializer = new DisqusCommentActivityInitializer(post, sentiment);
             activityLogService.Log(activityInitializer);
         }
 
@@ -203,9 +252,15 @@ namespace Disqus.Components.DisqusComponent
         {
             var post = await disqusService.GetPost(id);
             post.IsEditing = true;
-            return View("~/Views/Shared/Components/_DisqusPostForm.cshtml", post);
+            return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", post);
         }
 
+        /// <summary>
+        /// Upvotes or downvotes a post
+        /// </summary>
+        /// <param name="isLike"></param>
+        /// <param name="id"></param>
+        /// <returns>The full HTML of the voted post to update the DOM, or an error message</returns>
         [HttpPost]
         public async Task<ActionResult> VotePost(bool isLike, string id)
         {
@@ -222,7 +277,7 @@ namespace Disqus.Components.DisqusComponent
 
                 // Get post (and children) to refresh view
                 var post = await disqusService.GetPost(id);
-                return View("~/Views/Shared/Components/_DisqusPost.cshtml", post);
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml", post);
             }
             else if (code == (int)DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
             {
@@ -232,10 +287,15 @@ namespace Disqus.Components.DisqusComponent
             throw new DisqusException(code, response.Value<string>("response"));
         }
 
+        /// <summary>
+        /// The endpoint called after a user authenticates with Disqus. This action retrieves a token
+        /// from Disqus' endpoint and sets the <see cref="IDisqusService.CurrentUser"/>
+        /// </summary>
+        /// <returns></returns>
         public async Task<ActionResult> Auth()
         {
             var code = QueryHelper.GetString("code", "");
-            var url = "https://disqus.com/api/oauth/2.0/access_token/";
+            var url = DisqusConstants.TOKEN_URL;
             var data = disqusService.GetTokenPostData(code);
 
             using (var client = new HttpClient())

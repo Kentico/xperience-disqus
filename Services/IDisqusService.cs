@@ -44,6 +44,13 @@ namespace Disqus.Services
         public abstract Task<DisqusPost> GetPost(string id);
 
         /// <summary>
+        /// Returns shallow post details from the Disqus API. For a more detailed object, see <see cref="GetPost(string)"/>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public abstract Task<DisqusPost> GetPostShallow(string id);
+
+        /// <summary>
         /// Gets a list of a post's children in a heirarchal view by recursively calling itself. Also sets
         /// <see cref="DisqusPost.ChildPosts"/> of all children found this way.
         /// </summary>
@@ -96,6 +103,14 @@ namespace Disqus.Services
         /// <param name="threadId"></param>
         /// <returns></returns>
         public abstract Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId);
+
+        /// <summary>
+        /// Returns a shallow list of a thread's posts from the Disqus API.
+        /// For more detailed objects, see <see cref="GetThreadPosts(string)"/>
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public abstract Task<IEnumerable<DisqusPost>> GetThreadPostsShallow(string threadId);
 
         /// <summary>
         /// Gets full user details based on Disqus user ID

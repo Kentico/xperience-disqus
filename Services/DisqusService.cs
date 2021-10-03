@@ -114,23 +114,31 @@ namespace Disqus.Services
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }
 
+        public async Task<DisqusPost> GetPostShallow(string id)
+        {
+            var url = string.Format(DisqusConstants.POST_DETAILS, id);
+            var postResult = await MakeGetRequest(url);
+            var postJson = JsonConvert.SerializeObject(postResult.Value<JToken>("response"));
+            return JsonConvert.DeserializeObject<DisqusPost>(postJson);
+        }
+
         public async Task<DisqusPost> GetPost(string id)
         {
-            var postUrl = string.Format(DisqusConstants.POST_DETAILS, id);
-            var postResult = await MakeGetRequest(postUrl);
-            var postJson = JsonConvert.SerializeObject(postResult.Value<JToken>("response"));
-            var post = JsonConvert.DeserializeObject<DisqusPost>(postJson);
-
+            var post = await GetPostShallow(id);
             var thread = await GetThread(post.Thread);
+            var allPosts = await GetThreadPostsShallow(post.Thread);
+
             post.ThreadObject = thread;
-
-            var url = string.Format(DisqusConstants.THREAD_POSTS, post.Thread);
-            var result = await MakeGetRequest(url);
-            var posts = result.Value<JArray>("response");
-            var allPosts = posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
-
             post.ChildPosts = GetPostChildren(post, allPosts.ToList(), thread);
             return post;
+        }
+
+        public async Task<IEnumerable<DisqusPost>> GetThreadPostsShallow(string threadId)
+        {
+            var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
+            var result = await MakeGetRequest(url);
+            var posts = result.Value<JArray>("response");
+            return posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
         }
 
         public async Task<JObject> UpdatePost(DisqusPost post)
@@ -169,17 +177,14 @@ namespace Disqus.Services
         public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
             var thread = await GetThread(threadId);
-            var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
-            var result = await MakeGetRequest(url);
-            var posts = result.Value<JArray>("response");
-            var allPosts = posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
+            var allPosts = await GetThreadPostsShallow(threadId);
 
             // Get all posts at top level (not replies to other posts)
             var topLevelPosts = allPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
             var hierarchicalPosts = topLevelPosts.Select(p =>
             {
                 p.ThreadObject = thread;
-                p.ChildPosts = GetPostChildren(p, allPosts, thread);
+                p.ChildPosts = GetPostChildren(p, allPosts.ToList(), thread);
                 return p;
             }).ToList();
 

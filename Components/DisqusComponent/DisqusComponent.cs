@@ -42,7 +42,7 @@ namespace Disqus.Components.DisqusComponent
                 model.Exception = e;
             }
 
-            return View("~/Views/Shared/Components/_DisqusComponent.cshtml", model);
+            return View("~/Views/Shared/Components/DisqusComponent/_DisqusComponent.cshtml", model);
         }
     }
 }

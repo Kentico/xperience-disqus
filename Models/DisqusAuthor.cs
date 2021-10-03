@@ -25,6 +25,10 @@ namespace Disqus.Models
 
         public JToken Avatar { get; set; }
 
+        /// <summary>
+        /// Gets the absolute URL to a user's avatar by parsing the <see cref="Avatar"/> property
+        /// </summary>
+        /// <returns></returns>
         public string GetAvatarUrl()
         {
             return Avatar.SelectToken("$.large.cache").ToString();

@@ -4,7 +4,7 @@ using Disqus.Models;
 
 namespace Disqus.OnlineMarketing
 {
-    public class DisqusActivityInitializer : CustomActivityInitializerBase
+    public class DisqusCommentActivityInitializer : CustomActivityInitializerBase
     {
         private readonly DisqusPost post;
         private readonly TextSentiment sentiment;
@@ -17,7 +17,7 @@ namespace Disqus.OnlineMarketing
             }
         }
 
-        public DisqusActivityInitializer(DisqusPost post, TextSentiment sentiment)
+        public DisqusCommentActivityInitializer(DisqusPost post, TextSentiment sentiment)
         {
             this.post = post;
             this.sentiment = sentiment;
@@ -25,7 +25,7 @@ namespace Disqus.OnlineMarketing
 
         public override void Initialize(IActivityInfo activity)
         {
-            activity.ActivityTitle = $"Comment on thread '{post.ThreadObject.GetIdentifier()}'";
+            activity.ActivityTitle = $"Posted {sentiment.ToString().ToLower()} comment";
             activity.ActivityValue = sentiment.ToString().ToLower();
             activity.ActivityComment = post.Message;
             activity.ActivityNodeID = post.ThreadObject.GetNodeId();

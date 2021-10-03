@@ -23,11 +23,11 @@
 
         // Set HTML content (if editing)
         if ('@Model.IsEditing.ToString()' === 'True') {
-            const delta = quill.clipboard.convert('@Html.Raw(Model.Raw_Message)');
+            const delta = quill.clipboard.convert(`@Html.Raw(Model.Raw_Message)`);
             quill.setContents(delta, 'silent');
         }
 
-        // Update Message value when Quill changes
+        // Update DisqusPost.Message when Quill changes
         quill.on('text-change', function (delta, oldDelta, source) {
             var richText = quill.root.innerHTML;
             $('#post_reply_container_@id #Message').val(richText);
