@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Disqus.Services
 {
+    /// <summary>
+    /// A service for interfacing with the Disqus API: https://disqus.com/api/docs/
+    /// </summary>
     public interface IDisqusService
     {
         /// <summary>
@@ -37,28 +40,11 @@ namespace Disqus.Services
         public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId);
 
         /// <summary>
-        /// Gets a post and its children by parsing a thread's full post listing
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public abstract Task<DisqusPost> GetPost(string id);
-
-        /// <summary>
-        /// Returns shallow post details from the Disqus API. For a more detailed object, see <see cref="GetPost(string)"/>
+        /// Returns shallow post details from the Disqus API
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public abstract Task<DisqusPost> GetPostShallow(string id);
-
-        /// <summary>
-        /// Gets a list of a post's children in a heirarchal view by recursively calling itself. Also sets
-        /// <see cref="DisqusPost.ChildPosts"/> of all children found this way.
-        /// </summary>
-        /// <param name="post"></param>
-        /// <param name="allPosts">All posts of a thread. Must be flat (non-hierarchical)</param>
-        /// <param name="thread"></param>
-        /// <returns>A list of the post's children</returns>
-        public abstract List<DisqusPost> GetPostChildren(DisqusPost post, List<DisqusPost> allPosts, DisqusThread thread);
 
         /// <summary>
         /// Creates a new post in Disqus
@@ -98,15 +84,7 @@ namespace Disqus.Services
         public abstract Task<JObject> ReportPost(string postId, int reason);
 
         /// <summary>
-        /// Returns a thread's posts in a hierarchical view
-        /// </summary>
-        /// <param name="threadId"></param>
-        /// <returns></returns>
-        public abstract Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId);
-
-        /// <summary>
         /// Returns a shallow list of a thread's posts from the Disqus API.
-        /// For more detailed objects, see <see cref="GetThreadPosts(string)"/>
         /// </summary>
         /// <param name="threadId"></param>
         /// <returns></returns>

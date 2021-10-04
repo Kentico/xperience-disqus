@@ -20,16 +20,19 @@ namespace Disqus.Components.DisqusComponent
     public class DisqusController : Controller
     {
         private readonly IDisqusService disqusService;
+        private readonly DisqusRepository disqusRepository;
         private readonly IActivityLogService activityLogService;
         private readonly ISentimentAnalysisService sentimentAnalysisService;
         private readonly IEventLogService eventLogService;
 
         public DisqusController(IDisqusService disqusService,
+            DisqusRepository disqusRepository,
             IActivityLogService activityLogService,
             ISentimentAnalysisService sentimentAnalysisService,
             IEventLogService eventLogService)
         {
             this.disqusService = disqusService;
+            this.disqusRepository = disqusRepository;
             this.activityLogService = activityLogService;
             this.sentimentAnalysisService = sentimentAnalysisService;
             this.eventLogService = eventLogService;
@@ -43,7 +46,7 @@ namespace Disqus.Components.DisqusComponent
         [HttpPost]
         public async Task<ActionResult> GetPostBody(string id)
         {
-            var post = await disqusService.GetPost(id);
+            var post = await disqusRepository.GetPost(id);
             return PartialView("~/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml", post);
         }
 
@@ -90,14 +93,18 @@ namespace Disqus.Components.DisqusComponent
         {
             try
             {
+                var data = new
+                {
+                    message = post.Message
+                };
+                disqusRepository.UpdatePostCache(post.Id, DisqusConstants.DisqusAction.UPDATE, data);
                 var response = await disqusService.UpdatePost(post);
                 await LogCommentActivity(post);
 
                 return Json(new
                 {
                     success = true,
-                    action = "update",
-                    url = Url.Action("GetPostBody", "Disqus"),
+                    action = (int)DisqusConstants.DisqusAction.UPDATE,
                     id = response.SelectToken("$.response.id").ToString(),
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
@@ -107,7 +114,7 @@ namespace Disqus.Components.DisqusComponent
                 return Json(new
                 {
                     success = false,
-                    action = "update",
+                    action = (int)DisqusConstants.DisqusAction.UPDATE,
                     id = post.Id,
                     parent = post.Parent,
                     message = ex.Message
@@ -139,12 +146,15 @@ namespace Disqus.Components.DisqusComponent
             try
             {
                 var response = await disqusService.CreatePost(post);
+                var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
+                var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
+
+                disqusRepository.AddPostCache(newPost);
                 await LogCommentActivity(post);
 
                 return Json(new {
                     success = true,
-                    action = "create",
-                    url = Url.Action("GetPostBody", "Disqus"),
+                    action = (int)DisqusConstants.DisqusAction.CREATE,
                     id = response.SelectToken("$.response.id").ToString(),
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
@@ -154,7 +164,7 @@ namespace Disqus.Components.DisqusComponent
                 return Json(new
                 {
                     success = false,
-                    action = "create",
+                    action = (int)DisqusConstants.DisqusAction.CREATE,
                     id = post.Id,
                     parent = post.Parent,
                     message = $"{ex.Message} Please reload the page and try again."
@@ -173,15 +183,13 @@ namespace Disqus.Components.DisqusComponent
             try
             {
                 var response = await disqusService.ReportPost(id, reason);
-                var post = await disqusService.GetPostShallow(id);
-                var thread = await disqusService.GetThread(post.Thread);
-                post.ThreadObject = thread;
+                var post = await disqusRepository.GetPost(id);
                 LogReportActivity(post, (ReportReason)reason);
 
                 return Json(new
                 {
                     success = true,
-                    action = "report",
+                    action = (int)DisqusConstants.DisqusAction.REPORT,
                     id = id
                 });
             }
@@ -190,7 +198,7 @@ namespace Disqus.Components.DisqusComponent
                 return Json(new
                 {
                     success = false,
-                    action = "report",
+                    action = (int)DisqusConstants.DisqusAction.REPORT,
                     id = id,
                     message = ex.Message
                 });
@@ -218,7 +226,7 @@ namespace Disqus.Components.DisqusComponent
         {
             if(post.ThreadObject == null)
             {
-                post.ThreadObject = await disqusService.GetThread(post.Thread);
+                post.ThreadObject = await disqusRepository.GetThread(post.Thread);
             }
 
             // Perform Sentiment Analysis
@@ -250,7 +258,7 @@ namespace Disqus.Components.DisqusComponent
         [HttpPost]
         public async Task<ActionResult> EditPost(string id)
         {
-            var post = await disqusService.GetPost(id);
+            var post = await disqusRepository.GetPost(id);
             post.IsEditing = true;
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", post);
         }
@@ -275,8 +283,14 @@ namespace Disqus.Components.DisqusComponent
                     return new ContentResult() { Content = message, StatusCode = 403 };
                 }
 
-                // Get post (and children) to refresh view
-                var post = await disqusService.GetPost(id);
+                var data = new
+                {
+                    likes = int.Parse(response.SelectToken("$.response.post.likes").ToString()),
+                    dislikes = int.Parse(response.SelectToken("$.response.post.dislikes").ToString())
+                };
+                disqusRepository.UpdatePostCache(id, DisqusConstants.DisqusAction.VOTE, data);
+
+                var post = await disqusRepository.GetPost(id);
                 return View("~/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml", post);
             }
             else if (code == (int)DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)

@@ -122,17 +122,6 @@ namespace Disqus.Services
             return JsonConvert.DeserializeObject<DisqusPost>(postJson);
         }
 
-        public async Task<DisqusPost> GetPost(string id)
-        {
-            var post = await GetPostShallow(id);
-            var thread = await GetThread(post.Thread);
-            var allPosts = await GetThreadPostsShallow(post.Thread);
-
-            post.ThreadObject = thread;
-            post.ChildPosts = GetPostChildren(post, allPosts.ToList(), thread);
-            return post;
-        }
-
         public async Task<IEnumerable<DisqusPost>> GetThreadPostsShallow(string threadId)
         {
             var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
@@ -172,34 +161,6 @@ namespace Disqus.Services
             };
 
             return await MakePostRequest(DisqusConstants.POST_DELETE, data);
-        }
-
-        public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
-        {
-            var thread = await GetThread(threadId);
-            var allPosts = await GetThreadPostsShallow(threadId);
-
-            // Get all posts at top level (not replies to other posts)
-            var topLevelPosts = allPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
-            var hierarchicalPosts = topLevelPosts.Select(p =>
-            {
-                p.ThreadObject = thread;
-                p.ChildPosts = GetPostChildren(p, allPosts.ToList(), thread);
-                return p;
-            }).ToList();
-
-            return hierarchicalPosts;
-        }
-
-        public List<DisqusPost> GetPostChildren(DisqusPost post, List<DisqusPost> allPosts, DisqusThread thread)
-        {
-            var directChildren = allPosts.Where(p => p.Parent == post.Id).ToList();
-            return directChildren.Select(p =>
-            {
-                p.ThreadObject = thread;
-                p.ChildPosts = GetPostChildren(p, allPosts, thread);
-                return p;
-            }).ToList();
         }
 
         public async Task<JObject> GetUserDetails(string userId)

@@ -30,16 +30,6 @@ namespace Disqus.Models
         public bool ValidateAllPosts { get; set; }
 
         /// <summary>
-        /// Returns the identifier of the thread by trimming the NodeID from <see cref="Identifiers"/>
-        /// </summary>
-        /// <returns></returns>
-        public string GetIdentifier()
-        {
-            var identifier = Identifiers[0].ToString();
-            return identifier.Split(";")[0];
-        }
-
-        /// <summary>
         /// Returns the NodeID of the page the thread was created on by trimming the identifier from <see cref="Identifiers"/>
         /// </summary>
         /// <returns></returns>

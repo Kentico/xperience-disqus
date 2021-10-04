@@ -25,5 +25,13 @@
         public static string AUTH_URL = "https://disqus.com/api/oauth/2.0/authorize/?client_id={0}&response_type=code&redirect_uri={1}";
         public static string TOKEN_URL = "https://disqus.com/api/oauth/2.0/access_token/";
         #endregion
+    
+        public enum DisqusAction
+        {
+            VOTE,
+            UPDATE,
+            CREATE,
+            REPORT
+        }
     }
 }

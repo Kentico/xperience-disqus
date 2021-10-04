@@ -1,16 +1,21 @@
 ﻿#disqus_thread {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 #disqus_thread .disqus-post, #disqus_thread .child-post {
     margin: 10px 0px;
+    padding-right: 0px;
+    position: relative;
+}
+
+#disqus_thread .disqus-post > .col, #disqus_thread .child-post > .col {
+    padding: 0px;
 }
 
 #disqus_thread .disqus-post {
     background-color: rgba(0, 0, 0, 0.05);
     padding: 10px 0px;
     border-left: 4px solid rgba(0, 0, 0, 0.3);
-    position: relative;
 }
 
 #disqus_thread .post-flag-container {
@@ -31,7 +36,6 @@
 
 #disqus_thread .child-post {
     padding-top: 10px;
-    margin-left: 40px;
 }
 
 #disqus_thread .post-content {
@@ -49,7 +53,16 @@
     color: #888;
 }
 
+#disqus_thread .post-main {
+    padding-right: 0px;
+}
+
+#disqus_thread .row {
+    padding-right: 0px;
+}
+
 #disqus_thread .post-footer .btn {
+    background-color: transparent !important;
     color: #333;
     padding: 0px;
     letter-spacing: 0.5px;
@@ -81,9 +94,13 @@
     border: 1px solid #888;
 }
 
-#disqus_thread .post-reply-container {
+#disqus_thread .post-reply-container .post-form {
     padding-top: 10px;
     min-height: 230px;
+}
+
+#disqus_thread .post-reply-container .post-form .btn {
+    width: 40%;
 }
 
 #disqus_thread .post-footer button {

@@ -31,10 +31,6 @@
     <EmbeddedResource Include="wwwroot\**\*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="wwwroot\disqus.js" />
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="dotnet pack Disqus.csproj --no-build" />
   </Target>

@@ -10,11 +10,14 @@ namespace Disqus.Components.DisqusComponent
     public class DisqusComponent : ViewComponent
     {
         public const string IDENTIFIER = "Xperience.DisqusComponent";
-        private readonly IDisqusService disqusService;
 
-        public DisqusComponent(IDisqusService disqusService)
+        private readonly IDisqusService disqusService;
+        private readonly DisqusRepository disqusRepository;
+
+        public DisqusComponent(IDisqusService disqusService, DisqusRepository disqusRepository)
         {
             this.disqusService = disqusService;
+            this.disqusRepository = disqusRepository;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(ComponentViewModel<DisqusComponentProperties> widgetProperties)
@@ -34,8 +37,8 @@ namespace Disqus.Components.DisqusComponent
             try
             {
                 var threadId = await disqusService.GetThreadIdByIdentifier(identifier, widgetProperties.Page);
-                model.Thread = await disqusService.GetThread(threadId);
-                model.Posts = await disqusService.GetThreadPosts(threadId);
+                model.Thread = await disqusRepository.GetThread(threadId, false);
+                model.Posts = await disqusRepository.GetPostHierarchy(threadId, false);
             }
             catch(DisqusException e)
             {

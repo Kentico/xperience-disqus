@@ -19,6 +19,7 @@ namespace Disqus
         public static void AddDisqus(this IServiceCollection services)
         {
             services.AddSingleton<IDisqusService, DisqusService>();
+            services.AddSingleton<DisqusRepository>();
         }
     }
 }
