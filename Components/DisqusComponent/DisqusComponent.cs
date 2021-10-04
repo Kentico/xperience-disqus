@@ -40,9 +40,9 @@ namespace Disqus.Components.DisqusComponent
                 model.Thread = await disqusRepository.GetThread(threadId, false);
                 model.Posts = await disqusRepository.GetPostHierarchy(threadId, false);
             }
-            catch(DisqusException e)
+            catch(Exception e)
             {
-                model.Exception = e;
+                model.Exception = new DisqusException(500, e.Message);
             }
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusComponent.cshtml", model);

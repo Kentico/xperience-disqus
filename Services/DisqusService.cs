@@ -1,4 +1,5 @@
-﻿using CMS.DocumentEngine;
+﻿using CMS.Core;
+using CMS.DocumentEngine;
 using CMS.Helpers;
 using Disqus.Models;
 using Kentico.Content.Web.Mvc;
@@ -15,12 +16,14 @@ namespace Disqus.Services
 {
     public class DisqusService : IDisqusService
     {
-        private readonly string mSite;
-        private readonly string mSecret;
-        private readonly string mPublicKey;
-        private readonly string mAuthRedirect;
+        private readonly bool debug;
+        private readonly string site;
+        private readonly string secret;
+        private readonly string publicKey;
+        private readonly string authRedirect;
 
         private readonly IPageUrlRetriever pageUrlRetriever;
+        private readonly IEventLogService eventLogService;
 
         public DisqusCurrentUser CurrentUser
         {
@@ -42,14 +45,16 @@ namespace Disqus.Services
             }
         }
 
-        public DisqusService(IConfiguration config, IPageUrlRetriever pageUrlRetriever)
+        public DisqusService(IConfiguration config, IPageUrlRetriever pageUrlRetriever, IEventLogService eventLogService)
         {
-            mSite = config.GetValue<string>("Disqus:Site");
-            mSecret = config.GetValue<string>("Disqus:ApiSecret");
-            mPublicKey = config.GetValue<string>("Disqus:ApiKey");
-            mAuthRedirect = config.GetValue<string>("Disqus:AuthenticationRedirect");
+            site = config.GetValue<string>("Disqus:Site");
+            secret = config.GetValue<string>("Disqus:ApiSecret");
+            publicKey = config.GetValue<string>("Disqus:ApiKey");
+            authRedirect = config.GetValue<string>("Disqus:AuthenticationRedirect");
+            debug = config.GetValue<bool>("Disqus:Debug", false);
 
             this.pageUrlRetriever = pageUrlRetriever;
+            this.eventLogService = eventLogService;
         }
 
         public bool IsAuthenticated()
@@ -59,16 +64,16 @@ namespace Disqus.Services
 
         public string GetAuthenticationUrl()
         {
-            return string.Format(DisqusConstants.AUTH_URL, mPublicKey, mAuthRedirect);
+            return string.Format(DisqusConstants.AUTH_URL, publicKey, authRedirect);
         }
 
         public HttpContent GetTokenPostData(string code)
         {
             return new FormUrlEncodedContent(new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("grant_type", "authorization_code"),
-                new KeyValuePair<string, string>("client_id", mPublicKey),
-                new KeyValuePair<string, string>("client_secret", mSecret),
-                new KeyValuePair<string, string>("redirect_uri", mAuthRedirect),
+                new KeyValuePair<string, string>("client_id", publicKey),
+                new KeyValuePair<string, string>("client_secret", secret),
+                new KeyValuePair<string, string>("redirect_uri", authRedirect),
                 new KeyValuePair<string, string>("code", code)
             });
         }
@@ -84,7 +89,7 @@ namespace Disqus.Services
 
         public async Task<string> GetThreadIdByIdentifier(string identifier, TreeNode node)
         {
-            var url = string.Format(DisqusConstants.THREAD_LISTING, mSite);
+            var url = string.Format(DisqusConstants.THREAD_LISTING, site);
             var getThreadsResponse = await MakeGetRequest(url);
             var foundThread = getThreadsResponse.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier};{node.NodeID}')].id");
 
@@ -106,7 +111,7 @@ namespace Disqus.Services
         {
             // TODO: Verify URL parameter works when not running localhost
             var data = new List<KeyValuePair<string, string>>() {
-                new KeyValuePair<string, string>("forum", mSite),
+                new KeyValuePair<string, string>("forum", site),
                 new KeyValuePair<string, string>("title", title),
                 new KeyValuePair<string, string>("url", pageUrl),
                 new KeyValuePair<string, string>("identifier", $"{identifier};{nodeId}")
@@ -196,7 +201,7 @@ namespace Disqus.Services
                 url += $"&access_token={CurrentUser.Token}";
             }
 
-            url += $"&api_key={mPublicKey}";
+            url += $"&api_key={publicKey}";
 
             using (var client = new HttpClient())
             {
@@ -207,6 +212,12 @@ namespace Disqus.Services
                 var result = JObject.Parse(response);
                 if (result.Value<int>("code") == 0)
                 {
+                    if(debug)
+                    {
+                        var splitUrl = url.Split("?");
+                        eventLogService.LogInformation(nameof(DisqusService), splitUrl[0], $"data:\n{splitUrl[1]}\n\nresult:\n{response}");
+                    }
+
                     return result;
                 }
                 else
@@ -223,7 +234,7 @@ namespace Disqus.Services
                 data.Add(new KeyValuePair<string, string>("access_token", CurrentUser.Token));
             }
 
-            data.Add(new KeyValuePair<string, string>("api_secret", mSecret));
+            data.Add(new KeyValuePair<string, string>("api_secret", secret));
 
             using (var client = new HttpClient())
             {
@@ -235,8 +246,13 @@ namespace Disqus.Services
 
                 if (result.Value<int>("code") == 0)
                 {
-                    
-                    return JObject.Parse(content);
+                    if (debug)
+                    {
+                        var postedData = JsonConvert.SerializeObject(data);
+                        eventLogService.LogInformation(nameof(DisqusService), url, $"data:\n{postedData}\n\nresult:\n{content}");
+                    }
+
+                    return result;
                 }
                 else
                 {
