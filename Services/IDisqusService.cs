@@ -13,9 +13,15 @@ namespace Disqus.Services
     public interface IDisqusService
     {
         /// <summary>
-        /// Data representing the currently authenticated Disqus user which is serialized into a cookie
+        /// Data for the currently authenticated user, which is stored in a cookie
         /// </summary>
-        public DisqusCurrentUser CurrentUser { get; set; }
+        public DisqusCookie AuthCookie { get; set; }
+
+        /// <summary>
+        /// Returns true if the user is logged in to Disqus
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool IsAuthenticated();
 
         /// <summary>
         /// Returns the thread ID of an existing thread, or creates a new thread if one doesn't exist
@@ -95,7 +101,7 @@ namespace Disqus.Services
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public abstract Task<JObject> GetUserDetails(string userId);
+        public abstract Task<DisqusUser> GetUserDetails(string userId);
 
         /// <summary>
         /// Makes a GET request to the provided URL. Automatically adds the 'access_token' parameter if
@@ -113,12 +119,6 @@ namespace Disqus.Services
         /// <param name="data"></param>
         /// <returns></returns>
         public abstract Task<JObject> MakePostRequest(string url, List<KeyValuePair<string, string>> data);
-
-        /// <summary>
-        /// Returns true if the user has authenticated with Disqus
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool IsAuthenticated();
 
         /// <summary>
         /// Returns Disqus' authentication endpoint with the required query string parameters

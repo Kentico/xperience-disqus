@@ -1,6 +1,5 @@
 ﻿using CMS.Core;
 using Disqus.Models;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ namespace Disqus.Services
     {
         private readonly List<DisqusThread> allThreads = new List<DisqusThread>();
         private readonly List<DisqusPost> allPosts = new List<DisqusPost>();
+        private readonly List<DisqusUser> allUsers = new List<DisqusUser>();
 
         private readonly IDisqusService disqusService;
         private readonly IEventLogService eventLogService;
@@ -19,6 +19,51 @@ namespace Disqus.Services
         {
             this.disqusService = disqusService;
             this.eventLogService = eventLogService;
+        }
+
+        /// <summary>
+        /// Returns the full details for the currently authenticated user from cache or by requesting
+        /// it from Disqus if not cached
+        /// </summary>
+        /// <returns></returns>
+        public async Task<DisqusUser> GetCurrentUser()
+        {
+            if(disqusService.IsAuthenticated())
+            {
+                return await GetUser(disqusService.AuthCookie.User_Id);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get user details from Disqus
+        /// </summary>
+        /// <param name="userId">The Disqus internal ID</param>
+        /// <param name="useCache">If true, the user is returned from cache (if found) instead of the Disqus API</param>
+        /// <returns>A Disqus user</returns>
+        public async Task<DisqusUser> GetUser(string userId, bool useCache = true)
+        {
+            if (useCache)
+            {
+                var foundUsers = allUsers.Where(u => u.Id == userId);
+                if (foundUsers.Count() > 0)
+                {
+                    return foundUsers.FirstOrDefault();
+                }
+            }
+
+            try
+            {
+                var user = await disqusService.GetUserDetails(userId);
+                AddUserCache(user);
+                return user;
+            }
+            catch (DisqusException ex)
+            {
+                LogError(ex, nameof(GetUser));
+                return null;
+            }
         }
 
         /// <summary>
@@ -174,6 +219,7 @@ namespace Disqus.Services
             }
 
             allPosts.Add(post);
+            allPosts.OrderByDescending(p => p.CreatedAt);
         }
 
         /// <summary>
@@ -190,6 +236,22 @@ namespace Disqus.Services
             }
 
             allThreads.Add(thread);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="DisqusUser"/> to the repository cache. Removes the user from cache
+        /// first, if it exists
+        /// </summary>
+        /// <param name="thread"></param>
+        private void AddUserCache(DisqusUser user)
+        {
+            var existingUsers = allThreads.Where(u => u.Id == user.Id);
+            if (existingUsers.Count() > 0)
+            {
+                allThreads.Remove(existingUsers.FirstOrDefault());
+            }
+
+            allUsers.Add(user);
         }
 
         /// <summary>

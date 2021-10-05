@@ -318,19 +318,9 @@ namespace Disqus.Components.DisqusComponent
                 var content = await tokenResponse.Content.ReadAsStringAsync();
                 client.Dispose();
 
-                var json = JObject.Parse(content);
-                var currentUser = new DisqusCurrentUser()
-                {
-                    UserName = json.Value<string>("username"),
-                    Token = json.Value<string>("access_token"),
-                    UserID = json.Value<string>("user_id")
-                };
-
-                // Get full user details
-                var userResponse = await disqusService.GetUserDetails(currentUser.UserID);
-                currentUser.FullName = userResponse.SelectToken("$.response.name").ToString();
-                currentUser.Avatar = userResponse.SelectToken("$.response.avatar.cache").ToString();
-                disqusService.CurrentUser = currentUser;
+                var cookie = JsonConvert.DeserializeObject<DisqusCookie>(content);
+                var user = await disqusRepository.GetUser(cookie.User_Id);
+                disqusService.AuthCookie = cookie;
 
                 return new RedirectResult("/");
             }

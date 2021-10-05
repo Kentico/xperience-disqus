@@ -76,14 +76,14 @@
                         }
 
                         @if (disqusService.IsAuthenticated() &&
-                      disqusService.CurrentUser.UserID == Model.Author.Id &&
+                      disqusService.AuthCookie.User_Id == Model.Author.Id &&
                       !Model.ThreadObject.IsClosed &&
                       DateTime.Now < Model.EditableUntil)
                         {
                             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-post-id="@Model.Id">Edit</a></span>
                         }
                         @if (disqusService.IsAuthenticated() &&
-                      disqusService.CurrentUser.UserID == Model.Author.Id &&
+                      disqusService.AuthCookie.User_Id == Model.Author.Id &&
                       !Model.ThreadObject.IsClosed)
                         {
                             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>

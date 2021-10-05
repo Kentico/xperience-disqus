@@ -25,14 +25,14 @@ namespace Disqus.Services
         private readonly IPageUrlRetriever pageUrlRetriever;
         private readonly IEventLogService eventLogService;
 
-        public DisqusCurrentUser CurrentUser
+        public DisqusCookie AuthCookie
         {
             get
             {
                 var data = CookieHelper.GetValue(DisqusConstants.AUTH_COOKIE_DATA);
-                if(!string.IsNullOrEmpty(data))
+                if (!string.IsNullOrEmpty(data))
                 {
-                    return JsonConvert.DeserializeObject<DisqusCurrentUser>(data);
+                    return JsonConvert.DeserializeObject<DisqusCookie>(data);
                 }
 
                 return null;
@@ -45,7 +45,9 @@ namespace Disqus.Services
             }
         }
 
-        public DisqusService(IConfiguration config, IPageUrlRetriever pageUrlRetriever, IEventLogService eventLogService)
+        public DisqusService(IConfiguration config,
+            IPageUrlRetriever pageUrlRetriever,
+            IEventLogService eventLogService)
         {
             site = config.GetValue<string>("Disqus:Site");
             secret = config.GetValue<string>("Disqus:ApiSecret");
@@ -59,7 +61,7 @@ namespace Disqus.Services
 
         public bool IsAuthenticated()
         {
-            return CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.Token);
+            return AuthCookie != null && !string.IsNullOrEmpty(AuthCookie.Access_Token);
         }
 
         public string GetAuthenticationUrl()
@@ -168,10 +170,13 @@ namespace Disqus.Services
             return await MakePostRequest(DisqusConstants.POST_DELETE, data);
         }
 
-        public async Task<JObject> GetUserDetails(string userId)
+        public async Task<DisqusUser> GetUserDetails(string userId)
         {
             var url = string.Format(DisqusConstants.USER_DETAILS, userId);
-            return await MakeGetRequest(url);
+            var response = await MakeGetRequest(url);
+            var userJson = JsonConvert.SerializeObject(response.Value<JToken>("response"));
+
+            return JsonConvert.DeserializeObject<DisqusUser>(userJson);
         }
 
         public async Task<JObject> ReportPost(string postId, int reason)
@@ -198,7 +203,7 @@ namespace Disqus.Services
         {
             if(IsAuthenticated())
             {
-                url += $"&access_token={CurrentUser.Token}";
+                url += $"&access_token={AuthCookie.Access_Token}";
             }
 
             url += $"&api_key={publicKey}";
@@ -231,7 +236,7 @@ namespace Disqus.Services
         {
             if (IsAuthenticated())
             {
-                data.Add(new KeyValuePair<string, string>("access_token", CurrentUser.Token));
+                data.Add(new KeyValuePair<string, string>("access_token", AuthCookie.Access_Token));
             }
 
             data.Add(new KeyValuePair<string, string>("api_secret", secret));

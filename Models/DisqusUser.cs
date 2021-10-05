@@ -3,13 +3,15 @@ using System;
 
 namespace Disqus.Models
 {
-    public class DisqusAuthor
+    public class DisqusUser
     {
         public string Id { get; set; }
 
         public string UserName { get; set; }
 
         public string Name { get; set; }
+
+        public JToken Avatar { get; set; }
 
         public bool IsPowerContributor { get; set; }
 
@@ -22,8 +24,6 @@ namespace Disqus.Models
         public bool IsPrivate { get; set; }
 
         public bool IsAnonymous { get; set; }
-
-        public JToken Avatar { get; set; }
 
         /// <summary>
         /// Gets the absolute URL to a user's avatar by parsing the <see cref="Avatar"/> property

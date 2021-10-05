@@ -32,7 +32,7 @@ namespace Disqus.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public DisqusAuthor Author { get; set; }
+        public DisqusUser Author { get; set; }
 
         public IEnumerable<DisqusPost> ChildPosts { get; set; } = Enumerable.Empty<DisqusPost>();
 

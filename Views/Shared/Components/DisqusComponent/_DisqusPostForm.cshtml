@@ -4,9 +4,11 @@
 @addTagHelper *, Kentico.Content.Web.Mvc
 @model DisqusPost
 @inject IDisqusService disqusService
+@inject DisqusRepository disqusRepository
 
-@{ 
+@{
     Layout = null;
+    var currentUser = await disqusRepository.GetCurrentUser();
     var doCollapse = Model.IsEditing || string.IsNullOrEmpty(Model.Parent) ? "" : "collapse";
 
     // If creating a new reply, Model.Id will be empty, set to parent (the post we're replying to)
@@ -43,7 +45,7 @@
     else
     {
         <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-            data-ajax="true" data-ajax-success="updatePost" data-ajax-begin="ajaxBegin" data-ajax-complete="ajaxComplete">
+              data-ajax="true" data-ajax-success="updatePost" data-ajax-begin="ajaxBegin" data-ajax-complete="ajaxComplete">
             <input asp-for="Id" />
             <input asp-for="Message" />
             <input asp-for="Thread" />
@@ -54,11 +56,11 @@
                 @if (!Model.IsEditing)
                 {
                     <div class="col-auto">
-                        <img class="disqus-user-avatar-sm" src="@disqusService.CurrentUser.Avatar" />
+                        <img class="disqus-user-avatar-sm" src="@currentUser.GetAvatarUrl()" />
                     </div>
                 }
                 <div id="editor_container" class="col p-0 form-group-input">
-                    <span class="form-posting-as">You're posting as @disqusService.CurrentUser.FullName</span>
+                    <span class="form-posting-as">You're posting as @currentUser.Name</span>
                     <div id="editor"></div>
                 </div>
                 <div class="col-4 pt-4">
