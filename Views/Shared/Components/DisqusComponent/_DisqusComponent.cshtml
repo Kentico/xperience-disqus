@@ -8,6 +8,15 @@
 <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <script>
+function copyToClipboard(url) {
+    var temp = $("<input>");
+    $("body").append(temp);
+    temp.val(url).select();
+    document.execCommand("copy");
+    temp.remove();
+    alert('Comment permalink copied!');
+}
+
 function voteClick(sender) {
 
     var btn = $(sender);
@@ -109,7 +118,7 @@ function editPost(sender) {
     var btn = $(sender);
     btn.prop('disabled', true);
     var id = btn.data('post-id');
-    var container = $('#post_' + id + ' .post-main').first();
+    var container = $('#post_' + id + '_content');
     $.ajax({
         method: 'POST',
         url: '@Url.Action("EditPost", "Disqus")',

@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Disqus.Components.DisqusComponent
@@ -237,7 +238,8 @@ namespace Disqus.Components.DisqusComponent
             {
                 try
                 {
-                    DocumentSentiment result = sentimentAnalysisService.AnalyzeText(post.Message, "en-US", SiteContext.CurrentSiteName);
+                    var culture = Thread.CurrentThread.CurrentCulture.Name;
+                    DocumentSentiment result = sentimentAnalysisService.AnalyzeText(post.Message, culture, SiteContext.CurrentSiteName);
                     sentiment = result.Sentiment;
                 }
                 catch (Exception e)

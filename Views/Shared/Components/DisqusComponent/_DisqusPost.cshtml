@@ -11,11 +11,9 @@
 <script>
     $(document).ready(function () {
 
-        // Reveal report button on hover
-        $('#post_@(Model.Id)_main, #post_@(Model.Id)_report').hover(function (e) {
-            $('#post_@(Model.Id)_report').show();
-        }, function (e) {
-            $('#post_@(Model.Id)_report').hide();
+        // Init hidden divs
+        $('#post_@(Model.Id)_footer').hover(function (e) {
+            $('#post_@(Model.Id)_social').toggle().toggleClass('d-inline');
         });
 
         // Transfer post ID when report button is clicked
@@ -26,10 +24,7 @@
 </script>
 
 <div id="post_@Model.Id" class="row @cssClass">
-    @if (!string.IsNullOrEmpty(Model.Parent))
-    {
-        <div class="col-auto p-1">&nbsp;</div>
-    }
+    <a id="post_@Model.Id"></a>
     <div class="col">
         <div class="row">
             <div id="post_@(Model.Id)_report" class="post-flag-container">
@@ -53,10 +48,10 @@
                         }
                     </span>
                 </div>
-                <div class="post-content">
+                <div id="post_@(Model.Id)_content" class="post-content">
                     @Html.Raw(Model.Raw_Message)
                 </div>
-                <div class="post-footer">
+                <div id="post_@(Model.Id)_footer" class="post-footer">
                     @if (Model.CanVote)
                     {
                         <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="btn vote-button">
@@ -76,35 +71,44 @@
                         }
 
                         @if (disqusService.IsAuthenticated() &&
-                      disqusService.AuthCookie.User_Id == Model.Author.Id &&
-                      !Model.ThreadObject.IsClosed &&
-                      DateTime.Now < Model.EditableUntil)
+                   disqusService.AuthCookie.User_Id == Model.Author.Id &&
+                   !Model.ThreadObject.IsClosed &&
+                   DateTime.Now < Model.EditableUntil)
                         {
                             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-post-id="@Model.Id">Edit</a></span>
                         }
                         @if (disqusService.IsAuthenticated() &&
-                      disqusService.AuthCookie.User_Id == Model.Author.Id &&
-                      !Model.ThreadObject.IsClosed)
+                   disqusService.AuthCookie.User_Id == Model.Author.Id &&
+                   !Model.ThreadObject.IsClosed)
                         {
                             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>
                         }
                     </div>
+                    <div id="post_@(Model.Id)_social" class="social-sharing">
+                        <button class="share-button facebook" title="Share on Facebook" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=@Model.GetPermalink()', '_blank')">f</button>
+                        <button class="share-button twitter" title="Share on Twitter" onclick="window.open('http://www.twitter.com/share?url=@Model.GetPermalink()', '_blank')">t</button>
+                        <button class="p-0" title="Copy permalink" onclick="copyToClipboard('@Model.GetPermalink()')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+                                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"></path>
+                                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="w-100"></div>
-            @if (!Model.ThreadObject.IsClosed)
-            {
-                await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+                <div class="w-100"></div>
+                @if (!Model.ThreadObject.IsClosed)
                 {
-                    Thread = Model.Thread,
-                    Parent = Model.Id
-                });
-            }
-            @foreach (var child in Model.ChildPosts)
-            {
-                await Html.RenderPartialAsync("_DisqusPost.cshtml", child);
-            }
+                    await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+                    {
+                        Thread = Model.Thread,
+                        Parent = Model.Id
+                    });
+                }
+                @foreach (var child in Model.ChildPosts)
+                {
+                    await Html.RenderPartialAsync("_DisqusPost.cshtml", child);
+                }
+            </div>
         </div>
     </div>
 </div>
-

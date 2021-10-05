@@ -1,5 +1,10 @@
-﻿using Disqus.Services;
+﻿using CMS.Core;
+using CMS.DocumentEngine;
+using Disqus.Services;
+using Kentico.Content.Web.Mvc;
 using Newtonsoft.Json.Linq;
+using System.Linq;
+using System.Threading;
 
 namespace Disqus.Models
 {
@@ -39,6 +44,29 @@ namespace Disqus.Models
             var identifier = Identifiers[0].ToString().Split(";");
             int.TryParse(identifier[1], out id);
             return id;
+        }
+
+        /// <summary>
+        /// Gets the URL of the page this thread was created on by parsing the identifier with <see cref="GetNodeId"/>
+        /// </summary>
+        /// <returns></returns>
+        public string GetThreadUrl()
+        {
+            var urlService = Service.Resolve<IPageUrlRetriever>();
+            var pageRetriever = Service.Resolve<IPageRetriever>();
+            var nodeId = GetNodeId();
+            var culture = Thread.CurrentThread.CurrentCulture.Name;
+            var nodes = pageRetriever.Retrieve<TreeNode>(query =>
+                query.WhereEquals("NodeID", nodeId)
+                    .Culture(culture)
+                    .Published()
+            );
+            if (nodes.Count() > 0)
+            {
+                return urlService.Retrieve(nodes.FirstOrDefault()).AbsoluteUrl;
+            }
+
+            return string.Empty;
         }
     }
 }

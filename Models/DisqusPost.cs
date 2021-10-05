@@ -61,5 +61,10 @@ namespace Disqus.Models
         public bool IsNewUserNeedsApproval { get; set; }
 
         public DisqusThread ThreadObject { get; set; }
+
+        public string GetPermalink()
+        {
+            return $"{ThreadObject.GetThreadUrl()}#post_{Id}";
+        }
     }
 }

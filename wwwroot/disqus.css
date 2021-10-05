@@ -21,9 +21,8 @@
 #disqus_thread .post-flag-container {
     position: absolute;
     top: 5px;
-    right: 8px;
+    right: 15px;
     width: 10px;
-    display: none;
 }
 
 #disqus_thread .post-flag-container button {
@@ -32,6 +31,11 @@
     outline: none;
     cursor: pointer;
     padding: 0px;
+    opacity: .1;
+}
+
+#disqus_thread .post-flag-container button:hover {
+    opacity: .4;
 }
 
 #disqus_thread .child-post {
@@ -73,6 +77,22 @@
     background-color: transparent;
 }
 
+#disqus_thread .post-footer .social-sharing {
+    display: none;
+}
+
+#disqus_thread .post-footer .social-sharing .share-button {
+    color: #fff;
+    font-weight: 800;
+    width: 18px;
+    height: 18px;
+    line-height: 1;
+    overflow: hidden;
+    border-radius: 3px;
+    background: rgba(104,122,134,.8);
+    opacity: .5;
+}
+
 #disqus_thread .post-sidebar {
     text-align: center;
 }
@@ -100,7 +120,7 @@
 }
 
 #disqus_thread .post-reply-container .post-form .btn {
-    width: 40%;
+    width: 100px;
 }
 
 #disqus_thread .post-footer button {

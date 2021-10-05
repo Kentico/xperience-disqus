@@ -202,7 +202,9 @@ namespace Disqus.Services
                 p.ThreadObject = thread;
                 p.ChildPosts = GetPostChildren(p, thread);
                 return p;
-            }).ToList();
+            })
+            .OrderByDescending(p => p.CreatedAt)
+            .ToList();
         }
 
         /// <summary>
@@ -219,7 +221,6 @@ namespace Disqus.Services
             }
 
             allPosts.Add(post);
-            allPosts.OrderByDescending(p => p.CreatedAt);
         }
 
         /// <summary>
