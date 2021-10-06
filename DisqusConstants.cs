@@ -6,6 +6,7 @@
         private static string BASE_URL = "https://disqus.com/api/3.0/";
 
         public static string USER_DETAILS = BASE_URL + "users/details.json?user={0}";
+        public static string USER_ACTIVITY = BASE_URL + "users/listActivity.json?related=thread&user={0}&limit={1}";
 
         public static string THREAD_LISTING = BASE_URL + "forums/listThreads.json?forum={0}";
         public static string THREAD_CREATE = BASE_URL + "threads/create.json";

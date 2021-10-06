@@ -9,12 +9,29 @@
 <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <script>
 function copyToClipboard(url) {
-    var temp = $("<input>");
-    $("body").append(temp);
+    var temp = $('<input>');
+    $('body').append(temp);
     temp.val(url).select();
-    document.execCommand("copy");
+    document.execCommand('copy');
     temp.remove();
     alert('Comment permalink copied!');
+}
+
+function showUser(id) {
+    $.ajax({
+        method: 'POST',
+        url: '@Url.Action("GetUserDetailBody", "Disqus")',
+        data: {
+            id: id
+        }
+    }).done(function (data, statusText, xhdr) {
+        $('#user_modal').remove();
+        $('body').append(data);
+        var modal = new bootstrap.Modal(document.getElementById('user_modal'));
+        modal.show();
+    }).fail(function (xhdr, statusText, errorText) {
+        alert(xhdr.responseText);
+    });
 }
 
 function voteClick(sender) {

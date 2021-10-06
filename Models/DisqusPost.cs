@@ -64,7 +64,7 @@ namespace Disqus.Models
 
         public string GetPermalink()
         {
-            return $"{ThreadObject.GetThreadUrl()}#post_{Id}";
+            return $"{ThreadObject.Link}#post_{Id}";
         }
     }
 }

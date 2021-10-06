@@ -40,7 +40,11 @@ namespace Disqus.Components.DisqusComponent
                 model.Thread = await disqusRepository.GetThread(threadId, false);
                 model.Posts = await disqusRepository.GetPostHierarchy(threadId, false);
             }
-            catch(Exception e)
+            catch (DisqusException e)
+            {
+                model.Exception = e;
+            }
+            catch (Exception e)
             {
                 model.Exception = new DisqusException(500, e.Message);
             }

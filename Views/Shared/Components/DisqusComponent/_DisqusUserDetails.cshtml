@@ -1,0 +1,78 @@
+﻿@using Disqus.Models
+@using Disqus.Services
+@model DisqusUser
+@inject DisqusRepository disqusRepository
+@inject IDisqusService disqusService
+
+@{
+    Layout = null;
+    var listings = await disqusService.GetUserActivity(Model.Id, 50);
+}
+
+<div class="modal fade" id="user_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col">
+                        <img class="disqus-user-avatar" src="@Model.GetAvatarUrl()" />
+                    </div>
+                    <div class="col-auto px-0">
+                        <div class="row">
+                            <span class="modal-title fw-bold fs-2">@Model.Name</span>
+                        </div>
+                        <div class="row">
+                            <a href="@Model.ProfileUrl" target="_blank">&commat;@Model.UserName</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h5 class="mb-1">Recent activity:</h5>
+                @foreach (var group in listings)
+                {
+                    <div class="row mt-3">
+                        <div class="col-1 mt-2 border-top"></div>
+                        <div class="col-auto">
+                            @group.Day.ToShortDateString()
+                        </div>
+                        <div class="col mt-2 border-top"></div>
+                    </div>
+                    
+                    @foreach (var activity in group.Activities)
+                    {
+                        <div class="user-activity-row row mt-3">
+                            @if (activity.Type == "post")
+                            {
+                                <div class="user-activity-highlight col-12 pt-3">
+                                    <img class="disqus-user-avatar-xs" src="@Model.GetAvatarUrl()" />
+                                    <a href="@Model.ProfileUrl">@Model.Name</a>
+                                    @Html.Raw(activity.Message)
+                                </div>
+                            }
+                            @if (activity.Type == "reply")
+                            {
+                                <div class="col-12 py-1">
+                                    <img class="disqus-user-avatar-xs" src="@activity.Parent.Author.GetAvatarUrl()" />
+                                    <a href="@activity.Parent.Author.ProfileUrl">@Model.Name</a>
+                                    @Html.Raw(activity.Parent.Message)
+                                </div>
+                                <div class="col-1 d-flex align-items-center justify-content-end fs-2 text text-reset">
+                                    &curarr;
+                                </div>
+                                <div class="user-activity-highlight pt-2 col">
+                                    <img class="disqus-user-avatar-xs" src="@Model.GetAvatarUrl()" />
+                                    <a href="@Model.GetAvatarUrl()">@Model.Name</a>
+                                    @Html.Raw(activity.Message)
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

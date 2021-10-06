@@ -52,6 +52,18 @@ namespace Disqus.Components.DisqusComponent
         }
 
         /// <summary>
+        /// Returns the full HTML for user details, for use in a modal popup
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> GetUserDetailBody(string id)
+        {
+            var user = await disqusRepository.GetUser(id);
+            return PartialView("~/Views/Shared/Components/DisqusComponent/_DisqusUserDetails.cshtml", user);
+        }
+
+        /// <summary>
         /// Called from the submit button on the _DisqusPostForm.cshtml, creates or updates a post in Disqus
         /// </summary>
         /// <param name="post"></param>
@@ -132,6 +144,7 @@ namespace Disqus.Components.DisqusComponent
         public async Task<ActionResult> DeletePost(string id)
         {
             var response = await disqusService.DeletePost(id);
+            disqusRepository.RemovePostCache(id);
             return Content(JsonConvert.SerializeObject(response));
         }
 

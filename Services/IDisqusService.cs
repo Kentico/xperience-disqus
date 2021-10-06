@@ -104,6 +104,14 @@ namespace Disqus.Services
         public abstract Task<DisqusUser> GetUserDetails(string userId);
 
         /// <summary>
+        /// Gets the user's most recent activities on the current forum (site)
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="topN">The number of activities to return</param>
+        /// <returns></returns>
+        public abstract Task<IEnumerable<DisqusUserActivityListing>> GetUserActivity(string userId, int topN);
+
+        /// <summary>
         /// Makes a GET request to the provided URL. Automatically adds the 'access_token' parameter if
         /// <see cref="UserToken"/> is populated, and the 'api_key' parameter
         /// </summary>

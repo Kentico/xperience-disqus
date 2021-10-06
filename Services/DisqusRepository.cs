@@ -214,13 +214,21 @@ namespace Disqus.Services
         /// <param name="post"></param>
         public void AddPostCache(DisqusPost post)
         {
-            var existingPosts = allPosts.Where(p => p.Id == post.Id);
-            if(existingPosts.Count() > 0)
+            RemovePostCache(post.Id);
+            allPosts.Add(post);
+        }
+
+        /// <summary>
+        /// Removes the <see cref="DisqusPost"/> from the cache with a matching internal ID
+        /// </summary>
+        /// <param name="id"></param>
+        public void RemovePostCache(string id)
+        {
+            var existingPosts = allPosts.Where(p => p.Id == id);
+            if (existingPosts.Count() > 0)
             {
                 allPosts.Remove(existingPosts.FirstOrDefault());
             }
-
-            allPosts.Add(post);
         }
 
         /// <summary>

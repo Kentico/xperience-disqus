@@ -111,7 +111,6 @@ namespace Disqus.Services
 
         public async Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId)
         {
-            // TODO: Verify URL parameter works when not running localhost
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("forum", site),
                 new KeyValuePair<string, string>("title", title),
@@ -177,6 +176,43 @@ namespace Disqus.Services
             var userJson = JsonConvert.SerializeObject(response.Value<JToken>("response"));
 
             return JsonConvert.DeserializeObject<DisqusUser>(userJson);
+        }
+
+        public async Task<IEnumerable<DisqusUserActivityListing>> GetUserActivity(string userId, int topN)
+        {
+            // TODO: The Disqus API is incorrectly logging all replies as posts.. check for updated API
+            // TODO: The Disqus API seems to only be returning "reply" and "post" activities, check for other activities later
+            var url = string.Format(DisqusConstants.USER_ACTIVITY, userId, topN);
+            var response = await MakeGetRequest(url);
+            var activityJson = JsonConvert.SerializeObject(response.Value<JToken>("response"));
+            var activityArray = JsonConvert.DeserializeObject<JArray>(activityJson);
+
+            var activities = activityArray.Select(o => JsonConvert.DeserializeObject<DisqusUserActivity>(o.ToString()));
+            // TODO: Disqus seems to be returning activity from other users.. filter to current user, but check for updated API
+            activities = activities.Where(a => a.Author != null && a.Author.Id == userId);
+            activities.OrderByDescending(a => a.CreatedAt);
+
+            // Sort activities into days
+            var currentDate = DateTime.Now;
+            var endDate = activities.Last().CreatedAt;
+            var listings = new List<DisqusUserActivityListing>();
+            do
+            {
+                var todaysActivities = activities.Where(a => a.CreatedAt.DayOfYear == currentDate.DayOfYear && a.CreatedAt.Year == currentDate.Year);
+                if(todaysActivities.Count() > 0)
+                {
+                    listings.Add(new DisqusUserActivityListing()
+                    {
+                        Day = currentDate,
+                        Activities = todaysActivities.ToList()
+                    });
+                }
+                    
+                currentDate = currentDate.AddDays(-1);
+            }
+            while (currentDate > endDate);
+
+            return listings;
         }
 
         public async Task<JObject> ReportPost(string postId, int reason)

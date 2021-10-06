@@ -114,6 +114,12 @@
     border: 1px solid #888;
 }
 
+.disqus-user-avatar-xs {
+    width: 25px;
+    border-radius: 50%;
+    border: 1px solid #888;
+}
+
 #disqus_thread .post-reply-container .post-form {
     padding-top: 10px;
     min-height: 230px;
@@ -144,13 +150,12 @@
     color: #888;
 }
 
-#disqus_thread .disqus-login-box {
-    width: 100%;
-    overflow-wrap: break-word;
-    background-color: #ddd;
-    border: 1px solid black;
-    padding: 10px;
-    font-size: 10px;
+#user_modal .user-activity-highlight {
+    background-color: #e4f8ff;
+}
+
+#user_modal .activity-hr {
+
 }
 
 #disqus_thread .post-form #editor_container {

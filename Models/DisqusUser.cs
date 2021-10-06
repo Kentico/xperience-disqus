@@ -13,6 +13,16 @@ namespace Disqus.Models
 
         public JToken Avatar { get; set; }
 
+        public int NumFollowers { get; set; }
+
+        public int NumFollowing { get; set; }
+
+        public int NumPosts { get; set; }
+
+        public int NumLikesReceived { get; set; }
+
+        public string ReputationLabel { get; set; }
+
         public bool IsPowerContributor { get; set; }
 
         public DateTime JoinedAt { get; set; }
