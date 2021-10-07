@@ -180,8 +180,7 @@ namespace Disqus.Services
 
         public async Task<IEnumerable<DisqusUserActivityListing>> GetUserActivity(string userId, int topN)
         {
-            // TODO: The Disqus API is incorrectly logging all replies as posts.. check for updated API
-            // TODO: The Disqus API seems to only be returning "reply" and "post" activities, check for other activities later
+            // TODO: The Disqus API seems to only be returning "post" activities, check for other activities later
             var url = string.Format(DisqusConstants.USER_ACTIVITY, userId, topN);
             var response = await MakeGetRequest(url);
             var activityJson = JsonConvert.SerializeObject(response.Value<JToken>("response"));
@@ -213,6 +212,37 @@ namespace Disqus.Services
             while (currentDate > endDate);
 
             return listings;
+        }
+
+        public async Task<JObject> FollowUser(string userId, bool doFollow)
+        {
+            var url = doFollow ? DisqusConstants.USER_FOLLOW : DisqusConstants.USER_UNFOLLOW;
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("target", userId)
+            };
+
+            return await MakePostRequest(url, data);
+        }
+
+        public async Task<IEnumerable<DisqusUser>> ListFollowing(string userId)
+        {
+            var url = string.Format(DisqusConstants.USER_LIST_FOLLOWING, userId);
+            var response = await MakeGetRequest(url);
+            var userJson = JsonConvert.SerializeObject(response.Value<JToken>("response"));
+            var userArray = JsonConvert.DeserializeObject<JArray>(userJson);
+
+            return userArray.Select(o => JsonConvert.DeserializeObject<DisqusUser>(o.ToString()));
+        }
+
+        public async Task<bool> IsUserFollowing(string userId)
+        {
+            if (IsAuthenticated())
+            {
+                var followingList = await ListFollowing(AuthCookie.User_Id);
+                return followingList.Any(u => u.Id == userId);
+            }
+
+            return false;
         }
 
         public async Task<JObject> ReportPost(string postId, int reason)

@@ -36,6 +36,8 @@ namespace Disqus.Models
 
         public bool ValidateAllPosts { get; set; }
 
+        public string Forum { get; set; }
+
         /// <summary>
         /// Returns the NodeID of the page the thread was created on by trimming the identifier from <see cref="Identifiers"/>
         /// </summary>

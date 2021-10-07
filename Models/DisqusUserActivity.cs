@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Runtime.Serialization;
 
 namespace Disqus.Models
 {
@@ -13,7 +14,7 @@ namespace Disqus.Models
         public DateTime CreatedAt { get; set; }
 
         [JsonProperty("object.thread")]
-        public object Thread { get; set; }
+        public DisqusThread Thread { get; set; }
 
         [JsonProperty("object.message")]
         public string Message { get; set; }
@@ -21,13 +22,10 @@ namespace Disqus.Models
         [JsonProperty("object.author")]
         public DisqusUser Author { get; set; }
 
-        [JsonProperty("object.vote")]
-        public int Vote { get; set; }
-
         [JsonProperty("object.parent")]
         public DisqusPost Parent { get; set; }
 
-        [JsonProperty("object.post")]
-        public DisqusPost Post { get; set; }
+        [JsonProperty("object.url")]
+        public string Url { get; set; }
     }
 }

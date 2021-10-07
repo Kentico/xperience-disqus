@@ -17,6 +17,7 @@ function copyToClipboard(url) {
     alert('Comment permalink copied!');
 }
 
+// Called when a user's avatar is clicked
 function showUser(id) {
     $.ajax({
         method: 'POST',
@@ -34,13 +35,14 @@ function showUser(id) {
     });
 }
 
+// Called from a post's upvote/downvote buttons
 function voteClick(sender) {
 
     var btn = $(sender);
-    btn.prop('disabled', true);
     var id = btn.data('post-id');
     var isLike = btn.data('is-like');
     var container = $('#post_' + id);
+    btn.prop('disabled', true);
     $.ajax({
         method: 'POST',
         url: '@Url.Action("VotePost", "Disqus")',
@@ -55,6 +57,43 @@ function voteClick(sender) {
         alert(xhdr.responseText);
         btn.prop("disabled", false);
     });
+}
+
+// Called from _DisqusUserDetails.cshtml modal follow button
+function followUser(sender) {
+
+    var btn = $(sender);
+    var id = btn.data('user-id');
+    var isFollowing = btn.data('is-following');
+    btn.prop('disabled', true);
+    $.ajax({
+        method: 'POST',
+        url: '@Url.Action("FollowUser", "Disqus")',
+        data: {
+            id: id,
+            doFollow: !isFollowing
+        }
+    }).done(function (data, statusText, xhdr) {
+        setIsFollowing(!isFollowing);
+    }).fail(function (xhdr, statusText, errorText) {
+        alert(xhdr.responseText);
+    });
+}
+
+// Alters the user modal follow button depending on whether the current user is following
+function setIsFollowing(isFollowing) {
+    if (isFollowing) {
+        $('#user_modal .follow-button').prop('disabled', false)
+            .html('&check; Following')
+            .css('background-color', '#43b311')
+            .data('is-following', true);
+    }
+    else {
+        $('#user_modal .follow-button').prop('disabled', false)
+            .html('Follow')
+            .css('background-color', '#2e9fff')
+            .data('is-following', false);
+    }
 }
 
 // Called from DisqusController.SubmitPost after a post is edited/created
@@ -130,12 +169,13 @@ function reportPost(sender) {
     });
 }
 
+// Called from a post's edit button, gets editing form HTML
 function editPost(sender) {
 
     var btn = $(sender);
-    btn.prop('disabled', true);
     var id = btn.data('post-id');
     var container = $('#post_' + id + '_content');
+    btn.prop('disabled', true);
     $.ajax({
         method: 'POST',
         url: '@Url.Action("EditPost", "Disqus")',
@@ -153,8 +193,8 @@ function editPost(sender) {
 function cancelEdit(sender) {
 
     var btn = $(sender);
-    btn.prop('disabled', true);
     var id = btn.data('post-id');
+    btn.prop('disabled', true);
     $.ajax({
         method: 'POST',
         url: '@Url.Action("GetPostBody", "Disqus")',
@@ -176,8 +216,8 @@ function deletePost(sender) {
     if (confirm('Are you sure you want to delete this?')) {
 
         var btn = $(sender);
-        btn.prop('disabled', true);
         var id = btn.data('post-id');
+        btn.prop('disabled', true);
         $.ajax({
             method: 'POST',
             url: '@Url.Action("DeletePost", "Disqus")',

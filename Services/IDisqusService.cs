@@ -112,6 +112,28 @@ namespace Disqus.Services
         public abstract Task<IEnumerable<DisqusUserActivityListing>> GetUserActivity(string userId, int topN);
 
         /// <summary>
+        /// Sets the currently authenticated user to follow/unfollow another user
+        /// </summary>
+        /// <param name="userId">The Disqus internal ID of the user to follow/unfollow</param>
+        /// <param name="doFollow">true if should follow, false to unfollow</param>
+        /// <returns></returns>
+        public abstract Task<JObject> FollowUser(string userId, bool doFollow);
+
+        /// <summary>
+        /// Returns a list of users that the specified user is following
+        /// </summary>
+        /// <param name="userId">The Disqus internal ID of the user to list whom they are following</param>
+        /// <returns></returns>
+        public abstract Task<IEnumerable<DisqusUser>> ListFollowing(string userId);
+
+        /// <summary>
+        /// Returns true if the currently authenticated user is following the <paramref name="userId"/>
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public abstract Task<bool> IsUserFollowing(string userId);
+
+        /// <summary>
         /// Makes a GET request to the provided URL. Automatically adds the 'access_token' parameter if
         /// <see cref="UserToken"/> is populated, and the 'api_key' parameter
         /// </summary>

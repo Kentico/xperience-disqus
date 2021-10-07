@@ -317,6 +317,25 @@ namespace Disqus.Components.DisqusComponent
         }
 
         /// <summary>
+        /// Sets the currently authenticated user to follow/unfollow the specified user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>An empty string if successful</returns>
+        public async Task<ActionResult> FollowUser(string id, bool doFollow)
+        {
+            var response = await disqusService.FollowUser(id, doFollow);
+            var code = response.Value<int>("code");
+            if (code == 0)
+            {
+                return Content("");
+            }
+            else
+            {
+                throw new DisqusException(code, response.Value<string>("response"));
+            }
+        }
+
+        /// <summary>
         /// The endpoint called after a user authenticates with Disqus. This action retrieves a token
         /// from Disqus' endpoint and sets the <see cref="IDisqusService.CurrentUser"/>
         /// </summary>

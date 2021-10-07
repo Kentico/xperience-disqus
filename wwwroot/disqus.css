@@ -154,8 +154,21 @@
     background-color: #e4f8ff;
 }
 
-#user_modal .activity-hr {
+#user_modal .user-activity-footer {
+    color: #9a9a9a;
+}
 
+#user_modal .user-activity-footer a {
+    color: #9a9a9a;
+}
+
+#user_modal .modal-footer .user-detail-stats {
+    color: #666;
+}
+
+#user_modal .modal-footer .user-detail-stats span {
+    font-size: 24px;
+    font-weight: bold;
 }
 
 #disqus_thread .post-form #editor_container {
