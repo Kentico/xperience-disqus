@@ -59,6 +59,7 @@
 
 #disqus_thread .post-main {
     padding-right: 0px;
+    padding-left: 0px;
 }
 
 #disqus_thread .row {
@@ -103,26 +104,27 @@
 }
 
 .disqus-user-avatar {
-    width: 64px;
-    border-radius: 50%;
+    width: 52px;
+    border-radius: 5px;
     border: 2px solid #888;
 }
 
+.disqus-user-avatar-xl {
+    width: 74px;
+    border-radius: 7px;
+    border: 3px solid #888;
+}
+
 .disqus-user-avatar-sm {
-    width: 40px;
-    border-radius: 50%;
+    width: 32px;
+    border-radius: 3px;
     border: 1px solid #888;
 }
 
 .disqus-user-avatar-xs {
     width: 25px;
-    border-radius: 50%;
+    border-radius: 2px;
     border: 1px solid #888;
-}
-
-#disqus_thread .post-reply-container .post-form {
-    padding-top: 10px;
-    min-height: 230px;
 }
 
 #disqus_thread .post-reply-container .post-form .btn {
@@ -172,7 +174,14 @@
 }
 
 #disqus_thread .post-form #editor_container {
-    height: 150px;
+    height: 100px;
+}
+
+#disqus_thread .post-form .editor-wrapper {
+    min-height: 180px;
+    max-width: 600px;
+    padding-right: 20px;
+    padding-left: 0px;
 }
 
 .ql-editor, .ql-toolbar {

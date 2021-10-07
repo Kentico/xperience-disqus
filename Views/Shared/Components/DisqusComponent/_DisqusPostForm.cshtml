@@ -37,7 +37,7 @@
     });
 </script>
 
-<div id="post_reply_container_@id" class="post-reply-container col @doCollapse">
+<div id="post_reply_container_@id" class="post-reply-container col pt-1 @doCollapse">
     @if (!disqusService.IsAuthenticated())
     {
         await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
@@ -59,16 +59,19 @@
                         <img class="disqus-user-avatar-sm" src="@currentUser.GetAvatarUrl()" />
                     </div>
                 }
-                <div id="editor_container" class="col p-0 form-group-input">
-                    <span class="form-posting-as">You're posting as @currentUser.Name</span>
-                    <div id="editor"></div>
+                <div class="col editor-wrapper">
+                    <div id="editor_container">
+                        <span class="form-posting-as">You're posting as @currentUser.Name</span>
+                        <div id="editor"></div>
+                    </div>
                 </div>
-                <div class="col-4 pt-4">
-                    <input type="submit" name="submitButton" value="Submit" class="btn btn-sm btn-primary" />
+                <div class="col pt-4 px-0">
+                    <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
                     @if (Model.IsEditing)
                     {
                         <div class="pt-1">
-                            <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel" class="btn btn-sm btn-danger" />
+                            <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel"
+                                   class="p-0 btn btn-sm btn-danger" />
                         </div>
                     }
                 </div>

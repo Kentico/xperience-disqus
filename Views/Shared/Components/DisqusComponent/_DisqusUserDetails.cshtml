@@ -8,7 +8,6 @@
     Layout = null;
     var listings = await disqusService.GetUserActivity(Model.Id, 30);
     var isFollowing = await disqusService.IsUserFollowing(Model.Id);
-    var disableButtons = !disqusService.IsAuthenticated() || Model.Id == disqusService.AuthCookie.User_Id;
 }
 
 <script>
@@ -23,7 +22,7 @@
             <div class="modal-header">
                 <div class="row">
                     <div class="col">
-                        <img class="disqus-user-avatar" src="@Model.GetAvatarUrl()" />
+                        <img class="disqus-user-avatar-xl" src="@Model.GetAvatarUrl()" />
                     </div>
                     <div class="col-auto px-0">
                         <div class="row">
@@ -35,7 +34,10 @@
                     </div>
                 </div>
                 <div>
-                    <button onclick="followUser(this)" data-user-id="@Model.Id" disabled="@disableButtons" class="btn follow-button">Follow</button>
+                    @if (disqusService.IsAuthenticated() && Model.Id != disqusService.AuthCookie.User_Id)
+                    {
+                        <button onclick="followUser(this)" data-user-id="@Model.Id" class="btn follow-button">Follow</button>
+                    }
                 </div>
             </div>
             <div class="modal-body">
