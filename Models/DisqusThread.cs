@@ -18,6 +18,8 @@ namespace Disqus.Models
 
         public string Link { get; set; }
 
+        public bool UserSubscription { get; set; }
+
         public string SignedLink { get; set; }
 
         public string Message { get; set; }

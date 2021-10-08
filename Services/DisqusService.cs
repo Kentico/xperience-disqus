@@ -233,6 +233,16 @@ namespace Disqus.Services
             return await MakePostRequest(url, data);
         }
 
+        public async Task<JObject> SubscribeToThread(string threadId, bool doSubscribe)
+        {
+            var url = doSubscribe ? DisqusConstants.THREAD_SUBSCRIBE : DisqusConstants.THREAD_UNSUBSCRIBE;
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("thread", threadId)
+            };
+
+            return await MakePostRequest(url, data);
+        }
+
         public async Task<IEnumerable<DisqusUser>> ListFollowing(string userId)
         {
             var url = string.Format(DisqusConstants.USER_LIST_FOLLOWING, userId);

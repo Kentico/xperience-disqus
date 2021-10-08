@@ -14,7 +14,9 @@
         public static string THREAD_LISTING = BASE_URL + "forums/listThreads.json?forum={0}",
                              THREAD_CREATE = BASE_URL + "threads/create.json",
                              THREAD_DETAILS = BASE_URL + "threads/details.json?thread={0}",
-                             THREAD_POSTS = BASE_URL + "threads/listPosts.json?thread={0}";
+                             THREAD_POSTS = BASE_URL + "threads/listPosts.json?thread={0}",
+                             THREAD_SUBSCRIBE = BASE_URL + "threads/subscribe.json",
+                             THREAD_UNSUBSCRIBE = BASE_URL + "threads/unsubscribe.json";
 
         public static string POST_CREATE = BASE_URL + "posts/create.json",
                              POST_UPDATE = BASE_URL + "posts/update.json",

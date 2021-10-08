@@ -36,5 +36,7 @@ namespace Disqus.Models
         public string CommentsPlaceholderTextPopulated { get; set; } = "Join the discussion...";
 
         public string CommentPolicyLink { get; set; }
+
+        public string CommentPolicyText { get; set; }
     }
 }

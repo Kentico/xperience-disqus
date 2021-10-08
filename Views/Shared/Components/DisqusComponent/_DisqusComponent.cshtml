@@ -59,6 +59,38 @@ function voteClick(sender) {
     });
 }
 
+function subscribeThread(sender) {
+    var btn = $(sender);
+    var id = btn.data('thread-id');
+    var isSubscribed = btn.data('is-subscribed');
+    btn.prop('disabled', true);
+    $.ajax({
+        method: 'POST',
+        url: '@Url.Action("SubscribeThread", "Disqus")',
+        data: {
+            id: id,
+            doSubscribe: !isSubscribed
+        }
+    }).done(function (data, statusText, xhdr) {
+        setIsSubscribed(!isSubscribed);
+    }).fail(function (xhdr, statusText, errorText) {
+        alert(xhdr.responseText);
+    });
+}
+
+ function setIsSubscribed(isSubscribed) {
+    if (isSubscribed) {
+        $('#disqus_thread .subscribe-link').prop('disabled', false)
+            .html('Unsubscribe')
+            .data('is-subscribed', true);
+    }
+    else {
+        $('#disqus_thread .subscribe-link').prop('disabled', false)
+            .html('Subscribe')
+            .data('is-subscribed', false);
+    }
+}
+
 // Called from _DisqusUserDetails.cshtml modal follow button
 function followUser(sender) {
 
@@ -243,6 +275,12 @@ function ajaxComplete() {
 }
 </script>
 
+<script>
+    $(document).ready(function () {
+        var isSubscribed = ('@Model.Thread.UserSubscription' === 'True');
+        setIsSubscribed(isSubscribed);
+    });
+</script>
 <div id="disqus_thread">
     <span class="h2">@Model.Header</span>
 
@@ -254,6 +292,17 @@ function ajaxComplete() {
     {
         if (!Model.Thread.IsClosed)
         {
+            @if (!string.IsNullOrEmpty(Model.Thread.ForumObject.CommentPolicyText))
+            {
+                <div class="col px-1">
+                    <span>@Model.Thread.ForumObject.CommentPolicyText</span>
+                    @if (!string.IsNullOrEmpty(Model.Thread.ForumObject.CommentPolicyLink))
+                    {
+                        <p><a href="@Model.Thread.ForumObject.CommentPolicyLink" target="_blank">&gt;&gt;&nbsp;View policy</a></p>
+                    }
+                </div>
+            }
+            
             await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
             {
                 Thread = Model.Thread.Id,
@@ -265,6 +314,13 @@ function ajaxComplete() {
             <p>This thread is closed.</p>
         }
 
+        <div class="thread-options my-1">
+            <img src="/email.png" />
+            <a class="subscribe-link" onclick="javascript:subscribeThread(this)" data-thread-id="@Model.Thread.Id">Subscribe</a>
+            &nbsp;&nbsp;
+            <img src="/rss.png" />
+            <a href="@Model.Thread.Feed" target="_blank">RSS</a>
+        </div>
         foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
         {
             await Html.RenderPartialAsync("_DisqusPost.cshtml", post);

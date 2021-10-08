@@ -141,6 +141,13 @@ namespace Disqus.Services
         public abstract Task<bool> IsUserFollowing(string userId);
 
         /// <summary>
+        /// Sets the currently authenticated user to subscribe/unsubscribe to a thread
+        /// </summary>
+        /// <param name="threadId">The Disqus internal ID of the thread to subscribe/unsubscribe</param>
+        /// <param name="doSubscribe">true if should subscribe, false to unsubscribe</param>
+        public abstract Task<JObject> SubscribeToThread(string threadId, bool doSubscribe);
+
+        /// <summary>
         /// Makes a GET request to the provided URL. Automatically adds the 'access_token' parameter if
         /// <see cref="UserToken"/> is populated, and the 'api_key' parameter
         /// </summary>

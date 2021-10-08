@@ -2,6 +2,16 @@
     font-size: 14px;
 }
 
+#disqus_thread .thread-options img {
+    width: 14px;
+    opacity: .7;
+}
+
+#disqus_thread .thread-options a {
+    cursor: pointer;
+    text-decoration: none;
+}
+
 #disqus_thread .disqus-post, #disqus_thread .child-post {
     margin: 10px 0px;
     padding-right: 0px;

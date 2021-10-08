@@ -336,6 +336,25 @@ namespace Disqus.Components.DisqusComponent
         }
 
         /// <summary>
+        /// Sets the currently authenticated user to subscribe/unsubscribe to a thread
+        /// </summary>
+        /// <param name="id">The Disqus internal ID of the thread to subscribe/unsubscribe</param>
+        /// <param name="doSubscribe">true if should subscribe, false to unsubscribe</param>
+        public async Task<ActionResult> SubscribeThread(string id, bool doSubscribe)
+        {
+            var response = await disqusService.SubscribeToThread(id, doSubscribe);
+            var code = response.Value<int>("code");
+            if (code == 0)
+            {
+                return Content("");
+            }
+            else
+            {
+                throw new DisqusException(code, response.Value<string>("response"));
+            }
+        }
+
+        /// <summary>
         /// The endpoint called after a user authenticates with Disqus. This action retrieves a token
         /// from Disqus' endpoint and sets the <see cref="IDisqusService.CurrentUser"/>
         /// </summary>
