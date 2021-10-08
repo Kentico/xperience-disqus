@@ -80,6 +80,15 @@ namespace Disqus.Services
             });
         }
 
+        public async Task<DisqusForum> GetForum(string forumId)
+        {
+            var url = string.Format(DisqusConstants.FORUM_DETAILS, forumId);
+            var response = await MakeGetRequest(url);
+
+            var forumJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
+            return JsonConvert.DeserializeObject<DisqusForum>(forumJson);
+        }
+
         public async Task<DisqusThread> GetThread(string threadId)
         {
             var url = string.Format(DisqusConstants.THREAD_DETAILS, threadId);
@@ -120,7 +129,7 @@ namespace Disqus.Services
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }
 
-        public async Task<DisqusPost> GetPostShallow(string id)
+        public async Task<DisqusPost> GetPost(string id)
         {
             var url = string.Format(DisqusConstants.POST_DETAILS, id);
             var postResult = await MakeGetRequest(url);
@@ -128,7 +137,7 @@ namespace Disqus.Services
             return JsonConvert.DeserializeObject<DisqusPost>(postJson);
         }
 
-        public async Task<IEnumerable<DisqusPost>> GetThreadPostsShallow(string threadId)
+        public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
             var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
             var result = await MakeGetRequest(url);

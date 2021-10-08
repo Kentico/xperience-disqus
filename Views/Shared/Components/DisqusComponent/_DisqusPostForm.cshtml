@@ -10,6 +10,7 @@
     Layout = null;
     var currentUser = await disqusRepository.GetCurrentUser();
     var doCollapse = Model.IsEditing || string.IsNullOrEmpty(Model.Parent) ? "" : "collapse";
+    var embedOptions = Model.ForumObject.Settings.MediaEmbedEnabled ? ", 'image', 'video'" : "";
 
     // If creating a new reply, Model.Id will be empty, set to parent (the post we're replying to)
     var id = string.IsNullOrEmpty(Model.Id) ? $"reply_{Model.Parent}" : Model.Id;
@@ -20,7 +21,16 @@
         var quill = new window.Quill('#post_reply_container_@id #editor', {
             bounds: '#post_reply_container_@id #editor_container',
             theme: 'snow',
-            placeholder: 'Join the discussion..'
+            placeholder: `@Model.ThreadObject.PlaceholderText`,
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'header': 1 }, { 'header': 2 }, 'blockquote'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+                    ['link'@Html.Raw(embedOptions)]
+                ]
+            },
         });
 
         // Set HTML content (if editing)
@@ -44,38 +54,39 @@
     }
     else
     {
-        <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-              data-ajax="true" data-ajax-success="updatePost" data-ajax-begin="ajaxBegin" data-ajax-complete="ajaxComplete">
-            <input asp-for="Id" />
-            <input asp-for="Message" />
-            <input asp-for="Thread" />
-            <input asp-for="Parent" />
-            <input asp-for="IsEditing" />
+    <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
+          data-ajax="true" data-ajax-success="updatePost" data-ajax-begin="ajaxBegin" data-ajax-complete="ajaxComplete">
+        <input asp-for="Id" />
+        <input asp-for="Message" />
+        <input asp-for="Thread" />
+        <input asp-for="Forum" />
+        <input asp-for="Parent" />
+        <input asp-for="IsEditing" />
 
-            <div class="form-group row">
-                @if (!Model.IsEditing)
-                {
-                    <div class="col-auto">
-                        <img class="disqus-user-avatar-sm" src="@currentUser.GetAvatarUrl()" />
-                    </div>
-                }
-                <div class="col editor-wrapper">
-                    <div id="editor_container">
-                        <span class="form-posting-as">You're posting as @currentUser.Name</span>
-                        <div id="editor"></div>
-                    </div>
+        <div class="form-group row">
+            @if (!Model.IsEditing)
+            {
+                <div class="col-auto">
+                    <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
                 </div>
-                <div class="col pt-4 px-0">
-                    <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
-                    @if (Model.IsEditing)
-                    {
-                        <div class="pt-1">
-                            <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel"
-                                   class="p-0 btn btn-sm btn-danger" />
-                        </div>
-                    }
+            }
+            <div class="col editor-wrapper">
+                <div id="editor_container">
+                    <span class="form-posting-as">You're posting as @currentUser.Name</span>
+                    <div id="editor"></div>
                 </div>
             </div>
-        </form>
+            <div class="col pt-4 px-0">
+                <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
+                @if (Model.IsEditing)
+                {
+                    <div class="pt-1">
+                        <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel"
+                               class="p-0 btn btn-sm btn-danger" />
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
     }
 </div>

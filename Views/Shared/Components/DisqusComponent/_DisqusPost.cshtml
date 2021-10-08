@@ -26,9 +26,9 @@
                     &#127988
                 </button>
             </div>
-            <div class="post-sidebar col-auto">
+            <div class="post-sidebar col text-break">
                 <a href="javascript:showUser('@Model.Author.Id')">
-                    <img class="disqus-user-avatar" src="@Model.Author.GetAvatarUrl()" />
+                    <img class="disqus-user-avatar" src="@Model.Author.AvatarUrl" />
                     <br /><span class="post-author">@Model.Author.Name</span>
                 </a>
             </div>
@@ -54,6 +54,7 @@
                     await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
                     {
                         Thread = Model.Thread,
+                        Forum = Model.Forum,
                         Parent = Model.Id
                     });
                 }

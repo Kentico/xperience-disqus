@@ -256,7 +256,8 @@ function ajaxComplete() {
         {
             await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
             {
-                Thread = Model.Thread.Id
+                Thread = Model.Thread.Id,
+                Forum = Model.Thread.Forum
             });
         }
         else

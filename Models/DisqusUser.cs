@@ -35,13 +35,18 @@ namespace Disqus.Models
 
         public bool IsAnonymous { get; set; }
 
-        /// <summary>
-        /// Gets the absolute URL to a user's avatar by parsing the <see cref="Avatar"/> property
-        /// </summary>
-        /// <returns></returns>
-        public string GetAvatarUrl()
+        public string AvatarUrl
         {
-            return Avatar.SelectToken("$.large.cache").ToString();
+            get
+            {
+                var url = Avatar.SelectToken("$.permalink").ToString();
+                if (url.StartsWith("//"))
+                {
+                    url = $"https:{url}";
+                }
+
+                return url;
+            }
         }
     }
 }

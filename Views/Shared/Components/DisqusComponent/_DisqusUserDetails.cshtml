@@ -22,7 +22,7 @@
             <div class="modal-header">
                 <div class="row">
                     <div class="col">
-                        <img class="disqus-user-avatar-xl" src="@Model.GetAvatarUrl()" />
+                        <img class="disqus-user-avatar-xl" src="@Model.AvatarUrl" />
                     </div>
                     <div class="col-auto px-0">
                         <div class="row">
@@ -58,12 +58,12 @@
                             @if (activity.Type == "post")
                             {
                                 <div class="col-12">
-                                    <img class="disqus-user-avatar-xs" src="@Model.GetAvatarUrl()" />
+                                    <img class="disqus-user-avatar-xs" src="@Model.AvatarUrl" />
                                     <a href="@Model.ProfileUrl">@Model.Name</a>
                                     @if (activity.Parent != null)
                                     {
                                         <span>&nbsp;&curarr;&nbsp;</span>
-                                        <img class="disqus-user-avatar-xs" src="@activity.Parent.Author.GetAvatarUrl()" />
+                                        <img class="disqus-user-avatar-xs" src="@activity.Parent.Author.AvatarUrl" />
                                         <a href="@activity.Parent.Author.ProfileUrl">@activity.Parent.Author.Name</a>
                                     }
 

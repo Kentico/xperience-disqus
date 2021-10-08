@@ -7,23 +7,17 @@
     Layout = null;
 }
 
-<script>
-    $(document).ready(function () {
-        $('#post_@(Model.Id)_actions').hover(function (e) {
-            $('#post_@(Model.Id)_social').toggle().toggleClass('d-inline');
-        });
-    });
-</script>
-
 <div id="post_@(Model.Id)_footer" class="post-footer">
     @if (Model.CanVote)
     {
-        <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="btn vote-button">
-            &#9650; @Model.Likes
-        </button>
-        <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="btn vote-button">
-            &#9660; @Model.Dislikes
-        </button>
+        <div class="vote-buttons d-inline">
+            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="true" class="btn vote-button">
+                &#9650; @Model.Likes
+            </button>
+            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-is-like="false" class="btn vote-button">
+                &#9660; @Model.Dislikes
+            </button>
+        </div>
     }
     <div id="post_@(Model.Id)_actions" class="d-inline px-2">
         @if (!Model.ThreadObject.IsClosed && disqusService.IsAuthenticated())
@@ -48,10 +42,13 @@
             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>
         }
     </div>
-    <div id="post_@(Model.Id)_social" class="social-sharing">
-        <button class="share-button facebook" title="Share on Facebook" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=@Model.GetPermalink()', '_blank')">f</button>
-        <button class="share-button twitter" title="Share on Twitter" onclick="window.open('http://www.twitter.com/share?url=@Model.GetPermalink()', '_blank')">t</button>
-        <button class="p-0" title="Copy permalink" onclick="copyToClipboard('@Model.GetPermalink()')">
+    <div id="post_@(Model.Id)_social" class="social-sharing d-inline">
+        @if (!Model.ForumObject.Settings.DisableSocialShare)
+        {
+            <button class="share-button facebook" title="Share on Facebook" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=@Model.Permalink', '_blank')">f</button>
+            <button class="share-button twitter" title="Share on Twitter" onclick="window.open('http://www.twitter.com/share?url=@Model.Permalink', '_blank')">t</button>
+        }
+        <button class="p-0" title="Copy permalink" onclick="copyToClipboard('@Model.Permalink')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
                 <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"></path>
                 <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"></path>

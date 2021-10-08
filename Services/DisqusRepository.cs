@@ -11,6 +11,7 @@ namespace Disqus.Services
         private readonly List<DisqusThread> allThreads = new List<DisqusThread>();
         private readonly List<DisqusPost> allPosts = new List<DisqusPost>();
         private readonly List<DisqusUser> allUsers = new List<DisqusUser>();
+        private readonly List<DisqusForum> allForums = new List<DisqusForum>();
 
         private readonly IDisqusService disqusService;
         private readonly IEventLogService eventLogService;
@@ -19,6 +20,36 @@ namespace Disqus.Services
         {
             this.disqusService = disqusService;
             this.eventLogService = eventLogService;
+        }
+
+        /// <summary>
+        /// Get forum details from Disqus
+        /// </summary>
+        /// <param name="forumId">The Disqus internal ID</param>
+        /// <param name="useCache">If true, the forum is returned from cache (if found) instead of the Disqus API</param>
+        /// <returns>A Disqus user</returns>
+        public async Task<DisqusForum> GetForum(string forumId, bool useCache = true)
+        {
+            if (useCache)
+            {
+                var foundForums = allForums.Where(f => f.Id == forumId);
+                if (foundForums.Count() > 0)
+                {
+                    return foundForums.FirstOrDefault();
+                }
+            }
+
+            try
+            {
+                var forum = await disqusService.GetForum(forumId);
+                AddForumCache(forum);
+                return forum;
+            }
+            catch (DisqusException ex)
+            {
+                LogError(ex, nameof(GetForum));
+                return null;
+            }
         }
 
         /// <summary>
@@ -97,8 +128,7 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Gets post details from Disqus, with <see cref="DisqusPost.ThreadObject"/> and
-        /// <see cref="DisqusPost.ChildPosts"/> populated
+        /// Gets post details from Disqus, with <see cref="DisqusPost.ChildPosts"/> populated
         /// </summary>
         /// <param name="postId">The Disqus internal ID</param>
         /// <param name="useCache">If true, the post is returned from cache (if found) instead of the Disqus API</param>
@@ -113,7 +143,6 @@ namespace Disqus.Services
                     var post = foundPosts.FirstOrDefault();
                     var thread = await GetThread(post.Thread, useCache);
 
-                    post.ThreadObject = thread;
                     post.ChildPosts = GetPostChildren(post, thread);
 
                     return post;
@@ -122,11 +151,10 @@ namespace Disqus.Services
 
             try
             {
-                var post = await disqusService.GetPostShallow(postId);
+                var post = await disqusService.GetPost(postId);
                 var thread = await GetThread(post.Thread, useCache);
                 await GetPostHierarchy(thread.Id, useCache);
 
-                post.ThreadObject = thread;
                 post.ChildPosts = GetPostChildren(post, thread);
 
                 return post;
@@ -152,7 +180,6 @@ namespace Disqus.Services
                 var topLevelPosts = allPosts.Where(p => p.Thread == threadId && string.IsNullOrEmpty(p.Parent)).ToList();
                 return topLevelPosts.Select(p =>
                 {
-                    p.ThreadObject = thread;
                     p.ChildPosts = GetPostChildren(p, thread);
                     return p;
                 }).ToList();
@@ -161,7 +188,7 @@ namespace Disqus.Services
             try
             {
                 var thread = await GetThread(threadId, useCache);
-                var threadPosts = await disqusService.GetThreadPostsShallow(threadId);
+                var threadPosts = await disqusService.GetThreadPosts(threadId);
                 foreach (var post in threadPosts)
                 {
                     AddPostCache(post);
@@ -170,7 +197,6 @@ namespace Disqus.Services
                 var topLevelPosts = threadPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
                 var hierarchicalPosts = topLevelPosts.Select(p =>
                 {
-                    p.ThreadObject = thread;
                     p.ChildPosts = GetPostChildren(p, thread);
                     return p;
                 }).ToList();
@@ -199,7 +225,6 @@ namespace Disqus.Services
             var directChildren = allPosts.Where(p => p.Parent == post.Id).ToList();
             return directChildren.Select(p =>
             {
-                p.ThreadObject = thread;
                 p.ChildPosts = GetPostChildren(p, thread);
                 return p;
             })
@@ -208,7 +233,22 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Adds a <see cref="DisqusPost"/> to the repository cache. Removes the posts from cache
+        /// Adds a <see cref="DisqusForum"/> to the repository cache. Removes the forum from cache
+        /// first, if it exists
+        /// </summary>
+        /// <param name="post"></param>
+        public void AddForumCache(DisqusForum forum)
+        {
+            var existingForums = allForums.Where(f => f.Id == forum.Id);
+            if (existingForums.Count() > 0)
+            {
+                allForums.Remove(existingForums.FirstOrDefault());
+            }
+            allForums.Add(forum);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="DisqusPost"/> to the repository cache. Removes the post from cache
         /// first, if it exists
         /// </summary>
         /// <param name="post"></param>

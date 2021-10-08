@@ -1,15 +1,13 @@
 ﻿using CMS.Core;
-using CMS.DocumentEngine;
 using Disqus.Services;
-using Kentico.Content.Web.Mvc;
 using Newtonsoft.Json.Linq;
-using System.Linq;
-using System.Threading;
 
 namespace Disqus.Models
 {
     public class DisqusThread
     {
+        private DisqusForum mForum;
+
         public string Id { get; set; }
 
         public JArray Identifiers { get; set; }
@@ -38,6 +36,30 @@ namespace Disqus.Models
 
         public string Forum { get; set; }
 
+        public DisqusForum ForumObject
+        {
+            get
+            {
+                if (mForum == null)
+                {
+                    var repository = Service.Resolve<DisqusRepository>();
+                    mForum = repository.GetForum(Forum).Result;
+                }
+
+                return mForum;
+            }
+
+            set => mForum = value;
+        }
+
+        public string PlaceholderText
+        {
+            get
+            {
+                return Posts > 0 ? ForumObject.CommentsPlaceholderTextPopulated : ForumObject.CommentsPlaceholderTextEmpty;
+            }
+        }
+
         /// <summary>
         /// Returns the NodeID of the page the thread was created on by trimming the identifier from <see cref="Identifiers"/>
         /// </summary>
@@ -48,29 +70,6 @@ namespace Disqus.Models
             var identifier = Identifiers[0].ToString().Split(";");
             int.TryParse(identifier[1], out id);
             return id;
-        }
-
-        /// <summary>
-        /// Gets the URL of the page this thread was created on by parsing the identifier with <see cref="GetNodeId"/>
-        /// </summary>
-        /// <returns></returns>
-        public string GetThreadUrl()
-        {
-            var urlService = Service.Resolve<IPageUrlRetriever>();
-            var pageRetriever = Service.Resolve<IPageRetriever>();
-            var nodeId = GetNodeId();
-            var culture = Thread.CurrentThread.CurrentCulture.Name;
-            var nodes = pageRetriever.Retrieve<TreeNode>(query =>
-                query.WhereEquals("NodeID", nodeId)
-                    .Culture(culture)
-                    .Published()
-            );
-            if (nodes.Count() > 0)
-            {
-                return urlService.Retrieve(nodes.FirstOrDefault()).AbsoluteUrl;
-            }
-
-            return string.Empty;
         }
     }
 }

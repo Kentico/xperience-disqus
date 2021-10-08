@@ -78,10 +78,6 @@
     background-color: transparent;
 }
 
-#disqus_thread .post-footer .social-sharing {
-    display: none;
-}
-
 #disqus_thread .post-footer .social-sharing .share-button {
     color: #fff;
     font-weight: 800;
@@ -96,6 +92,7 @@
 
 #disqus_thread .post-sidebar {
     text-align: center;
+    max-width: 84px
 }
 
 #disqus_thread .post-sidebar a {
@@ -174,11 +171,11 @@
 }
 
 #disqus_thread .post-form #editor_container {
-    height: 100px;
+    height: 120px;
 }
 
 #disqus_thread .post-form .editor-wrapper {
-    min-height: 180px;
+    min-height: 190px;
     max-width: 600px;
     padding-right: 20px;
     padding-left: 0px;

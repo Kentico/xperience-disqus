@@ -24,6 +24,13 @@ namespace Disqus.Services
         public abstract bool IsAuthenticated();
 
         /// <summary>
+        /// Gets a <see cref="DisqusForum"/> based on Disqus forum ID
+        /// </summary>
+        /// <param name="forumId"></param>
+        /// <returns></returns>
+        public abstract Task<DisqusForum> GetForum(string forumId);
+
+        /// <summary>
         /// Returns the thread ID of an existing thread, or creates a new thread if one doesn't exist
         /// </summary>
         /// <param name="identifier">Thread identifier</param>
@@ -32,7 +39,7 @@ namespace Disqus.Services
         public abstract Task<string> GetThreadIdByIdentifier(string identifier, TreeNode node);
 
         /// <summary>
-        /// Gets a <see cref="DisqusThread"/> object based on Disqus thread ID
+        /// Gets a <see cref="DisqusThread"/> based on Disqus thread ID
         /// </summary>
         /// <param name="threadId"></param>
         /// <returns></returns>
@@ -46,11 +53,11 @@ namespace Disqus.Services
         public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId);
 
         /// <summary>
-        /// Returns shallow post details from the Disqus API
+        /// Gets a <see cref="DisqusPost"/> based on Disqus post ID
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public abstract Task<DisqusPost> GetPostShallow(string id);
+        public abstract Task<DisqusPost> GetPost(string id);
 
         /// <summary>
         /// Creates a new post in Disqus
@@ -90,21 +97,21 @@ namespace Disqus.Services
         public abstract Task<JObject> ReportPost(string postId, int reason);
 
         /// <summary>
-        /// Returns a shallow list of a thread's posts from the Disqus API.
+        /// Gets a list of a thread's posts based on Disqus thread ID
         /// </summary>
         /// <param name="threadId"></param>
         /// <returns></returns>
-        public abstract Task<IEnumerable<DisqusPost>> GetThreadPostsShallow(string threadId);
+        public abstract Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId);
 
         /// <summary>
-        /// Gets full user details based on Disqus user ID
+        /// Gets a <see cref="DisqusUser"/> based on Disqus user ID
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
         public abstract Task<DisqusUser> GetUserDetails(string userId);
 
         /// <summary>
-        /// Gets the user's most recent activities on the current forum (site)
+        /// Gets the user's most recent Disqus activities
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="topN">The number of activities to return</param>

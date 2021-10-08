@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CMS.Core;
+using Disqus.Services;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,6 +10,9 @@ namespace Disqus.Models
 {
     public class DisqusPost
     {
+        private DisqusThread mThread;
+        private DisqusForum mForum;
+
         [HiddenInput]
         public string Id { get; set; }
 
@@ -17,6 +22,9 @@ namespace Disqus.Models
         [Required]
         [HiddenInput]
         public string Message { get; set; }
+
+        [HiddenInput]
+        public string Forum { get; set; }
 
         public string Raw_Message { get; set; }
 
@@ -60,11 +68,41 @@ namespace Disqus.Models
 
         public bool IsNewUserNeedsApproval { get; set; }
 
-        public DisqusThread ThreadObject { get; set; }
-
-        public string GetPermalink()
+        public DisqusThread ThreadObject
         {
-            return $"{ThreadObject.Link}#comment-{Id}";
+            get
+            {
+                if(mThread == null)
+                {
+                    var repository = Service.Resolve<DisqusRepository>();
+                    mThread = repository.GetThread(Thread).Result;
+                }
+
+                return mThread;
+            }
+
+            set => mThread = value;
+        }
+
+        public DisqusForum ForumObject
+        {
+            get
+            {
+                if (mForum == null)
+                {
+                    var repository = Service.Resolve<DisqusRepository>();
+                    mForum = repository.GetForum(Forum).Result;
+                }
+
+                return mForum;
+            }
+
+            set => mForum = value;
+        }
+
+        public string Permalink
+        {
+            get => $"{ThreadObject.Link}#comment-{Id}";
         }
     }
 }
