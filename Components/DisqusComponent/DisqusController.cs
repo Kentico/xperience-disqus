@@ -181,7 +181,7 @@ namespace Disqus.Components.DisqusComponent
                     action = (int)DisqusConstants.DisqusAction.CREATE,
                     id = post.Id,
                     parent = post.Parent,
-                    message = $"{ex.Message} Please reload the page and try again."
+                    message = ex.Message
                 });
             }
         }
@@ -287,7 +287,7 @@ namespace Disqus.Components.DisqusComponent
         [HttpPost]
         public async Task<ActionResult> VotePost(bool isLike, string id)
         {
-            var response = await disqusService.SubmitVote(id, isLike ? 1 : -1);
+            var response = await disqusService.SubmitPostVote(id, isLike ? 1 : -1);
             var code = response.Value<int>("code");
             if (code == 0)
             {
@@ -314,6 +314,21 @@ namespace Disqus.Components.DisqusComponent
             }
 
             throw new DisqusException(code, response.Value<string>("response"));
+        }
+
+        public async Task<ActionResult> RecommendThread(string id, bool doRecommend)
+        {
+            int vote = doRecommend ? 1 : -1;
+            var response = await disqusService.SubmitThreadVote(id, vote);
+            var code = response.Value<int>("code");
+            if (code == 0)
+            {
+                return Content("");
+            }
+            else
+            {
+                throw new DisqusException(code, response.Value<string>("response"));
+            }
         }
 
         /// <summary>

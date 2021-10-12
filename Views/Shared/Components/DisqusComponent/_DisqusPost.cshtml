@@ -29,11 +29,13 @@
             <div class="post-sidebar col text-break">
                 <a href="javascript:showUser('@Model.Author.Id')">
                     <img class="disqus-user-avatar" src="@Model.Author.AvatarUrl" />
-                    <br /><span class="post-author">@Model.Author.Name</span>
                 </a>
             </div>
             <div id="post_@(Model.Id)_main" class="post-main col">
                 <div class="post-header">
+                    <span class="post-author">
+                        <a href="javascript:showUser('@Model.Author.Id')">@Model.Author.Name</a>
+                    </span>
                     <span class="post-date">
                         &commat; @Model.CreatedAt.ToString()
                         @if (Model.IsEdited)

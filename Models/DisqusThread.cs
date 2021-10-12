@@ -20,6 +20,8 @@ namespace Disqus.Models
 
         public bool UserSubscription { get; set; }
 
+        public int UserScore { get; set; }
+
         public string SignedLink { get; set; }
 
         public string Message { get; set; }
@@ -32,7 +34,7 @@ namespace Disqus.Models
 
         public bool IsClosed { get; set; }
 
-        public int Posts { get; set; }
+        public int Posts { get; set; } = 0;
 
         public bool ValidateAllPosts { get; set; }
 

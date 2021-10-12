@@ -2,6 +2,15 @@
     font-size: 14px;
 }
 
+#disqus_thread .comment-policy {
+    color: #777;
+}
+
+#disqus_thread .disqus-logo {
+    height: 13px;
+    opacity: .6;
+}
+
 #disqus_thread .thread-options img {
     width: 14px;
     opacity: .7;
@@ -10,6 +19,14 @@
 #disqus_thread .thread-options a {
     cursor: pointer;
     text-decoration: none;
+}
+
+#disqus_thread .thread-options .recommend-heart {
+    opacity: .7;
+}
+
+#disqus_thread .thread-options .recommend-heart.recommended, #user_modal .recommend-heart.recommended {
+    color: #f05f70;
 }
 
 #disqus_thread .disqus-post, #disqus_thread .child-post {

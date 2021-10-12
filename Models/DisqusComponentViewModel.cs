@@ -15,6 +15,8 @@ namespace Disqus.Models
 
         public DisqusThread Thread { get; set; }
 
+        public DisqusForum Forum { get; set; }
+
         public IEnumerable<DisqusPost> Posts { get; set; } = Enumerable.Empty<DisqusPost>();
     }
 }

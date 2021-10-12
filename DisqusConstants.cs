@@ -16,7 +16,8 @@
                              THREAD_DETAILS = BASE_URL + "threads/details.json?thread={0}",
                              THREAD_POSTS = BASE_URL + "threads/listPosts.json?thread={0}",
                              THREAD_SUBSCRIBE = BASE_URL + "threads/subscribe.json",
-                             THREAD_UNSUBSCRIBE = BASE_URL + "threads/unsubscribe.json";
+                             THREAD_UNSUBSCRIBE = BASE_URL + "threads/unsubscribe.json",
+                             THREAD_VOTE = BASE_URL + "threads/vote.json";
 
         public static string POST_CREATE = BASE_URL + "posts/create.json",
                              POST_UPDATE = BASE_URL + "posts/update.json",

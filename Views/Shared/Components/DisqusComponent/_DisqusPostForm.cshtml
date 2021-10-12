@@ -55,7 +55,7 @@
     else
     {
     <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-          data-ajax="true" data-ajax-success="updatePost" data-ajax-begin="ajaxBegin" data-ajax-complete="ajaxComplete">
+          data-ajax="true" data-ajax-success="updatePost">
         <input asp-for="Id" />
         <input asp-for="Message" />
         <input asp-for="Thread" />
@@ -76,7 +76,7 @@
                     <div id="editor"></div>
                 </div>
             </div>
-            <div class="col pt-4 px-0">
+            <div class="col-auto pt-4 px-1">
                 <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
                 @if (Model.IsEditing)
                 {

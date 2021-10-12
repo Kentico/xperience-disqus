@@ -13,6 +13,8 @@ namespace Disqus.Models
 
         public DisqusForumSettings Settings { get; set; }
 
+        public bool DisableDisqusBranding { get; set; }
+
         public int DaysThreadAlive { get; set; }
 
         public string Url { get; set; }

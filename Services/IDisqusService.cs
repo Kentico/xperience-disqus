@@ -53,6 +53,14 @@ namespace Disqus.Services
         public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId);
 
         /// <summary>
+        /// Submits a like (recommend) or dislike to a thread
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <param name="value">1 or -1 for like and dislike respectively</param>
+        /// <returns></returns>
+        public abstract Task<JObject> SubmitThreadVote(string threadId, int value);
+
+        /// <summary>
         /// Gets a <see cref="DisqusPost"/> based on Disqus post ID
         /// </summary>
         /// <param name="id"></param>
@@ -86,7 +94,7 @@ namespace Disqus.Services
         /// <param name="postId"></param>
         /// <param name="value">1 or -1 for like and dislike respectively</param>
         /// <returns></returns>
-        public abstract Task<JObject> SubmitVote(string postId, int value);
+        public abstract Task<JObject> SubmitPostVote(string postId, int value);
 
         /// <summary>
         /// Flags a post for moderator review. See https://help.disqus.com/en/articles/1717148-flagging-comments

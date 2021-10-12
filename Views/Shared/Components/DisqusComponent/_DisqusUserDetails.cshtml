@@ -55,6 +55,13 @@
                     @foreach (var activity in group.Activities)
                     {
                         <div class="user-activity-row row mt-3">
+                            @if (activity.Type == "thread_like")
+                            {
+                                <div class="col-12">
+                                    <span class="recommend-heart recommended">&#10084;</span>
+                                    <span>recommended <a href="@activity.Thread.Link">@activity.Thread.Clean_Title</a></span>
+                                </div>
+                            }
                             @if (activity.Type == "post")
                             {
                                 <div class="col-12">

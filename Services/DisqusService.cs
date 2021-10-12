@@ -123,7 +123,8 @@ namespace Disqus.Services
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("forum", site),
                 new KeyValuePair<string, string>("title", title),
-                new KeyValuePair<string, string>("url", pageUrl),
+                // TODO: Enable url parameter when not running locally
+                //new KeyValuePair<string, string>("url", pageUrl),
                 new KeyValuePair<string, string>("identifier", $"{identifier};{nodeId}")
             };
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
@@ -274,7 +275,7 @@ namespace Disqus.Services
             return await MakePostRequest(DisqusConstants.POST_REPORT, data);
         }
 
-        public async Task<JObject> SubmitVote(string postId, int value)
+        public async Task<JObject> SubmitPostVote(string postId, int value)
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("post", postId),
@@ -282,6 +283,16 @@ namespace Disqus.Services
             };
 
             return await MakePostRequest(DisqusConstants.POST_VOTE, data);
+        }
+
+        public async Task<JObject> SubmitThreadVote(string threadId, int value)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("thread", threadId),
+                new KeyValuePair<string, string>("vote", value.ToString())
+            };
+
+            return await MakePostRequest(DisqusConstants.THREAD_VOTE, data);
         }
 
         public async Task<JObject> MakeGetRequest(string url)

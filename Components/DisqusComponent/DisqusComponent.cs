@@ -27,18 +27,20 @@ namespace Disqus.Components.DisqusComponent
                 throw new ArgumentNullException(nameof(widgetProperties));
             }
 
-            var model = new DisqusComponentViewModel()
-            {
-                Header = widgetProperties.Properties.Header
-            };
+            var model = new DisqusComponentViewModel();
             var identifier = string.IsNullOrEmpty(widgetProperties.Properties.ThreadIdentifier) ?
                 widgetProperties.Page.DocumentGUID.ToString() : widgetProperties.Properties.ThreadIdentifier;
-            
+
             try
             {
                 var threadId = await disqusService.GetThreadIdByIdentifier(identifier, widgetProperties.Page);
                 model.Thread = await disqusRepository.GetThread(threadId, false);
                 model.Posts = await disqusRepository.GetPostHierarchy(threadId, false);
+                model.Forum = await disqusRepository.GetForum(model.Thread.Forum);
+
+                var header = widgetProperties.Properties.Header;
+                header = header.Replace("{num}", model.Thread.Posts.ToString());
+                model.Header = header;
             }
             catch (DisqusException e)
             {
