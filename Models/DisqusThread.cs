@@ -63,17 +63,5 @@ namespace Disqus.Models
                 return Posts > 0 ? ForumObject.CommentsPlaceholderTextPopulated : ForumObject.CommentsPlaceholderTextEmpty;
             }
         }
-
-        /// <summary>
-        /// Returns the NodeID of the page the thread was created on by trimming the identifier from <see cref="Identifiers"/>
-        /// </summary>
-        /// <returns></returns>
-        public int GetNodeId()
-        {
-            var id = 0;
-            var identifier = Identifiers[0].ToString().Split(";");
-            int.TryParse(identifier[1], out id);
-            return id;
-        }
     }
 }

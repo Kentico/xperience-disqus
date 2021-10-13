@@ -27,7 +27,7 @@ namespace Disqus.OnlineMarketing
             activity.ActivityTitle = $"Reported Disqus comment";
             activity.ActivityValue = reason.ToString();
             activity.ActivityComment = $"Reported comment: {post.Message}";
-            activity.ActivityNodeID = post.ThreadObject.GetNodeId();
+            activity.ActivityNodeID = post.NodeID;
         }
     }
 }

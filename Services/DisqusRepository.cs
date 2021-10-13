@@ -131,9 +131,10 @@ namespace Disqus.Services
         /// Gets post details from Disqus, with <see cref="DisqusPost.ChildPosts"/> populated
         /// </summary>
         /// <param name="postId">The Disqus internal ID</param>
+        /// <param name="nodeId">The NodeID of the page the post was created on, or zero</param>
         /// <param name="useCache">If true, the post is returned from cache (if found) instead of the Disqus API</param>
         /// <returns>A Disqus post</returns>
-        public async Task<DisqusPost> GetPost(string postId, bool useCache = true)
+        public async Task<DisqusPost> GetPost(string postId, int nodeId = 0, bool useCache = true)
         {
             if (useCache)
             {
@@ -153,8 +154,9 @@ namespace Disqus.Services
             {
                 var post = await disqusService.GetPost(postId);
                 var thread = await GetThread(post.Thread, useCache);
-                await GetPostHierarchy(thread.Id, useCache);
+                //await GetPostHierarchy(thread.Id, nodeId, useCache);
 
+                AddPostCache(post, nodeId);
                 post.ChildPosts = GetPostChildren(post, thread);
 
                 return post;
@@ -170,9 +172,10 @@ namespace Disqus.Services
         /// Gets all of the thread's posts sorted into a hierarchical list
         /// </summary>
         /// <param name="threadId">The Disqus internal ID</param>
+        /// /// <param name="nodeId">The NodeID of the page the thread was created on</param>
         /// <param name="useCache">If true, the post is returned from cache instead of the Disqus API</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DisqusPost>> GetPostHierarchy(string threadId, bool useCache = true)
+        public async Task<IEnumerable<DisqusPost>> GetPostHierarchy(string threadId, int nodeId, bool useCache = true)
         {
             if (useCache)
             {
@@ -191,7 +194,7 @@ namespace Disqus.Services
                 var threadPosts = await disqusService.GetThreadPosts(threadId);
                 foreach (var post in threadPosts)
                 {
-                    AddPostCache(post);
+                    AddPostCache(post, nodeId);
                 }
 
                 var topLevelPosts = threadPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
@@ -206,7 +209,7 @@ namespace Disqus.Services
             catch(DisqusException ex)
             {
                 LogError(ex, nameof(GetPostHierarchy));
-                return null;
+                return Enumerable.Empty<DisqusPost>();
             }
         }
 
@@ -249,12 +252,19 @@ namespace Disqus.Services
 
         /// <summary>
         /// Adds a <see cref="DisqusPost"/> to the repository cache. Removes the post from cache
-        /// first, if it exists
+        /// first, if it exists. Sets the post's <see cref="DisqusPost.NodeID"/> if it is greater
+        /// than zero
         /// </summary>
         /// <param name="post"></param>
-        public void AddPostCache(DisqusPost post)
+        public void AddPostCache(DisqusPost post, int nodeId)
         {
             RemovePostCache(post.Id);
+
+            if(nodeId > 0)
+            {
+                post.NodeID = nodeId;
+            }
+            
             allPosts.Add(post);
         }
 

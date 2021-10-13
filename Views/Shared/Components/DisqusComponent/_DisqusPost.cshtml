@@ -57,7 +57,8 @@
                     {
                         Thread = Model.Thread,
                         Forum = Model.Forum,
-                        Parent = Model.Id
+                        Parent = Model.Id,
+                        NodeID = Model.NodeID
                     });
                 }
                 @foreach (var child in Model.ChildPosts)

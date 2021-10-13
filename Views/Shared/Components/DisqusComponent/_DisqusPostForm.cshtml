@@ -1,5 +1,6 @@
 ﻿@using Disqus.Models
 @using Disqus.Services
+@using Microsoft.AspNetCore.Http.Extensions
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Kentico.Content.Web.Mvc
 @model DisqusPost
@@ -54,39 +55,40 @@
     }
     else
     {
-    <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-          data-ajax="true" data-ajax-success="updatePost">
-        <input asp-for="Id" />
-        <input asp-for="Message" />
-        <input asp-for="Thread" />
-        <input asp-for="Forum" />
-        <input asp-for="Parent" />
-        <input asp-for="IsEditing" />
+        <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
+              data-ajax="true" data-ajax-success="updatePost">
+            <input asp-for="Id" />
+            <input asp-for="Message" />
+            <input asp-for="Thread" />
+            <input asp-for="Forum" />
+            <input asp-for="Parent" />
+            <input asp-for="NodeID" />
+            <input asp-for="IsEditing" />
 
-        <div class="form-group row">
-            @if (!Model.IsEditing)
-            {
-                <div class="col-auto">
-                    <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
-                </div>
-            }
-            <div class="col editor-wrapper">
-                <div id="editor_container">
-                    <span class="form-posting-as">You're posting as @currentUser.Name</span>
-                    <div id="editor"></div>
-                </div>
-            </div>
-            <div class="col-auto pt-4 px-1">
-                <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
-                @if (Model.IsEditing)
+            <div class="form-group row">
+                @if (!Model.IsEditing)
                 {
-                    <div class="pt-1">
-                        <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel"
-                               class="p-0 btn btn-sm btn-danger" />
+                    <div class="col-auto">
+                        <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
                     </div>
                 }
+                <div class="col editor-wrapper">
+                    <div id="editor_container">
+                        <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus", new { returnUrl = Context.Request.GetEncodedUrl() })">Log out</a></span>
+                        <div id="editor"></div>
+                    </div>
+                </div>
+                <div class="col-auto pt-4 px-1">
+                    <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
+                    @if (Model.IsEditing)
+                    {
+                        <div class="pt-1">
+                            <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel"
+                                   class="p-0 btn btn-sm btn-danger" />
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
     }
 </div>

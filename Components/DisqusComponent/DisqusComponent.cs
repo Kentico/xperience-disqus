@@ -27,7 +27,9 @@ namespace Disqus.Components.DisqusComponent
                 throw new ArgumentNullException(nameof(widgetProperties));
             }
 
-            var model = new DisqusComponentViewModel();
+            var model = new DisqusComponentViewModel() {
+                NodeID = widgetProperties.Page.NodeID
+            };
             var identifier = string.IsNullOrEmpty(widgetProperties.Properties.ThreadIdentifier) ?
                 widgetProperties.Page.DocumentGUID.ToString() : widgetProperties.Properties.ThreadIdentifier;
 
@@ -35,7 +37,7 @@ namespace Disqus.Components.DisqusComponent
             {
                 var threadId = await disqusService.GetThreadIdByIdentifier(identifier, widgetProperties.Page);
                 model.Thread = await disqusRepository.GetThread(threadId, false);
-                model.Posts = await disqusRepository.GetPostHierarchy(threadId, false);
+                model.Posts = await disqusRepository.GetPostHierarchy(threadId, model.NodeID, false);
                 model.Forum = await disqusRepository.GetForum(model.Thread.Forum);
 
                 var header = widgetProperties.Properties.Header;
@@ -44,11 +46,11 @@ namespace Disqus.Components.DisqusComponent
             }
             catch (DisqusException e)
             {
-                model.Exception = e;
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", e);
             }
             catch (Exception e)
             {
-                model.Exception = new DisqusException(500, e.Message);
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusException(500, e.Message));
             }
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusComponent.cshtml", model);

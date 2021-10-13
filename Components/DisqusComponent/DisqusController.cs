@@ -8,9 +8,9 @@ using CMS.TextAnalytics.Azure;
 using Disqus.Models;
 using Disqus.OnlineMarketing;
 using Disqus.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
 using System.Threading;
@@ -163,7 +163,7 @@ namespace Disqus.Components.DisqusComponent
                 var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
                 var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
 
-                disqusRepository.AddPostCache(newPost);
+                disqusRepository.AddPostCache(newPost, post.NodeID);
                 await LogCommentActivity(post);
 
                 return Json(new {
@@ -371,7 +371,7 @@ namespace Disqus.Components.DisqusComponent
 
         /// <summary>
         /// The endpoint called after a user authenticates with Disqus. This action retrieves a token
-        /// from Disqus' endpoint and sets the <see cref="IDisqusService.CurrentUser"/>
+        /// from Disqus' endpoint and sets the <see cref="IDisqusService.AuthCookie"/>
         /// </summary>
         /// <returns></returns>
         public async Task<ActionResult> Auth()
@@ -392,6 +392,14 @@ namespace Disqus.Components.DisqusComponent
 
                 return new RedirectResult("/");
             }
+        }
+
+        public ActionResult LogOut()
+        {
+            var returnUrl = QueryHelper.GetString("returnUrl", "");
+            CookieHelper.Remove(DisqusConstants.AUTH_COOKIE_DATA);
+
+            return new RedirectResult(returnUrl);
         }
     }
 }

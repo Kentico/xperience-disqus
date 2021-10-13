@@ -137,8 +137,8 @@
 
                     var container;
                     if (response.parent === '') {
-                        // Not a reply. The first submit form has no id so add after that
-                        container = $('#disqus_thread #post_reply_container_reply_');
+                        // Not a reply, add after thread options
+                        container = $('#disqus_thread .thread-options');
                         container.find('.ql-editor').html('');
                     }
                     else {
@@ -305,55 +305,50 @@
 
 <script>
     $(document).ready(function () {
-        var isSubscribed = ('@(Model.Thread != null && Model.Thread.UserSubscription)' === 'True');
+        var isSubscribed = ('@(Model.Thread.UserSubscription)' === 'True');
         setIsSubscribed(isSubscribed);
 
-        var isRecommended = ('@(Model.Thread != null && Model.Thread.UserScore == 1)' === 'True');
+        var isRecommended = ('@(Model.Thread.UserScore == 1)' === 'True');
         setIsRecommended(isRecommended);
     });
 </script>
 <div id="disqus_thread">
     <span class="h3">@Model.Header</span>
 
-    @if (Model.Exception != null)
+    @if (!Model.Thread.IsClosed)
     {
-        await Html.RenderPartialAsync("_DisqusException.cshtml", Model.Exception);
+        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+        {
+            Thread = Model.Thread.Id,
+            Forum = Model.Thread.Forum,
+            NodeID = Model.NodeID
+        });
     }
     else
     {
-        if (!Model.Thread.IsClosed)
-        {
-            await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
-            {
-                Thread = Model.Thread.Id,
-                Forum = Model.Thread.Forum
-            });
-        }
-        else
-        {
-            <p>This thread is closed.</p>
-        }
+        <p>This thread is closed.</p>
+    }
 
-        <div class="d-flex flex-row justify-content-end">
-            <div class="thread-options my-1">
-                <div class="d-inline align-middle px-1">
-                    <span class="recommend-heart">&#10084;</span>
-                    <a class="recommend-link" onclick="javascript:recommendThread(this)" data-thread-id="@Model.Thread.Id">Recommend</a>
-                </div>
-                <div class="d-inline align-middle px-1">
-                    <img src="/email.png" />
-                    <a class="subscribe-link" onclick="javascript:subscribeThread(this)" data-thread-id="@Model.Thread.Id">Subscribe</a>
-                </div>
-                <div class="d-inline align-middle px-1">
-                    <img src="/rss.png" />
-                    <a href="@Model.Thread.Feed" target="_blank">RSS</a>
-                </div>
-            </div>
-        </div>
-        foreach (var post in Model.Posts.Where(p => string.IsNullOrEmpty(p.Parent)))
+    <div class="d-flex flex-row justify-content-end thread-options my-1">
+        @if (disqusService.IsAuthenticated())
         {
-            await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
+            <div class="d-inline align-middle px-1">
+                <span class="recommend-heart">&#10084;</span>
+                <a class="recommend-link" onclick="javascript:recommendThread(this)" data-thread-id="@Model.Thread.Id">Recommend</a>
+            </div>
+            <div class="d-inline align-middle px-1">
+                <img src="/email.png" />
+                <a class="subscribe-link" onclick="javascript:subscribeThread(this)" data-thread-id="@Model.Thread.Id">Subscribe</a>
+            </div>
         }
+        <div class="d-inline align-middle px-1">
+            <img src="/rss.png" />
+            <a href="@Model.Thread.Feed" target="_blank">RSS</a>
+        </div>
+    </div>
+    @foreach (var post in Model.Posts)
+    {
+        await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
     }
 
     <div class="d-flex flex-row justify-content-between">
@@ -367,7 +362,7 @@
                 }
             </div>
         }
-        @if (Model.Forum != null && !Model.Forum.DisableDisqusBranding)
+        @if (!Model.Forum.DisableDisqusBranding)
         {
             <div class="powered-by-disqus align-middle">
                 Powered by&nbsp;

@@ -28,7 +28,7 @@ namespace Disqus.OnlineMarketing
             activity.ActivityTitle = $"Posted {sentiment.ToString().ToLower()} comment";
             activity.ActivityValue = sentiment.ToString().ToLower();
             activity.ActivityComment = post.Message;
-            activity.ActivityNodeID = post.ThreadObject.GetNodeId();
+            activity.ActivityNodeID = post.NodeID;
         }
     }
 }

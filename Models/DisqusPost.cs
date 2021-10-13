@@ -1,4 +1,5 @@
 ﻿using CMS.Core;
+using Disqus.OnlineMarketing;
 using Disqus.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,12 +20,18 @@ namespace Disqus.Models
         [HiddenInput]
         public string Thread { get; set; }
 
-        [Required]
         [HiddenInput]
         public string Message { get; set; }
 
         [HiddenInput]
         public string Forum { get; set; }
+
+        /// <summary>
+        /// Used to track the node the widget is currently placed on, to be used in <see cref="DisqusCommentActivityInitializer"/>.
+        /// Must be set manually when a new post is loaded/created
+        /// </summary>
+        [HiddenInput]
+        public int NodeID { get; set; }
 
         public string Raw_Message { get; set; }
 

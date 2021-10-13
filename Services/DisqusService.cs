@@ -102,7 +102,7 @@ namespace Disqus.Services
         {
             var url = string.Format(DisqusConstants.THREAD_LISTING, site);
             var getThreadsResponse = await MakeGetRequest(url);
-            var foundThread = getThreadsResponse.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier};{node.NodeID}')].id");
+            var foundThread = getThreadsResponse.SelectTokens($"$.response[?(@.identifiers[0] == '{identifier}')].id");
 
             if (foundThread.Count() > 0)
             {
@@ -112,20 +112,19 @@ namespace Disqus.Services
             {
                 // Thread with identifier doesn't exist yet
                 var pageUrl = pageUrlRetriever.Retrieve(node).AbsoluteUrl;
-                var createResponse = await CreateThread(identifier, node.DocumentName, pageUrl, node.NodeID);
+                var createResponse = await CreateThread(identifier, node.DocumentName, pageUrl);
                     
                 return createResponse.SelectToken("$.response.id").ToString();
             }
         }
 
-        public async Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId)
+        public async Task<JObject> CreateThread(string identifier, string title, string pageUrl)
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("forum", site),
                 new KeyValuePair<string, string>("title", title),
-                // TODO: Enable url parameter when not running locally
-                //new KeyValuePair<string, string>("url", pageUrl),
-                new KeyValuePair<string, string>("identifier", $"{identifier};{nodeId}")
+                new KeyValuePair<string, string>("url", pageUrl),
+                new KeyValuePair<string, string>("identifier", $"{identifier}")
             };
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }

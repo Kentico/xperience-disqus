@@ -48,9 +48,9 @@ namespace Disqus.Services
         /// <summary>
         /// Creates a new thread with the provided identifier, and returns the thread internal ID
         /// </summary>
-        /// <param name="identifier">An arbitrary identifier, which is combined with the NodeID to create a unique identifier</param>
+        /// <param name="identifier">An arbitrary identifier which can be used to load the thread later</param>
         /// <returns>The response from the Disqus server</returns>
-        public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl, int nodeId);
+        public abstract Task<JObject> CreateThread(string identifier, string title, string pageUrl);
 
         /// <summary>
         /// Submits a like (recommend) or dislike to a thread
