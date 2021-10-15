@@ -1,15 +1,20 @@
 ﻿@using Disqus
+@using Disqus.Models
 @using Disqus.Services
-@model DisqusException
+@model DisqusExceptionViewModel
 @inject IDisqusService disqusService
 
-@if (Model.ErrorCode == DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
-{
-    await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
-}
-else
-{
-<div>
-    <p>I'm sorry, there was a problem loading Disqus comments: @Model.Message</p>
+<div id="disqus_thread">
+    <span class="h3">@Model.Header</span>
+    @if (Model.Exception.ErrorCode == DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
+    {
+        await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
+    }
+    else
+    {
+        <div>
+            <p>I'm sorry, there was a problem loading Disqus comments: @Model.Exception.Message</p>
+        </div>
+    }
 </div>
-}
+    

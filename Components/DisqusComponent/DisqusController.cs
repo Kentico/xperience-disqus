@@ -8,7 +8,6 @@ using CMS.TextAnalytics.Azure;
 using Disqus.Models;
 using Disqus.OnlineMarketing;
 using Disqus.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -70,27 +69,33 @@ namespace Disqus.Components.DisqusComponent
         /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> SubmitPost(DisqusPost post)
+        public async Task<ActionResult> SubmitPost(DisqusEditingFormModel model)
         {
             // This is the default "empty" text that Quill returns
-            if(post.Message == "<p><br></p>")
+            if(string.IsNullOrEmpty(model.Message) || model.Message == "<p><br></p>")
             {
                 return Json(new
                 {
                     success = false,
-                    id = post.Id,
-                    parent = post.Parent,
                     message = "Please enter a message."
                 });
             }
-
-            if(post.IsEditing)
+            if (!disqusService.IsAuthenticated() && (string.IsNullOrEmpty(model.AnonName) || string.IsNullOrEmpty(model.AnonEmail)))
             {
-                return await UpdatePost(post);
+                return Json(new
+                {
+                    success = false,
+                    message = "You must provide your name and email address."
+                });
+            }
+
+            if(!string.IsNullOrEmpty(model.EditedPostId))
+            {
+                return await UpdatePost(model);
             }
             else
             {
-                return await CreatePost(post);
+                return await CreatePost(model);
             }
             
         }
@@ -99,20 +104,20 @@ namespace Disqus.Components.DisqusComponent
         /// Called from the submit button on the _DisqusPostForm.cshtml, updates an existing post in Disqus.
         /// Logs a custom On-line Marketing activity with Sentiment Analysis results
         /// </summary>
-        /// <param name="post"></param>
+        /// <param name="model"></param>
         /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
-        private async Task<ActionResult> UpdatePost(DisqusPost post)
+        private async Task<ActionResult> UpdatePost(DisqusEditingFormModel model)
         {
             try
             {
                 var data = new
                 {
-                    message = post.Message
+                    message = model.Message
                 };
-                disqusRepository.UpdatePostCache(post.Id, DisqusConstants.DisqusAction.UPDATE, data);
-                var response = await disqusService.UpdatePost(post);
-                await LogCommentActivity(post);
+                disqusRepository.UpdatePostCache(model.EditedPostId, DisqusConstants.DisqusAction.UPDATE, data);
+                var response = await disqusService.UpdatePost(model.EditedPostId, model.Message);
+                LogCommentActivity(model);
 
                 return Json(new
                 {
@@ -127,9 +132,6 @@ namespace Disqus.Components.DisqusComponent
                 return Json(new
                 {
                     success = false,
-                    action = (int)DisqusConstants.DisqusAction.UPDATE,
-                    id = post.Id,
-                    parent = post.Parent,
                     message = ex.Message
                 });
             }
@@ -152,19 +154,19 @@ namespace Disqus.Components.DisqusComponent
         /// Called from the submit button on the _DisqusPostForm.cshtml, creates a new post in Disqus.
         /// Logs a custom On-line Marketing activity with Sentiment Analysis results
         /// </summary>
-        /// <param name="post"></param>
+        /// <param name="model"></param>
         /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
         [HttpPost]
-        private async Task<ActionResult> CreatePost(DisqusPost post)
+        private async Task<ActionResult> CreatePost(DisqusEditingFormModel model)
         {
             try
             {
-                var response = await disqusService.CreatePost(post);
+                var response = await disqusService.CreatePost(model.Message, model.PostThread, model.ReplyTo, model.AnonName, model.AnonEmail);
                 var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
                 var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
 
-                disqusRepository.AddPostCache(newPost, post.NodeID);
-                await LogCommentActivity(post);
+                disqusRepository.AddPostCache(newPost, model.PostNodeID);
+                LogCommentActivity(model);
 
                 return Json(new {
                     success = true,
@@ -173,14 +175,11 @@ namespace Disqus.Components.DisqusComponent
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
             }
-            catch (DisqusException ex)
+            catch (Exception ex)
             {
                 return Json(new
                 {
                     success = false,
-                    action = (int)DisqusConstants.DisqusAction.CREATE,
-                    id = post.Id,
-                    parent = post.Parent,
                     message = ex.Message
                 });
             }
@@ -236,13 +235,8 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="post"></param>
         /// <returns></returns>
-        public async Task LogCommentActivity(DisqusPost post)
+        public void LogCommentActivity(DisqusEditingFormModel model)
         {
-            if(post.ThreadObject == null)
-            {
-                post.ThreadObject = await disqusRepository.GetThread(post.Thread);
-            }
-
             // Perform Sentiment Analysis
             var sentiment = TextSentiment.Neutral;
             if (SettingsKeyInfoProvider.GetBoolValue("CMSEnableSentimentAnalysis") &&
@@ -252,7 +246,7 @@ namespace Disqus.Components.DisqusComponent
                 try
                 {
                     var culture = Thread.CurrentThread.CurrentCulture.Name;
-                    DocumentSentiment result = sentimentAnalysisService.AnalyzeText(post.Message, culture, SiteContext.CurrentSiteName);
+                    DocumentSentiment result = sentimentAnalysisService.AnalyzeText(model.Message, culture, SiteContext.CurrentSiteName);
                     sentiment = result.Sentiment;
                 }
                 catch (Exception e)
@@ -261,7 +255,7 @@ namespace Disqus.Components.DisqusComponent
                 }
             }
 
-            var activityInitializer = new DisqusCommentActivityInitializer(post, sentiment);
+            var activityInitializer = new DisqusCommentActivityInitializer(model.Message, model.PostNodeID, sentiment);
             activityLogService.Log(activityInitializer);
         }
 
@@ -274,8 +268,19 @@ namespace Disqus.Components.DisqusComponent
         public async Task<ActionResult> EditPost(string id)
         {
             var post = await disqusRepository.GetPost(id);
-            post.IsEditing = true;
-            return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", post);
+            var model = new DisqusEditingFormModel()
+            {
+                AllowAnon = post.ForumObject.Settings.AllowAnonPost,
+                AllowMedia = post.ForumObject.Settings.MediaEmbedEnabled,
+                EditedPostId = id,
+                Message = post.Message,
+                PlaceholderText = post.ThreadObject.PlaceholderText,
+                PostNodeID = post.NodeID,
+                PostThread = post.Thread,
+                ReplyTo = post.Parent
+            };
+
+            return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", model);
         }
 
         /// <summary>

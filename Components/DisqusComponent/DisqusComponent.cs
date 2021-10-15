@@ -33,6 +33,7 @@ namespace Disqus.Components.DisqusComponent
             var identifier = string.IsNullOrEmpty(widgetProperties.Properties.ThreadIdentifier) ?
                 widgetProperties.Page.DocumentGUID.ToString() : widgetProperties.Properties.ThreadIdentifier;
 
+            var header = widgetProperties.Properties.Header;
             try
             {
                 var threadId = await disqusService.GetThreadIdByIdentifier(identifier, widgetProperties.Page);
@@ -40,17 +41,18 @@ namespace Disqus.Components.DisqusComponent
                 model.Posts = await disqusRepository.GetPostHierarchy(threadId, model.NodeID, false);
                 model.Forum = await disqusRepository.GetForum(model.Thread.Forum);
 
-                var header = widgetProperties.Properties.Header;
                 header = header.Replace("{num}", model.Thread.Posts.ToString());
                 model.Header = header;
             }
             catch (DisqusException e)
             {
-                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", e);
+                header = header.Replace("{num}", "0");
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() { Header = header, Exception = e });
             }
             catch (Exception e)
             {
-                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusException(500, e.Message));
+                header = header.Replace("{num}", "0");
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() { Header = header, Exception = new DisqusException(500, e.Message) });
             }
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusComponent.cshtml", model);

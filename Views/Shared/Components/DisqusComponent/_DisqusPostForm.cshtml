@@ -1,20 +1,28 @@
 ﻿@using Disqus.Models
 @using Disqus.Services
+@using CMS.Membership
 @using Microsoft.AspNetCore.Http.Extensions
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Kentico.Content.Web.Mvc
-@model DisqusPost
+@model DisqusEditingFormModel
 @inject IDisqusService disqusService
 @inject DisqusRepository disqusRepository
 
 @{
     Layout = null;
     var currentUser = await disqusRepository.GetCurrentUser();
-    var doCollapse = Model.IsEditing || string.IsNullOrEmpty(Model.Parent) ? "" : "collapse";
-    var embedOptions = Model.ForumObject.Settings.MediaEmbedEnabled ? ", 'image', 'video'" : "";
+    var doCollapse = !string.IsNullOrEmpty(Model.EditedPostId) || string.IsNullOrEmpty(Model.ReplyTo) ? "" : "collapse";
+    var embedOptions = Model.AllowMedia ? ", 'image', 'video'" : "";
+
+    if(User.Identity.IsAuthenticated)
+    {
+        var user = UserInfo.Provider.Get(User.Identity.Name);
+        Model.AnonName = user.FullName;
+        Model.AnonEmail = user.Email;
+    }
 
     // If creating a new reply, Model.Id will be empty, set to parent (the post we're replying to)
-    var id = string.IsNullOrEmpty(Model.Id) ? $"reply_{Model.Parent}" : Model.Id;
+    var id = string.IsNullOrEmpty(Model.EditedPostId) ? $"reply_{Model.ReplyTo}" : Model.EditedPostId;
 }
 
 <script>
@@ -22,7 +30,7 @@
         var quill = new window.Quill('#post_reply_container_@id #editor', {
             bounds: '#post_reply_container_@id #editor_container',
             theme: 'snow',
-            placeholder: `@Model.ThreadObject.PlaceholderText`,
+            placeholder: `@Model.PlaceholderText`,
             modules: {
                 toolbar: [
                     ['bold', 'italic', 'underline', 'strike'],
@@ -35,8 +43,8 @@
         });
 
         // Set HTML content (if editing)
-        if ('@Model.IsEditing.ToString()' === 'True') {
-            const delta = quill.clipboard.convert(`@Html.Raw(Model.Raw_Message)`);
+        if ('@string.IsNullOrEmpty(Model.EditedPostId)' === 'False') {
+            const delta = quill.clipboard.convert(`@Html.Raw(Model.Message)`);
             quill.setContents(delta, 'silent');
         }
 
@@ -49,46 +57,56 @@
 </script>
 
 <div id="post_reply_container_@id" class="post-reply-container col pt-1 @doCollapse">
-    @if (!disqusService.IsAuthenticated())
+    @if (!disqusService.IsAuthenticated() && !Model.AllowAnon)
     {
         await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
     }
     else
     {
-        <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-              data-ajax="true" data-ajax-success="updatePost">
-            <input asp-for="Id" />
-            <input asp-for="Message" />
-            <input asp-for="Thread" />
-            <input asp-for="Forum" />
-            <input asp-for="Parent" />
-            <input asp-for="NodeID" />
-            <input asp-for="IsEditing" />
+    <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
+          data-ajax="true" data-ajax-success="updatePost">
+        <input asp-for="EditedPostId" />
+        <input asp-for="ReplyTo" />
+        <input asp-for="Message" />
+        <input asp-for="PostNodeID" />
+        <input asp-for="PostThread" />
 
-            <div class="form-group row">
-                @if (!Model.IsEditing)
-                {
-                    <div class="col-auto">
-                        <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
-                    </div>
-                }
-                <div class="col editor-wrapper">
-                    <div id="editor_container">
-                        <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus", new { returnUrl = Context.Request.GetEncodedUrl() })">Log out</a></span>
-                        <div id="editor"></div>
-                    </div>
+        <div class="form-group row">
+            @if (string.IsNullOrEmpty(Model.EditedPostId) && disqusService.IsAuthenticated())
+            {
+                <div class="col-auto">
+                    <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
                 </div>
-                <div class="col-auto pt-4 px-1">
-                    <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
-                    @if (Model.IsEditing)
-                    {
-                        <div class="pt-1">
-                            <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.Id" name="cancelButton" value="Cancel"
-                                   class="p-0 btn btn-sm btn-danger" />
-                        </div>
-                    }
+            }
+            <div class="col editor-wrapper">
+                <div id="editor_container">
+                    <div class="form-posting-as py-1">
+                        @if (disqusService.IsAuthenticated())
+                        {
+                            <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus", new { returnUrl = Context.Request.GetEncodedUrl() })">Log out</a></span>
+                        }
+                        else
+                        {
+                            <span>Posting anonymously as</span>
+                            <input class="form-control-sm" placeholder="Name" asp-for="AnonName" />
+                            <input class="form-control-sm" placeholder="Email" asp-for="AnonEmail" />
+                            <span>or you can <a href="@disqusService.GetAuthenticationUrl()">log in</a></span>
+                        }
+                    </div>
+                    <div id="editor"></div>
                 </div>
             </div>
-        </form>
+            <div class="col-auto pt-4 px-1">
+                <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
+                @if (!string.IsNullOrEmpty(Model.EditedPostId))
+                {
+                    <div class="pt-1">
+                        <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.EditedPostId" name="cancelButton" value="Cancel"
+                               class="p-0 btn btn-sm btn-danger" />
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
     }
 </div>

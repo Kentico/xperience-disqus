@@ -53,12 +53,14 @@
                 <div class="w-100"></div>
                 @if (!Model.ThreadObject.IsClosed)
                 {
-                    await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+                    await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusEditingFormModel()
                     {
-                        Thread = Model.Thread,
-                        Forum = Model.Forum,
-                        Parent = Model.Id,
-                        NodeID = Model.NodeID
+                        PostThread = Model.Thread,
+                        PostNodeID = Model.NodeID,
+                        ReplyTo = Model.Id,
+                        PlaceholderText = Model.ThreadObject.PlaceholderText,
+                        AllowMedia = Model.ForumObject.Settings.MediaEmbedEnabled,
+                        AllowAnon = Model.ForumObject.Settings.AllowAnonPost
                     });
                 }
                 @foreach (var child in Model.ChildPosts)

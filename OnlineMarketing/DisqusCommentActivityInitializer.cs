@@ -6,7 +6,8 @@ namespace Disqus.OnlineMarketing
 {
     public class DisqusCommentActivityInitializer : CustomActivityInitializerBase
     {
-        private readonly DisqusPost post;
+        private readonly string message;
+        private readonly int nodeId;
         private readonly TextSentiment sentiment;
 
         public override string ActivityType
@@ -17,9 +18,10 @@ namespace Disqus.OnlineMarketing
             }
         }
 
-        public DisqusCommentActivityInitializer(DisqusPost post, TextSentiment sentiment)
+        public DisqusCommentActivityInitializer(string message, int nodeId, TextSentiment sentiment)
         {
-            this.post = post;
+            this.message = message;
+            this.nodeId = nodeId;
             this.sentiment = sentiment;
         }
 
@@ -27,8 +29,8 @@ namespace Disqus.OnlineMarketing
         {
             activity.ActivityTitle = $"Posted {sentiment.ToString().ToLower()} comment";
             activity.ActivityValue = sentiment.ToString().ToLower();
-            activity.ActivityComment = post.Message;
-            activity.ActivityNodeID = post.NodeID;
+            activity.ActivityComment = message;
+            activity.ActivityNodeID = nodeId;
         }
     }
 }

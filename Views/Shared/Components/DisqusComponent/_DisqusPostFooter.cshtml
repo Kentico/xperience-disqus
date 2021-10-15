@@ -5,6 +5,14 @@
 
 @{ 
     Layout = null;
+    var canReply = !Model.ThreadObject.IsClosed && (disqusService.IsAuthenticated() || (!disqusService.IsAuthenticated() && Model.ForumObject.Settings.AllowAnonPost));
+    var canDelete = disqusService.IsAuthenticated() &&
+       disqusService.AuthCookie.User_Id == Model.Author.Id &&
+       !Model.ThreadObject.IsClosed;
+    var canEdit = disqusService.IsAuthenticated() &&
+       disqusService.AuthCookie.User_Id == Model.Author.Id &&
+       !Model.ThreadObject.IsClosed &&
+       DateTime.Now < Model.EditableUntil;
 }
 
 <div id="post_@(Model.Id)_footer" class="post-footer">
@@ -20,7 +28,7 @@
         </div>
     }
     <div id="post_@(Model.Id)_actions" class="d-inline px-2">
-        @if (!Model.ThreadObject.IsClosed && disqusService.IsAuthenticated())
+        @if (canReply)
         {
             <a class="btn btn-link" data-toggle="collapse" data-target="#post_reply_container_reply_@Model.Id"
                role="button" aria-expanded="false" aria-controls="post_reply_container_reply_@Model.Id">
@@ -28,16 +36,11 @@
             </a>
         }
 
-        @if (disqusService.IsAuthenticated() &&
-   disqusService.AuthCookie.User_Id == Model.Author.Id &&
-   !Model.ThreadObject.IsClosed &&
-   DateTime.Now < Model.EditableUntil)
+        @if (canEdit)
         {
             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:editPost(this)" data-post-id="@Model.Id">Edit</a></span>
         }
-        @if (disqusService.IsAuthenticated() &&
-   disqusService.AuthCookie.User_Id == Model.Author.Id &&
-   !Model.ThreadObject.IsClosed)
+        @if (canDelete)
         {
             <span>&nbsp;|&nbsp;&nbsp;<a class="btn btn-link" onclick="javascript:deletePost(this)" data-post-id="@Model.Id">Delete</a></span>
         }

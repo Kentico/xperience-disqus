@@ -124,7 +124,7 @@ namespace Disqus.Services
                 new KeyValuePair<string, string>("forum", site),
                 new KeyValuePair<string, string>("title", title),
                 new KeyValuePair<string, string>("url", pageUrl),
-                new KeyValuePair<string, string>("identifier", $"{identifier}")
+                new KeyValuePair<string, string>("identifier", identifier)
             };
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }
@@ -145,28 +145,37 @@ namespace Disqus.Services
             return posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
         }
 
-        public async Task<JObject> UpdatePost(DisqusPost post)
+        public async Task<JObject> UpdatePost(string postId, string message)
         {
             var data = new List<KeyValuePair<string, string>>() {
-                new KeyValuePair<string, string>("message", post.Message),
-                new KeyValuePair<string, string>("post", post.Id)
+                new KeyValuePair<string, string>("message", message),
+                new KeyValuePair<string, string>("post", postId)
             };
 
             return await MakePostRequest(DisqusConstants.POST_UPDATE, data);
         }
 
-        public async Task<JObject> CreatePost(DisqusPost post)
+        public async Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "")
         {
             var data = new List<KeyValuePair<string, string>>() {
-                new KeyValuePair<string, string>("message", post.Message),
-                new KeyValuePair<string, string>("thread", post.Thread)
+                new KeyValuePair<string, string>("message", message),
+                new KeyValuePair<string, string>("thread", threadId)
             };
-            if(!string.IsNullOrEmpty(post.Parent))
+
+            if(!string.IsNullOrEmpty(parentId))
             {
-                data.Add(new KeyValuePair<string, string>("parent", post.Parent));
+                data.Add(new KeyValuePair<string, string>("parent", parentId));
             }
 
-            return await MakePostRequest(DisqusConstants.POST_CREATE, data);
+            var url = DisqusConstants.POST_CREATE;
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email))
+            {
+                url = DisqusConstants.POST_CREATE_ANON;
+                data.Add(new KeyValuePair<string, string>("author_name", name));
+                data.Add(new KeyValuePair<string, string>("author_email", email));
+            }
+
+            return await MakePostRequest(url, data);
         }
 
         public async Task<JObject> DeletePost(string id)
@@ -329,34 +338,52 @@ namespace Disqus.Services
 
         public async Task<JObject> MakePostRequest(string url, List<KeyValuePair<string, string>> data)
         {
-            if (IsAuthenticated())
-            {
-                data.Add(new KeyValuePair<string, string>("access_token", AuthCookie.Access_Token));
-            }
-
-            data.Add(new KeyValuePair<string, string>("api_secret", secret));
-
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-                var response = await client.PostAsync(url, new FormUrlEncodedContent(data));
-                var content = await response.Content.ReadAsStringAsync();
-                var result = JObject.Parse(content);
-                client.Dispose();
-
-                if (result.Value<int>("code") == 0)
+                if (IsAuthenticated())
                 {
-                    if (debug)
-                    {
-                        var postedData = JsonConvert.SerializeObject(data);
-                        eventLogService.LogInformation(nameof(DisqusService), url, $"data:\n{postedData}\n\nresult:\n{content}");
-                    }
+                    data.Add(new KeyValuePair<string, string>("access_token", AuthCookie.Access_Token));
+                }
 
-                    return result;
+                // Special case for anonymous posts- must use api_key and pass headers
+                if (url == DisqusConstants.POST_CREATE_ANON)
+                {
+                    data.Add(new KeyValuePair<string, string>("api_key", publicKey));
+                    client.DefaultRequestHeaders.Add("Referer", RequestContext.CurrentDomain);
+                    client.DefaultRequestHeaders.Add("Host", RequestContext.CurrentDomain);
+
                 }
                 else
                 {
-                    throw new DisqusException(result.Value<int>("code"), result.Value<string>("response"));
+                    data.Add(new KeyValuePair<string, string>("api_secret", secret));
+                }
+
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                var response = await client.PostAsync(url, new FormUrlEncodedContent(data));
+                var content = await response.Content.ReadAsStringAsync();
+
+                try{
+                    var result = JObject.Parse(content);
+                    client.Dispose();
+
+                    if (result.Value<int>("code") == 0)
+                    {
+                        if (debug)
+                        {
+                            var postedData = JsonConvert.SerializeObject(data);
+                            eventLogService.LogInformation(nameof(DisqusService), url, $"data:\n{postedData}\n\nresult:\n{content}");
+                        }
+
+                        return result;
+                    }
+                    else
+                    {
+                        throw new DisqusException(result.Value<int>("code"), result.Value<string>("response"));
+                    }
+                }
+                catch(JsonReaderException ex)
+                {
+                    throw new Exception($"Error parsing response: {content}");
                 }
             }
         }

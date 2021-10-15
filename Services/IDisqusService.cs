@@ -70,16 +70,21 @@ namespace Disqus.Services
         /// <summary>
         /// Creates a new post in Disqus
         /// </summary>
-        /// <param name="post"></param>
+        /// <param name="message"></param>
+        /// <param name="threadId"></param>
+        /// <param name="parentId"></param>
+        /// <param name="name"></param>
+        /// <param name="email"></param>
         /// <returns></returns>
-        public abstract Task<JObject> CreatePost(DisqusPost post);
+        public abstract Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "");
 
         /// <summary>
         /// Updates a post in Disqus
         /// </summary>
-        /// <param name="post"></param>
+        /// <param name="postId"></param>
+        /// <param name="message"></param>
         /// <returns></returns>
-        public abstract Task<JObject> UpdatePost(DisqusPost post);
+        public abstract Task<JObject> UpdatePost(string postId, string message);
 
         /// <summary>
         /// Deletes a post in Disqus

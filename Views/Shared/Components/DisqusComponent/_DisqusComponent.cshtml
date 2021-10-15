@@ -139,7 +139,7 @@
                     if (response.parent === '') {
                         // Not a reply, add after thread options
                         container = $('#disqus_thread .thread-options');
-                        container.find('.ql-editor').html('');
+                        $('#disqus_thread #post_reply_container_reply_ .ql-editor').html('');
                     }
                     else {
                         // Reply, add after the reply form for parent
@@ -317,11 +317,13 @@
 
     @if (!Model.Thread.IsClosed)
     {
-        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusPost()
+        await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusEditingFormModel()
         {
-            Thread = Model.Thread.Id,
-            Forum = Model.Thread.Forum,
-            NodeID = Model.NodeID
+            PostThread = Model.Thread.Id,
+            PostNodeID = Model.NodeID,
+            PlaceholderText = Model.Thread.PlaceholderText,
+            AllowMedia = Model.Forum.Settings.MediaEmbedEnabled,
+            AllowAnon = Model.Forum.Settings.AllowAnonPost
         });
     }
     else
