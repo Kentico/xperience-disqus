@@ -26,13 +26,6 @@ namespace Disqus.Models
         [HiddenInput]
         public string Forum { get; set; }
 
-        /// <summary>
-        /// Used to track the node the widget is currently placed on, to be used in <see cref="DisqusCommentActivityInitializer"/>.
-        /// Must be set manually when a new post is loaded/created
-        /// </summary>
-        [HiddenInput]
-        public int NodeID { get; set; }
-
         public string Raw_Message { get; set; }
 
         public int NumReports { get; set; }
@@ -48,8 +41,6 @@ namespace Disqus.Models
         public DateTime CreatedAt { get; set; }
 
         public DisqusUser Author { get; set; }
-
-        public IEnumerable<DisqusPost> ChildPosts { get; set; } = Enumerable.Empty<DisqusPost>();
 
         public bool IsSpam { get; set; }
 
@@ -67,13 +58,11 @@ namespace Disqus.Models
 
         public bool CanVote { get; set; }
 
-        [HiddenInput]
-        public bool IsEditing { get; set; }
-
-        [HiddenInput]
         public string Parent { get; set; } = string.Empty;
 
         public bool IsNewUserNeedsApproval { get; set; }
+
+        public int NestingLevel { get; set; } = 0;
 
         public DisqusThread ThreadObject
         {

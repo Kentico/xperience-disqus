@@ -40,6 +40,8 @@ namespace Disqus.Models
 
         public string Forum { get; set; }
 
+        public int NodeID { get; set; }
+
         public DisqusForum ForumObject
         {
             get

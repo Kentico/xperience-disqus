@@ -5,7 +5,8 @@ namespace Disqus.OnlineMarketing
 {
     public class DisqusReportActivityInitializer : CustomActivityInitializerBase
     {
-        private readonly DisqusPost post;
+        private readonly string message;
+        private readonly int nodeId;
         private readonly ReportReason reason;
 
         public override string ActivityType
@@ -16,9 +17,10 @@ namespace Disqus.OnlineMarketing
             }
         }
 
-        public DisqusReportActivityInitializer(DisqusPost post, ReportReason reason)
+        public DisqusReportActivityInitializer(string message, int nodeId, ReportReason reason)
         {
-            this.post = post;
+            this.message = message;
+            this.nodeId = nodeId;
             this.reason = reason;
         }
 
@@ -26,8 +28,8 @@ namespace Disqus.OnlineMarketing
         {
             activity.ActivityTitle = $"Reported Disqus comment";
             activity.ActivityValue = reason.ToString();
-            activity.ActivityComment = $"Reported comment: {post.Message}";
-            activity.ActivityNodeID = post.NodeID;
+            activity.ActivityComment = $"Reported comment: {message}";
+            activity.ActivityNodeID = nodeId;
         }
     }
 }

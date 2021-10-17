@@ -6,68 +6,56 @@
 @{
     Layout = null;
     var cssClass = string.IsNullOrEmpty(Model.Parent) ? "disqus-post" : "child-post";
+    var margin = $"{Model.NestingLevel * 50}px";
 }
 
 <script>
     $(document).ready(function () {
-        // Transfer post ID when report button is clicked
-        $('#post_@(Model.Id)_report .report-button').click(function () {
-            $('#reportReasonModal #report_button').data('post-id', '@Model.Id');
+        $(`#post_@Model.Id`).hover(
+        function () {
+            $(this).find('.post-flag-container').toggleClass('d-none');
+            $(this).find('.social-sharing').toggleClass(['d-none', 'd-inline']);
         });
     });
 </script>
+<div id="post_@Model.Id" class="row row-cols-2 mt-3 @cssClass" style="margin-left:@margin">
 
-<div id="post_@Model.Id" class="row @cssClass">
-    <a id="comment-@Model.Id"></a>
-    <div class="col">
-        <div class="row">
-            <div id="post_@(Model.Id)_report" class="post-flag-container">
-                <button class="report-button" title="Report post" data-post-id="@Model.Id" data-toggle="modal" data-target="#reportReasonModal">
-                    &#127988
-                </button>
-            </div>
-            <div class="post-sidebar col text-break">
-                <a href="javascript:showUser('@Model.Author.Id')">
-                    <img class="disqus-user-avatar" src="@Model.Author.AvatarUrl" />
-                </a>
-            </div>
-            <div id="post_@(Model.Id)_main" class="post-main col">
-                <div class="post-header">
-                    <span class="post-author">
-                        <a href="javascript:showUser('@Model.Author.Id')">@Model.Author.Name</a>
-                    </span>
-                    <span class="post-date">
-                        &commat; @Model.CreatedAt.ToString()
-                        @if (Model.IsEdited)
-                        {
-                            <i>(Edited)</i>
-                        }
-                    </span>
-                </div>
-                <div id="post_@(Model.Id)_content" class="post-content">
-                    @Html.Raw(Model.Raw_Message)
-                </div>
-                @{
-                    await Html.RenderPartialAsync("_DisqusPostFooter.cshtml", Model);
-                }
-                <div class="w-100"></div>
-                @if (!Model.ThreadObject.IsClosed)
-                {
-                    await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusEditingFormModel()
+    <div class="post-sidebar col-auto">
+        <a id="comment-@Model.Id"></a>
+        <a class="cursor-pointer" onclick="showUser(this)" data-user-id="@Model.Author.Id" data-url="@Url.Action("GetUserDetailBody", "Disqus")">
+            <img class="disqus-user-avatar" src="@Model.Author.AvatarUrl" />
+        </a>
+    </div>
+
+    <div class="post-main col-auto">
+        <div class="row row-cols-1">
+
+            <div class="post-header col px-0">
+                <span class="post-author">
+                    <a onclick="showUser(this)" class="user-link cursor-pointer" data-user-id="@Model.Author.Id" data-url="@Url.Action("GetUserDetailBody", "Disqus")">@Model.Author.Name</a>
+                </span>
+                <span class="post-date">
+                    &commat; @Model.CreatedAt.ToString()
+                    @if (Model.IsEdited)
                     {
-                        PostThread = Model.Thread,
-                        PostNodeID = Model.NodeID,
-                        ReplyTo = Model.Id,
-                        PlaceholderText = Model.ThreadObject.PlaceholderText,
-                        AllowMedia = Model.ForumObject.Settings.MediaEmbedEnabled,
-                        AllowAnon = Model.ForumObject.Settings.AllowAnonPost
-                    });
-                }
-                @foreach (var child in Model.ChildPosts)
-                {
-                    await Html.RenderPartialAsync("_DisqusPost.cshtml", child);
-                }
+                        <i>(Edited)</i>
+                    }
+                </span>
             </div>
+            <div class="post-content col px-0">
+                @Html.Raw(Model.Raw_Message)
+            </div>
+            @{
+                await Html.RenderPartialAsync("_DisqusPostFooter.cshtml", Model);
+            }
+
         </div>
     </div>
+
+    <div class="post-flag-container d-none">
+        <button class="report-button" title="Report post" onclick="$('#reportReasonModal #report_button').data('post-id', '@Model.Id');" data-toggle="modal" data-target="#reportReasonModal">
+            &#127988
+        </button>
+    </div>
+
 </div>

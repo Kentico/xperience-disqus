@@ -59,6 +59,27 @@ namespace Disqus.Services
             this.eventLogService = eventLogService;
         }
 
+        public bool UserCanReply(DisqusPost post)
+        {
+            return !post.ThreadObject.IsClosed &&
+                (IsAuthenticated() || (!IsAuthenticated() && post.ForumObject.Settings.AllowAnonPost));
+        }
+
+        public bool UserCanDelete(DisqusPost post)
+        {
+            return IsAuthenticated() &&
+                AuthCookie.User_Id == post.Author.Id &&
+                !post.ThreadObject.IsClosed;
+        }
+
+        public bool UserCanEdit(DisqusPost post)
+        {
+            return IsAuthenticated() &&
+                AuthCookie.User_Id == post.Author.Id &&
+                !post.ThreadObject.IsClosed &&
+                DateTime.Now < post.EditableUntil;
+        }
+
         public bool IsAuthenticated()
         {
             return AuthCookie != null && !string.IsNullOrEmpty(AuthCookie.Access_Token);

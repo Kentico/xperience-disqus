@@ -128,111 +128,68 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Gets post details from Disqus, with <see cref="DisqusPost.ChildPosts"/> populated
+        /// Gets post details from repository cache
         /// </summary>
         /// <param name="postId">The Disqus internal ID</param>
-        /// <param name="nodeId">The NodeID of the page the post was created on, or zero</param>
-        /// <param name="useCache">If true, the post is returned from cache (if found) instead of the Disqus API</param>
         /// <returns>A Disqus post</returns>
-        public async Task<DisqusPost> GetPost(string postId, int nodeId = 0, bool useCache = true)
+        public DisqusPost GetPost(string postId)
         {
-            if (useCache)
+            var foundPosts = allPosts.Where(p => p.Id == postId);
+            if (foundPosts.Count() > 0)
             {
-                var foundPosts = allPosts.Where(p => p.Id == postId);
-                if (foundPosts.Count() > 0)
-                {
-                    var post = foundPosts.FirstOrDefault();
-                    var thread = await GetThread(post.Thread, useCache);
-
-                    post.ChildPosts = GetPostChildren(post, thread);
-
-                    return post;
-                }
-            }
-
-            try
-            {
-                var post = await disqusService.GetPost(postId);
-                var thread = await GetThread(post.Thread, useCache);
-                //await GetPostHierarchy(thread.Id, nodeId, useCache);
-
-                AddPostCache(post, nodeId);
-                post.ChildPosts = GetPostChildren(post, thread);
-
+                var post = foundPosts.FirstOrDefault();
                 return post;
             }
-            catch (DisqusException ex)
-            {
-                LogError(ex, nameof(GetPost));
-                return null;
-            }
+
+            return null;
         }
 
-        /// <summary>
-        /// Gets all of the thread's posts sorted into a hierarchical list
-        /// </summary>
-        /// <param name="threadId">The Disqus internal ID</param>
-        /// /// <param name="nodeId">The NodeID of the page the thread was created on</param>
-        /// <param name="useCache">If true, the post is returned from cache instead of the Disqus API</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<DisqusPost>> GetPostHierarchy(string threadId, int nodeId, bool useCache = true)
+        public async Task<IEnumerable<DisqusPost>> GetTopLevelPosts(string threadId)
         {
-            if (useCache)
-            {
-                var thread = await GetThread(threadId, useCache);
-                var topLevelPosts = allPosts.Where(p => p.Thread == threadId && string.IsNullOrEmpty(p.Parent)).ToList();
-                return topLevelPosts.Select(p =>
-                {
-                    p.ChildPosts = GetPostChildren(p, thread);
-                    return p;
-                }).ToList();
-            }
-
             try
             {
-                var thread = await GetThread(threadId, useCache);
                 var threadPosts = await disqusService.GetThreadPosts(threadId);
                 foreach (var post in threadPosts)
                 {
-                    AddPostCache(post, nodeId);
+                    AddPostCache(post);
                 }
 
                 var topLevelPosts = threadPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
-                var hierarchicalPosts = topLevelPosts.Select(p =>
-                {
-                    p.ChildPosts = GetPostChildren(p, thread);
-                    return p;
-                }).ToList();
-
-                return hierarchicalPosts;
+                return topLevelPosts;
             }
-            catch(DisqusException ex)
+            catch (DisqusException ex)
             {
-                LogError(ex, nameof(GetPostHierarchy));
+                LogError(ex, nameof(GetTopLevelPosts));
                 return Enumerable.Empty<DisqusPost>();
             }
         }
 
         /// <summary>
-        /// Gets a list of the posts direct children. The method is called recursively to also set the
-        /// <see cref="DisqusPost.ChildPosts"/> of all children as well
+        /// Returns only the direct children of a post
         /// </summary>
-        /// <remarks>
-        /// This method always uses the cached data
-        /// </remarks>
-        /// <param name="post"></param>
-        /// <param name="thread"></param>
-        /// <returns>A list of all the posts children</returns>
-        public List<DisqusPost> GetPostChildren(DisqusPost post, DisqusThread thread)
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        public IEnumerable<DisqusPost> GetDirectChildren(string postId)
         {
-            var directChildren = allPosts.Where(p => p.Parent == post.Id).ToList();
-            return directChildren.Select(p =>
+            return allPosts.Where(p => p.Parent == postId);
+        }
+
+        /// <summary>
+        /// Returns all children of a post, regardless of nesting level
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        public IEnumerable<DisqusPost> GetAllChildren(string postId)
+        {
+            var allChildren = new List<DisqusPost>();
+            var directChildren = GetDirectChildren(postId);
+            allChildren.AddRange(directChildren);
+            foreach(var child in directChildren)
             {
-                p.ChildPosts = GetPostChildren(p, thread);
-                return p;
-            })
-            .OrderByDescending(p => p.CreatedAt)
-            .ToList();
+                allChildren.AddRange(GetAllChildren(child.Id));
+            }
+
+            return allChildren;
         }
 
         /// <summary>
@@ -252,19 +209,12 @@ namespace Disqus.Services
 
         /// <summary>
         /// Adds a <see cref="DisqusPost"/> to the repository cache. Removes the post from cache
-        /// first, if it exists. Sets the post's <see cref="DisqusPost.NodeID"/> if it is greater
-        /// than zero
+        /// first, if it exists.
         /// </summary>
         /// <param name="post"></param>
-        public void AddPostCache(DisqusPost post, int nodeId)
+        public void AddPostCache(DisqusPost post)
         {
             RemovePostCache(post.Id);
-
-            if(nodeId > 0)
-            {
-                post.NodeID = nodeId;
-            }
-            
             allPosts.Add(post);
         }
 
@@ -321,7 +271,7 @@ namespace Disqus.Services
         /// <param name="action">The operation performed on the post</param>
         /// <param name="data">The data that was updated</param>
         /// <returns>true if the item in cache was updated</returns>
-        public bool UpdatePostCache(string postId, DisqusConstants.DisqusAction action, dynamic data)
+        public bool UpdatePostCache(string postId, string action, dynamic data)
         {
             var post = allPosts.Where(p => p.Id == postId).FirstOrDefault();
             if(post == null)
@@ -331,12 +281,12 @@ namespace Disqus.Services
 
             switch (action)
             {
-                case DisqusConstants.DisqusAction.VOTE:
+                case "vote":
 
                     post.Likes = data.likes;
                     post.Dislikes = data.dislikes;
                     return true;
-                case DisqusConstants.DisqusAction.UPDATE:
+                case "update":
 
                     post.Message = data.message;
                     post.Raw_Message = data.message;

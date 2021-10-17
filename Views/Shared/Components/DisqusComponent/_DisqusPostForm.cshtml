@@ -11,8 +11,6 @@
 @{
     Layout = null;
     var currentUser = await disqusRepository.GetCurrentUser();
-    var doCollapse = !string.IsNullOrEmpty(Model.EditedPostId) || string.IsNullOrEmpty(Model.ReplyTo) ? "" : "collapse";
-    var embedOptions = Model.AllowMedia ? ", 'image', 'video'" : "";
 
     if(User.Identity.IsAuthenticated)
     {
@@ -20,64 +18,25 @@
         Model.AnonName = user.FullName;
         Model.AnonEmail = user.Email;
     }
-
-    // If creating a new reply, Model.Id will be empty, set to parent (the post we're replying to)
-    var id = string.IsNullOrEmpty(Model.EditedPostId) ? $"reply_{Model.ReplyTo}" : Model.EditedPostId;
 }
 
-<script>
-    $(document).ready(function () {
-        var quill = new window.Quill('#post_reply_container_@id #editor', {
-            bounds: '#post_reply_container_@id #editor_container',
-            theme: 'snow',
-            placeholder: `@Model.PlaceholderText`,
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'header': 1 }, { 'header': 2 }, 'blockquote'],
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-                    ['link'@Html.Raw(embedOptions)]
-                ]
-            },
-        });
+<div id="form_replyto_@Model.ReplyTo" class="post-form-container col mt-3">
+    <div class="row">
 
-        // Set HTML content (if editing)
-        if ('@string.IsNullOrEmpty(Model.EditedPostId)' === 'False') {
-            const delta = quill.clipboard.convert(`@Html.Raw(Model.Message)`);
-            quill.setContents(delta, 'silent');
+        @if (!disqusService.IsAuthenticated() && !Model.AllowAnon)
+        {
+            await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
         }
+        else
+        {
 
-        // Update DisqusPost.Message when Quill changes
-        quill.on('text-change', function (delta, oldDelta, source) {
-            var richText = quill.root.innerHTML;
-            $('#post_reply_container_@id #Message').val(richText);
-        });
-    });
-</script>
-
-<div id="post_reply_container_@id" class="post-reply-container col pt-1 @doCollapse">
-    @if (!disqusService.IsAuthenticated() && !Model.AllowAnon)
-    {
-        await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
-    }
-    else
-    {
-    <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-          data-ajax="true" data-ajax-success="updatePost">
-        <input asp-for="EditedPostId" />
-        <input asp-for="ReplyTo" />
-        <input asp-for="Message" />
-        <input asp-for="PostNodeID" />
-        <input asp-for="PostThread" />
-
-        <div class="form-group row">
             @if (string.IsNullOrEmpty(Model.EditedPostId) && disqusService.IsAuthenticated())
             {
                 <div class="col-auto">
                     <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
                 </div>
             }
+
             <div class="col editor-wrapper">
                 <div id="editor_container">
                     <div class="form-posting-as py-1">
@@ -96,17 +55,24 @@
                     <div id="editor"></div>
                 </div>
             </div>
+
             <div class="col-auto pt-4 px-1">
-                <input type="submit" name="submitButton" value="Submit" class="p-0 btn btn-sm btn-primary" />
-                @if (!string.IsNullOrEmpty(Model.EditedPostId))
-                {
-                    <div class="pt-1">
-                        <input type="button" onclick="cancelEdit(this)" data-post-id="@Model.EditedPostId" name="cancelButton" value="Cancel"
-                               class="p-0 btn btn-sm btn-danger" />
-                    </div>
-                }
+                <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
+                      data-ajax="true" data-ajax-success="handleSubmit">
+                    <input asp-for="EditedPostId" />
+                    <input asp-for="ReplyTo" />
+                    <input asp-for="Message" />
+                    <input asp-for="PostThread" />
+                    <input type="submit" name="submitButton" value="Submit" class="p-2 btn btn-sm btn-primary" />
+                    @if (!string.IsNullOrEmpty(Model.EditedPostId))
+                    {
+                        <div class="pt-1">
+                            <input type="button" onclick="cancelEdit(this)" data-url="@Url.Action("GetPostBody", "Disqus")" data-post-id="@Model.EditedPostId" name="cancelButton"
+                                   value="Cancel" class="p-2 btn btn-sm btn-danger" />
+                        </div>
+                    }
+                </form>
             </div>
-        </div>
-    </form>
-    }
+        }
+    </div>
 </div>

@@ -36,7 +36,7 @@
                 <div>
                     @if (disqusService.IsAuthenticated() && Model.Id != disqusService.AuthCookie.User_Id)
                     {
-                        <button onclick="followUser(this)" data-user-id="@Model.Id" class="btn follow-button">Follow</button>
+                        <button onclick="followUser(this)" data-user-id="@Model.Id" data-url="@Url.Action("FollowUser", "Disqus")" class="btn follow-button">Follow</button>
                     }
                 </div>
             </div>

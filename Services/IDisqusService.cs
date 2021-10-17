@@ -18,6 +18,27 @@ namespace Disqus.Services
         public DisqusCookie AuthCookie { get; set; }
 
         /// <summary>
+        /// Returns true if the authenticated user is allowed to reply to a post
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
+        public abstract bool UserCanReply(DisqusPost post);
+
+        /// <summary>
+        /// Returns true if the authenticated user is allowed to edit a post
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
+        public abstract bool UserCanEdit(DisqusPost post);
+
+        /// <summary>
+        /// Returns true if the authenticated user is allowed to delete a post
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
+        public abstract bool UserCanDelete(DisqusPost post);
+
+        /// <summary>
         /// Returns true if the user is logged in to Disqus
         /// </summary>
         /// <returns></returns>

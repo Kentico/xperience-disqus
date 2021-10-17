@@ -11,6 +11,7 @@ using Disqus.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,14 +40,31 @@ namespace Disqus.Components.DisqusComponent
         }
 
         /// <summary>
-        /// Returns the full HTML for a post and its children, for use in async post updates
+        /// Returns the full HTML of the form to create a reply to the given post ID
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> GetPostBody(string id)
+        public ActionResult GetReplyForm(string id)
         {
-            var post = await disqusRepository.GetPost(id);
+            var post = disqusRepository.GetPost(id);
+            return PartialView("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", new DisqusEditingFormModel()
+            {
+                PostThread = post.Thread,
+                ReplyTo = post.Id,
+                AllowAnon = post.ForumObject.Settings.AllowAnonPost
+            });
+        }
+
+        /// <summary>
+        /// Returns the full HTML of a post for use in async post updates
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GetPostBody(string id)
+        {
+            var post = disqusRepository.GetPost(id);
             return PartialView("~/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml", post);
         }
 
@@ -115,14 +133,15 @@ namespace Disqus.Components.DisqusComponent
                 {
                     message = model.Message
                 };
-                disqusRepository.UpdatePostCache(model.EditedPostId, DisqusConstants.DisqusAction.UPDATE, data);
+                disqusRepository.UpdatePostCache(model.EditedPostId, "update", data);
                 var response = await disqusService.UpdatePost(model.EditedPostId, model.Message);
-                LogCommentActivity(model);
+                await LogCommentActivity(model);
 
                 return Json(new
                 {
                     success = true,
-                    action = (int)DisqusConstants.DisqusAction.UPDATE,
+                    action = "update",
+                    url = Url.Action("GetPostBody", "Disqus"),
                     id = response.SelectToken("$.response.id").ToString(),
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
@@ -141,13 +160,15 @@ namespace Disqus.Components.DisqusComponent
         /// Deletes a post in Disqus
         /// </summary>
         /// <param name="id"></param>
-        /// <returns>The JSON response from the Disqus server</returns>
+        /// <returns>A comma-separated list of child post IDs that should be removed from the layout</returns>
         [HttpPost]
         public async Task<ActionResult> DeletePost(string id)
         {
+            var allChildren = disqusRepository.GetAllChildren(id);
             var response = await disqusService.DeletePost(id);
             disqusRepository.RemovePostCache(id);
-            return Content(JsonConvert.SerializeObject(response));
+
+            return Content(allChildren.Select(p => p.Id).Join(","));
         }
 
         /// <summary>
@@ -165,12 +186,16 @@ namespace Disqus.Components.DisqusComponent
                 var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
                 var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
 
-                disqusRepository.AddPostCache(newPost, model.PostNodeID);
-                LogCommentActivity(model);
+                var parent = disqusRepository.GetPost(model.ReplyTo);
+                newPost.NestingLevel = parent.NestingLevel + 1;
+
+                disqusRepository.AddPostCache(newPost);
+                await LogCommentActivity(model);
 
                 return Json(new {
                     success = true,
-                    action = (int)DisqusConstants.DisqusAction.CREATE,
+                    action = "create",
+                    url = Url.Action("GetPostBody", "Disqus"),
                     id = response.SelectToken("$.response.id").ToString(),
                     parent = response.SelectToken("$.response.parent").ToString()
                 });
@@ -196,13 +221,13 @@ namespace Disqus.Components.DisqusComponent
             try
             {
                 var response = await disqusService.ReportPost(id, reason);
-                var post = await disqusRepository.GetPost(id);
+                var post = disqusRepository.GetPost(id);
                 LogReportActivity(post, (ReportReason)reason);
 
                 return Json(new
                 {
                     success = true,
-                    action = (int)DisqusConstants.DisqusAction.REPORT,
+                    action = "report",
                     id = id
                 });
             }
@@ -211,8 +236,6 @@ namespace Disqus.Components.DisqusComponent
                 return Json(new
                 {
                     success = false,
-                    action = (int)DisqusConstants.DisqusAction.REPORT,
-                    id = id,
                     message = ex.Message
                 });
             }
@@ -225,7 +248,7 @@ namespace Disqus.Components.DisqusComponent
         /// <returns></returns>
         public void LogReportActivity(DisqusPost post, ReportReason reason)
         {
-            var activityInitializer = new DisqusReportActivityInitializer(post, reason);
+            var activityInitializer = new DisqusReportActivityInitializer(post.Message, post.ThreadObject.NodeID, reason);
             activityLogService.Log(activityInitializer);
         }
 
@@ -235,7 +258,7 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="post"></param>
         /// <returns></returns>
-        public void LogCommentActivity(DisqusEditingFormModel model)
+        public async Task LogCommentActivity(DisqusEditingFormModel model)
         {
             // Perform Sentiment Analysis
             var sentiment = TextSentiment.Neutral;
@@ -255,7 +278,8 @@ namespace Disqus.Components.DisqusComponent
                 }
             }
 
-            var activityInitializer = new DisqusCommentActivityInitializer(model.Message, model.PostNodeID, sentiment);
+            var thread = await disqusRepository.GetThread(model.PostThread);
+            var activityInitializer = new DisqusCommentActivityInitializer(model.Message, thread.NodeID, sentiment);
             activityLogService.Log(activityInitializer);
         }
 
@@ -265,19 +289,16 @@ namespace Disqus.Components.DisqusComponent
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> EditPost(string id)
+        public ActionResult EditPost(string id)
         {
-            var post = await disqusRepository.GetPost(id);
+            var post = disqusRepository.GetPost(id);
             var model = new DisqusEditingFormModel()
             {
                 AllowAnon = post.ForumObject.Settings.AllowAnonPost,
-                AllowMedia = post.ForumObject.Settings.MediaEmbedEnabled,
                 EditedPostId = id,
-                Message = post.Message,
-                PlaceholderText = post.ThreadObject.PlaceholderText,
-                PostNodeID = post.NodeID,
+                Message = post.Raw_Message,
                 PostThread = post.Thread,
-                ReplyTo = post.Parent
+                ReplyTo = id
             };
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", model);
@@ -308,9 +329,9 @@ namespace Disqus.Components.DisqusComponent
                     likes = int.Parse(response.SelectToken("$.response.post.likes").ToString()),
                     dislikes = int.Parse(response.SelectToken("$.response.post.dislikes").ToString())
                 };
-                disqusRepository.UpdatePostCache(id, DisqusConstants.DisqusAction.VOTE, data);
+                disqusRepository.UpdatePostCache(id, "vote", data);
 
-                var post = await disqusRepository.GetPost(id);
+                var post = disqusRepository.GetPost(id);
                 return View("~/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml", post);
             }
             else if (code == (int)DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
@@ -321,6 +342,12 @@ namespace Disqus.Components.DisqusComponent
             throw new DisqusException(code, response.Value<string>("response"));
         }
 
+        /// <summary>
+        /// Sets the currently authenticated user to recommend/unrecommend a thread
+        /// </summary>
+        /// <param name="id">The Disqus internal ID of the thread to recommend/unrecommend</param>
+        /// <param name="doRecommend">true if should recommend, false to unrecommend</param>
+        [HttpPost]
         public async Task<ActionResult> RecommendThread(string id, bool doRecommend)
         {
             int vote = doRecommend ? 1 : -1;
@@ -341,6 +368,7 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="id"></param>
         /// <returns>An empty string if successful</returns>
+        [HttpPost]
         public async Task<ActionResult> FollowUser(string id, bool doFollow)
         {
             var response = await disqusService.FollowUser(id, doFollow);
@@ -360,6 +388,7 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="id">The Disqus internal ID of the thread to subscribe/unsubscribe</param>
         /// <param name="doSubscribe">true if should subscribe, false to unsubscribe</param>
+        [HttpPost]
         public async Task<ActionResult> SubscribeThread(string id, bool doSubscribe)
         {
             var response = await disqusService.SubscribeToThread(id, doSubscribe);
@@ -379,6 +408,7 @@ namespace Disqus.Components.DisqusComponent
         /// from Disqus' endpoint and sets the <see cref="IDisqusService.AuthCookie"/>
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
         public async Task<ActionResult> Auth()
         {
             var code = QueryHelper.GetString("code", "");
@@ -399,6 +429,7 @@ namespace Disqus.Components.DisqusComponent
             }
         }
 
+        [HttpGet]
         public ActionResult LogOut()
         {
             var returnUrl = QueryHelper.GetString("returnUrl", "");
