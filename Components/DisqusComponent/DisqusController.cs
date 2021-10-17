@@ -124,7 +124,6 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="model"></param>
         /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
-        [HttpPost]
         private async Task<ActionResult> UpdatePost(DisqusEditingFormModel model)
         {
             try
@@ -177,7 +176,6 @@ namespace Disqus.Components.DisqusComponent
         /// </summary>
         /// <param name="model"></param>
         /// <returns>A JSON object indicating success, or the error message in the case of failure</returns>
-        [HttpPost]
         private async Task<ActionResult> CreatePost(DisqusEditingFormModel model)
         {
             try
@@ -186,8 +184,13 @@ namespace Disqus.Components.DisqusComponent
                 var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
                 var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
 
-                var parent = disqusRepository.GetPost(model.ReplyTo);
-                newPost.NestingLevel = parent.NestingLevel + 1;
+                var nestingLevel = 0;
+                if (!string.IsNullOrEmpty(model.ReplyTo))
+                {
+                    var parent = disqusRepository.GetPost(model.ReplyTo);
+                    nestingLevel = parent.NestingLevel + 1;
+                }
+                newPost.NestingLevel = nestingLevel;
 
                 disqusRepository.AddPostCache(newPost);
                 await LogCommentActivity(model);
