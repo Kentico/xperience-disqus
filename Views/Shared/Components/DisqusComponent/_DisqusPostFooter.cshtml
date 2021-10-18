@@ -1,4 +1,5 @@
-﻿@using Disqus.Models
+﻿@using Disqus
+@using Disqus.Models
 @using Disqus.Services
 @inject IDisqusService disqusService
 @model DisqusPost  
@@ -11,12 +12,22 @@
     @if (Model.CanVote)
     {
         <div class="vote-buttons d-inline">
-            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="true" class="btn px-0 vote-button">
-                &#9650; @Model.Likes
+            @if (Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DISABLED)
+            {
+                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="true" class="btn px-0 vote-button">
+                &#9650;<span>&nbsp;@Model.Likes</span>
             </button>
-            <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="false" class="btn px-0 vote-button">
-                &#9660; @Model.Dislikes
-            </button>
+            }
+            @if (Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DISABLED && Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_DISABLED)
+            {
+                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="false" class="btn px-0 vote-button">
+                &#9660;
+                @if (Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_LIMITED)
+                {
+                    <span>&nbsp;@Model.Dislikes</span>
+                }
+                </button>
+            }
         </div>
     }
 

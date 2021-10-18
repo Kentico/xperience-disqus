@@ -21,6 +21,8 @@ namespace Disqus.Models
 
         public string Founder { get; set; }
 
+        public int VotingType { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public string ModeratorBadgeText { get; set; }

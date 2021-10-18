@@ -84,7 +84,7 @@ namespace Disqus.Components.DisqusComponent
 
                 model.Thread = thread;
                 model.Posts = await disqusRepository.GetTopLevelPosts(threadId);
-                model.Forum = await disqusRepository.GetForum(model.Thread.Forum);
+                model.Forum = await disqusRepository.GetForum(model.Thread.Forum, false);
             }
             catch (DisqusException e)
             {
