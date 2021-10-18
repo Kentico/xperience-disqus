@@ -62,3 +62,24 @@ endpoints.MapControllerRoute(
     }
 );
 ```
+
+## Adding Disqus to your pages
+
+The Disqus widget can be added as a standard pagebuilder widget, or directly to your views as a [standalone widget](https://docs.xperience.io/developing-websites/page-builder-development/rendering-widgets-in-code):
+
+```cs
+@using Disqus.Components.DisqusComponent
+
+@{
+    var widgetProperties = new DisqusComponentProperties()
+    {
+        Header = "Reviews"
+    };
+}
+<standalone-widget widget-type-identifier="@DisqusComponent.IDENTIFIER" widget-properties="widgetProperties" />
+```
+
+There are 2 optional properties that you can configure:
+
+- __Header__ (default: "Comments") - The text that appears above the comments
+- __ThreadIdentifier__ (default: current DocumentGUID) - The [Disqus identifier](https://help.disqus.com/en/articles/1717082-what-is-a-disqus-identifier) of the thread to load comments for. This is an arbitrary string which can be used to load comments from any Disqus thread, even if it is not related to the current page

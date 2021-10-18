@@ -27,8 +27,9 @@ namespace Disqus.Components.DisqusComponent
                 throw new ArgumentNullException(nameof(widgetProperties));
             }
 
-            var model = new DisqusComponentViewModel();
-            var header = widgetProperties.Properties.Header;
+            var model = new DisqusComponentViewModel() {
+                Header = widgetProperties.Properties.Header
+            };
             var identifier = string.IsNullOrEmpty(widgetProperties.Properties.ThreadIdentifier) ?
                 widgetProperties.Page.DocumentGUID.ToString() : widgetProperties.Properties.ThreadIdentifier;
 
@@ -41,19 +42,14 @@ namespace Disqus.Components.DisqusComponent
                 model.Thread = thread;
                 model.Posts = await disqusRepository.GetTopLevelPosts(threadId);
                 model.Forum = await disqusRepository.GetForum(model.Thread.Forum);
-
-                header = header.Replace("{num}", model.Thread.Posts.ToString());
-                model.Header = header;
             }
             catch (DisqusException e)
             {
-                header = header.Replace("{num}", "0");
-                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() { Header = header, Exception = e });
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() { Header = model.Header, Exception = e });
             }
             catch (Exception e)
             {
-                header = header.Replace("{num}", "0");
-                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() { Header = header, Exception = new DisqusException(500, e.Message) });
+                return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() { Header = model.Header, Exception = new DisqusException(500, e.Message) });
             }
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusComponent.cshtml", model);

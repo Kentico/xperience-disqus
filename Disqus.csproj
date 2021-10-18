@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>Xperience.Core.Disqus</PackageId>
-    <Version>0.0.1</Version>
+    <Version>13.0.32</Version>
     <Authors>Eric Dugre</Authors>
     <Company>Kentico</Company>
     <PackageIconUrl>https://github.com/Kentico/Home/raw/master/images/logo_nuget.png</PackageIconUrl>
