@@ -1,8 +1,6 @@
 ﻿using CMS.Core;
-using CMS.DocumentEngine;
 using CMS.Helpers;
 using Disqus.Models;
-using Kentico.Content.Web.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,7 +20,6 @@ namespace Disqus.Services
         private readonly string publicKey;
         private readonly string authRedirect;
 
-        private readonly IPageUrlRetriever pageUrlRetriever;
         private readonly IEventLogService eventLogService;
 
         public DisqusCookie AuthCookie
@@ -46,7 +43,6 @@ namespace Disqus.Services
         }
 
         public DisqusService(IConfiguration config,
-            IPageUrlRetriever pageUrlRetriever,
             IEventLogService eventLogService)
         {
             site = config.GetValue<string>("Disqus:Site");
@@ -55,7 +51,6 @@ namespace Disqus.Services
             authRedirect = config.GetValue<string>("Disqus:AuthenticationRedirect");
             debug = config.GetValue<bool>("Disqus:Debug", false);
 
-            this.pageUrlRetriever = pageUrlRetriever;
             this.eventLogService = eventLogService;
         }
 
@@ -119,7 +114,7 @@ namespace Disqus.Services
             return JsonConvert.DeserializeObject<DisqusThread>(threadJson);
         }
 
-        public async Task<string> GetThreadIdByIdentifier(string identifier, TreeNode node)
+        public async Task<string> GetThreadIdByIdentifier(string identifier, string title, string pageUrl)
         {
             var url = string.Format(DisqusConstants.THREAD_LISTING, site);
             var getThreadsResponse = await MakeGetRequest(url);
@@ -132,8 +127,7 @@ namespace Disqus.Services
             else
             {
                 // Thread with identifier doesn't exist yet
-                var pageUrl = pageUrlRetriever.Retrieve(node).AbsoluteUrl;
-                var createResponse = await CreateThread(identifier, node.DocumentName, pageUrl);
+                var createResponse = await CreateThread(identifier, title, pageUrl);
                     
                 return createResponse.SelectToken("$.response.id").ToString();
             }
@@ -144,9 +138,14 @@ namespace Disqus.Services
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("forum", site),
                 new KeyValuePair<string, string>("title", title),
-                new KeyValuePair<string, string>("url", pageUrl),
                 new KeyValuePair<string, string>("identifier", identifier)
             };
+
+            if (!string.IsNullOrEmpty(pageUrl))
+            {
+                data.Add(new KeyValuePair<string, string>("url", pageUrl));
+            }
+
             return await MakePostRequest(DisqusConstants.THREAD_CREATE, data);          
         }
 

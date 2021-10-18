@@ -1,5 +1,4 @@
-﻿using CMS.DocumentEngine;
-using Disqus.Models;
+﻿using Disqus.Models;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -54,10 +53,11 @@ namespace Disqus.Services
         /// <summary>
         /// Returns the thread ID of an existing thread, or creates a new thread if one doesn't exist
         /// </summary>
-        /// <param name="identifier">Thread identifier</param>
-        /// <param name="node">Current page</param>
+        /// <param name="identifier"></param>
+        /// <param name="title"></param>
+        /// <param name="pageUrl"></param>
         /// <returns>A thread ID</returns>
-        public abstract Task<string> GetThreadIdByIdentifier(string identifier, TreeNode node);
+        public abstract Task<string> GetThreadIdByIdentifier(string identifier, string title, string pageUrl);
 
         /// <summary>
         /// Gets a <see cref="DisqusThread"/> based on Disqus thread ID
