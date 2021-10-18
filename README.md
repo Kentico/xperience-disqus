@@ -83,3 +83,31 @@ There are 2 optional properties that you can configure:
 
 - __Header__ (default: "Comments") - The text that appears above the comments
 - __ThreadIdentifier__ (default: current DocumentGUID) - The [Disqus identifier](https://help.disqus.com/en/articles/1717082-what-is-a-disqus-identifier) of the thread to load comments for. This is an arbitrary string which can be used to load comments from any Disqus thread, even if it is not related to the current page
+
+The widget can be placed on _any_ view in your .NET Core project. However, if it is placed on a page without representation in the Xperience content tree, you _must_ set the __ThreadIdentifier__ property.
+
+## Logging On-line Marketing activities
+
+With this integration, you can log activities whenever a new comment is posted or a comment is reported by another user. If you have enabled [Text analysis](https://docs.xperience.io/configuring-xperience/managing-sites/configuring-settings-for-sites/settings-content/settings-text-analytics), the sentiment of the comment will be logged with the activity, otherwise all comments will have the "neutral" sentiment.
+
+This could be helpful in the creation of [Marketing automation](https://docs.xperience.io/on-line-marketing-features/managing-your-on-line-marketing-features/marketing-automation) processes or [contact groups](https://docs.xperience.io/on-line-marketing-features/managing-your-on-line-marketing-features/contact-management/segmenting-contacts-into-contact-groups). For example, if a contact leaves a positive comment on an article, you may want to send them an email offering a discount on the article's advertised products. Or, if a comment is reported by other users, a site administrator can reach out to the commenter to try and defuse the situation.
+
+To begin logging activities, configure either (or both) of the following [activity types](https://docs.xperience.io/on-line-marketing-features/configuring-and-customizing-your-on-line-marketing-features/configuring-activities/adding-custom-activity-types), depending on which you'd like to log. Only the code names of the activity types need to match exactly- the rest can be altered to meet your needs.
+
+![Comment activity](img/activity-comment.png)
+![Report activity](img/activity-report.png)
+
+## Displaying links with comment counts
+
+You can place a link to the comments section of any page by appending `#disqus_thread` to the URL. The link can also contain the number of comments on that page:
+
+![Comment link](img/comment-link.png)
+
+If you'd like to also display the number of comments, you can use the [default Disqus functionality](https://help.disqus.com/en/articles/1717274-adding-comment-count-links-to-your-home-page), which requires adding the `count.js` script along with the absolute URL. To get the URL of an Xperience page, you can use `IPageUrlRetriever`:
+
+```cs
+@inject IPageUrlRetriever urlRetriever
+
+<a href="@(urlRetriever.Retrieve(node).AbsoluteUrl)#disqus_thread"></a>
+```
+
