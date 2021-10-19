@@ -165,17 +165,22 @@ namespace Disqus.Services
             return posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
         }
 
-        public async Task<JObject> UpdatePost(string postId, string message)
+        public async Task<JObject> UpdatePost(string postId, string message, int threadRating = 0)
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("message", message),
                 new KeyValuePair<string, string>("post", postId)
             };
 
+            if (threadRating > 0)
+            {
+                data.Add(new KeyValuePair<string, string>("rating", threadRating.ToString()));
+            }
+
             return await MakePostRequest(DisqusConstants.POST_UPDATE, data);
         }
 
-        public async Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "")
+        public async Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "", int threadRating = 0)
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("message", message),
@@ -185,6 +190,11 @@ namespace Disqus.Services
             if(!string.IsNullOrEmpty(parentId))
             {
                 data.Add(new KeyValuePair<string, string>("parent", parentId));
+            }
+
+            if (threadRating > 0)
+            {
+                data.Add(new KeyValuePair<string, string>("rating", threadRating.ToString()));
             }
 
             var url = DisqusConstants.POST_CREATE;

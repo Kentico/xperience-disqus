@@ -9,16 +9,17 @@
     var isPreview = httpContextAccessor.HttpContext.Kentico().Preview().Enabled;
 }
 
-@if (isPreview)
-{
-    @*
-        The login link is unclickable in the admin UI, so print the URL out
-    *@
-    <p>Please login to Disqus. Copy and paste the below URL into a new browser tab:</p>
-    <p style="font-size:10px">@disqusService.GetAuthenticationUrl()</p>
-}
-else
-{
-    <p>Please <a href="@disqusService.GetAuthenticationUrl()"><b>login</b></a> to Disqus.</p>
-}
-
+<div class="row">
+    @if (isPreview)
+    {
+        @*
+            The login link is unclickable in the admin UI, so print the URL out
+        *@
+        <p>Please login to Disqus. Copy and paste the below URL into a new browser tab:</p>
+        <p style="font-size:10px">@disqusService.GetAuthenticationUrl()</p>
+    }
+    else
+    {
+        <p>Please <a href="@disqusService.GetAuthenticationUrl()"><b>login</b></a> to Disqus.</p>
+    }
+</div>

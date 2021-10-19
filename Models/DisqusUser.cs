@@ -19,6 +19,8 @@ namespace Disqus.Models
 
         public int NumPosts { get; set; }
 
+        public int ThreadRating { get; set; } = 0;
+
         public int NumLikesReceived { get; set; }
 
         public string ReputationLabel { get; set; }

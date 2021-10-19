@@ -159,10 +159,6 @@
     border: 1px solid #888;
 }
 
-#disqus_thread .post-reply-container .post-form .btn {
-    width: 100px;
-}
-
 #disqus_thread .post-footer button, #disqus_thread .post-footer a {
     border: none;
     outline: none;
@@ -214,13 +210,13 @@
     background-color: #fafafa;
 }
 
-#disqus_thread .post-form-container #editor_container {
+#disqus_thread .post-form-container .post-form #editor_container {
     height: 120px;
 }
 
 @media screen and (min-width: 1112px) {
-    #disqus_thread .post-form-container .editor-wrapper {
-        min-height: 190px;
+    #disqus_thread .post-form-container .post-form .editor-wrapper {
+        min-height: 210px;
         max-width: 800px;
         padding-right: 20px;
         padding-left: 0px;
@@ -228,8 +224,8 @@
 }
 
 @media screen and (min-width: 768px) and (max-width: 1111px) {
-    #disqus_thread .post-form-container .editor-wrapper {
-        min-height: 220px;
+    #disqus_thread .post-form-container .post-form .editor-wrapper {
+        min-height: 240px;
         max-width: 800px;
         padding-right: 20px;
         padding-left: 0px;
@@ -237,10 +233,47 @@
 }
 
 @media screen and (max-width: 767px) {
-    #disqus_thread .post-form-container .editor-wrapper {
-        min-height: 240px;
+    #disqus_thread .post-form-container .post-form .editor-wrapper {
+        min-height: 260px;
         max-width: 800px;
         padding-right: 20px;
         padding-left: 0px;
     }
 }
+
+/**Star ratings**/
+#disqus_thread_rating label {
+    margin: 0;
+    padding: 0;
+}
+
+#disqus_thread_rating {
+    border: none;
+    float: left;
+    line-height: 0.8;
+    margin-right: 10px;
+}
+
+#disqus_thread_rating > input {
+    display: none;
+}
+
+
+#disqus_thread_rating > label {
+    color: #ddd;
+    float: right;
+    font-size: 24px;
+}
+
+#disqus_thread_rating > input:checked ~ label, /* show gold star when clicked */
+#disqus_thread_rating:not(:checked):not(:disabled) > label:hover, /* hover current star */
+#disqus_thread_rating:not(:checked):not(disabled) > label:hover ~ label {
+    color: #FFD700;
+}
+
+#disqus_thread_rating > input:checked + label:hover, /* hover current star when changing rating */
+#disqus_thread_rating > input:checked ~ label:hover,
+#disqus_thread_rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+#disqus_thread_rating > input:checked ~ label:hover ~ label {
+    color: #FFED85;
+} 

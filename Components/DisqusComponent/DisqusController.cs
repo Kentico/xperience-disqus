@@ -45,14 +45,16 @@ namespace Disqus.Components.DisqusComponent
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult GetReplyForm(string id)
+        public async Task<ActionResult> GetReplyForm(string id)
         {
             var post = disqusRepository.GetPost(id);
             return PartialView("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", new DisqusEditingFormModel()
             {
                 PostThread = post.Thread,
                 ReplyTo = post.Id,
-                AllowAnon = post.ForumObject.Settings.AllowAnonPost
+                AllowAnon = post.ForumObject.Settings.AllowAnonPost,
+                RatingsEnabled = post.ThreadObject.RatingsEnabled && post.ForumObject.Settings.ThreadRatingsEnabled,
+                ThreadRating = await disqusRepository.GetCurrentUserThreadRating(post.Thread)
             });
         }
 
@@ -107,13 +109,13 @@ namespace Disqus.Components.DisqusComponent
                 });
             }
 
-            if(!string.IsNullOrEmpty(model.EditedPostId))
+            if(string.IsNullOrEmpty(model.EditedPostId))
             {
-                return await UpdatePost(model);
+                return await CreatePost(model);
             }
             else
             {
-                return await CreatePost(model);
+                return await UpdatePost(model);
             }
             
         }
@@ -130,10 +132,11 @@ namespace Disqus.Components.DisqusComponent
             {
                 var data = new
                 {
-                    message = model.Message
+                    message = model.Message,
+                    rating = model.ThreadRating
                 };
                 disqusRepository.UpdatePostCache(model.EditedPostId, "update", data);
-                var response = await disqusService.UpdatePost(model.EditedPostId, model.Message);
+                var response = await disqusService.UpdatePost(model.EditedPostId, model.Message, model.ThreadRating);
                 await LogCommentActivity(model);
 
                 return Json(new
@@ -180,7 +183,7 @@ namespace Disqus.Components.DisqusComponent
         {
             try
             {
-                var response = await disqusService.CreatePost(model.Message, model.PostThread, model.ReplyTo, model.AnonName, model.AnonEmail);
+                var response = await disqusService.CreatePost(model.Message, model.PostThread, model.ReplyTo, model.AnonName, model.AnonEmail, model.ThreadRating);
                 var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
                 var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
 
@@ -282,7 +285,7 @@ namespace Disqus.Components.DisqusComponent
             }
 
             var thread = await disqusRepository.GetThread(model.PostThread);
-            var activityInitializer = new DisqusCommentActivityInitializer(model.Message, thread.NodeID, sentiment);
+            var activityInitializer = new DisqusCommentActivityInitializer(model.Message, thread.NodeID, sentiment, model.ThreadRating);
             activityLogService.Log(activityInitializer);
         }
 
@@ -301,7 +304,9 @@ namespace Disqus.Components.DisqusComponent
                 EditedPostId = id,
                 Message = post.Raw_Message,
                 PostThread = post.Thread,
-                ReplyTo = id
+                ReplyTo = id,
+                ThreadRating = post.Author.ThreadRating,
+                RatingsEnabled = post.ThreadObject.RatingsEnabled && post.ForumObject.Settings.ThreadRatingsEnabled
             };
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", model);

@@ -12,7 +12,7 @@
     Layout = null;
     var currentUser = await disqusRepository.GetCurrentUser();
 
-    if(User.Identity.IsAuthenticated)
+    if (User.Identity.IsAuthenticated)
     {
         var user = UserInfo.Provider.Get(User.Identity.Name);
         Model.AnonName = user.FullName;
@@ -21,44 +21,51 @@
 }
 
 <div id="form_replyto_@Model.ReplyTo" class="post-form-container col mt-3">
-    <div class="row">
-
-        @if (!disqusService.IsAuthenticated() && !Model.AllowAnon)
-        {
-            await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
-        }
-        else
-        {
-
-            @if (string.IsNullOrEmpty(Model.EditedPostId) && disqusService.IsAuthenticated())
-            {
-                <div class="col-auto">
-                    <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
-                </div>
-            }
-
-            <div class="col editor-wrapper">
-                <div id="editor_container">
-                    <div class="form-posting-as py-1">
-                        @if (disqusService.IsAuthenticated())
-                        {
-                            <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus", new { returnUrl = Context.Request.GetEncodedUrl() })">Log out</a></span>
-                        }
-                        else
-                        {
-                            <span>Posting anonymously as</span>
-                            <input class="form-control-sm" placeholder="Name" asp-for="AnonName" />
-                            <input class="form-control-sm" placeholder="Email" asp-for="AnonEmail" />
-                            <span>or you can <a href="@disqusService.GetAuthenticationUrl()">log in</a></span>
-                        }
+    @if (!disqusService.IsAuthenticated() && !Model.AllowAnon)
+    {
+        await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
+    }
+    else
+    {
+        <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
+              data-ajax="true" data-ajax-success="handleSubmit">
+            <div class="row">
+                @if (string.IsNullOrEmpty(Model.EditedPostId) && disqusService.IsAuthenticated())
+                {
+                    <div class="col-auto">
+                        <img class="disqus-user-avatar-sm" src="@currentUser.AvatarUrl" />
                     </div>
-                    <div id="editor"></div>
-                </div>
-            </div>
+                }
 
-            <div class="col-auto pt-4 px-1">
-                <form class="post-form" asp-action="SubmitPost" asp-controller="Disqus" asp-antiforgery="true"
-                      data-ajax="true" data-ajax-success="handleSubmit">
+                <div class="col editor-wrapper">
+                    <div id="editor_container">
+                        <div class="form-posting-as py-1">
+                            @if (Model.RatingsEnabled)
+                            {
+                                await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel() {
+                                    Disabled = false,
+                                    StarId = $"reply-{Model.ReplyTo}",
+                                    Rating = Model.ThreadRating
+                                    
+                                });
+                            }
+                            @if (disqusService.IsAuthenticated())
+                            {
+                                <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus", new { returnUrl = Context.Request.GetEncodedUrl() })">Log out</a></span>
+                            }
+                            else
+                            {
+                                <span>Posting anonymously as</span>
+                                <input class="form-control-sm" placeholder="Name" asp-for="AnonName" />
+                                <input class="form-control-sm" placeholder="Email" asp-for="AnonEmail" />
+                                <span>or you can <a href="@disqusService.GetAuthenticationUrl()">log in</a></span>
+                            }
+                        </div>
+                        <div id="editor"></div>
+                    </div>
+                </div>
+
+                <div class="col-auto pt-4 px-1">
                     <input asp-for="EditedPostId" />
                     <input asp-for="ReplyTo" />
                     <input asp-for="Message" />
@@ -71,8 +78,8 @@
                                    value="Cancel" class="p-2 btn btn-sm btn-danger" />
                         </div>
                     }
-                </form>
+                </div>
             </div>
-        }
-    </div>
+        </form>
+    }
 </div>

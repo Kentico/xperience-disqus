@@ -42,6 +42,19 @@
                     }
                 </span>
             </div>
+
+            @if (Model.Author.ThreadRating > 0)
+            {
+                await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel()
+                {
+                    Disabled = true,
+                    Classes = "col-auto px-0 pt-1",
+                    StarId = $"post-{Model.Id}",
+                    Rating = Model.Author.ThreadRating
+
+                });
+            }
+
             <div class="post-content col px-0">
                 @Html.Raw(Model.Raw_Message)
             </div>

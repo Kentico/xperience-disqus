@@ -1,0 +1,42 @@
+﻿@using Disqus.Models
+@model DisqusRatingViewModel
+@{
+    Layout = null;
+    var disabled = Model.Disabled ? "disabled" : "";
+}
+
+<div id="disqus_thread_rating" class="@Model.Classes">
+    <input type="radio" name="@GetName(5)" id="@GetId(5)" value="5" @disabled @(Model.Rating == 5 ? "checked" : "") />
+    <label for="@GetId(5)" title="5 stars">&starf;</label>
+
+    <input type="radio" name="@GetName(4)" id="@GetId(4)" value="4" @disabled @(Model.Rating == 4 ? "checked" : "") />
+    <label for="@GetId(4)" title="4 stars">&starf;</label>
+
+    <input type="radio" name="@GetName(3)" id="@GetId(3)" value="3" @disabled @(Model.Rating == 3 ? "checked" : "") />
+    <label for="@GetId(3)" title="3 stars">&starf;</label>
+
+    <input type="radio" name="@GetName(2)" id="@GetId(2)" value="2" @disabled @(Model.Rating == 2 ? "checked" : "") />
+    <label for="@GetId(2)" title="2 stars">&starf;</label>
+
+    <input type="radio" name="@GetName(1)" id="@GetId(1)" value="1" @disabled @(Model.Rating == 1 ? "checked" : "") />
+    <label for="@GetId(1)" title="1 star">&starf;</label>
+</div>
+
+@functions {
+    string GetName(int starNum)
+    {
+        if (!Model.Disabled)
+        {
+            return "ThreadRating";
+        }
+        else
+        {
+            return GetId(starNum);
+        }
+    }
+
+    string GetId(int starNum)
+    {
+        return $"star-{Model.StarId}-{starNum}";
+    }
+}

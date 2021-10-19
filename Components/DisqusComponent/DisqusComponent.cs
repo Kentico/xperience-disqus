@@ -56,24 +56,21 @@ namespace Disqus.Components.DisqusComponent
                 });
             }
 
-            string pageUrl;
-            if(widgetProperties.Page == null)
+            string pageUrl = "";
+            var context = httpContextAccessor.HttpContext;
+
+            // Check for local requests, do not create URL if local
+            if (!context.Connection.RemoteIpAddress.Equals(context.Connection.LocalIpAddress) && !IPAddress.IsLoopback(context.Connection.RemoteIpAddress))
             {
-                // Check for local requests, do not create URL if local
-                var context = httpContextAccessor.HttpContext;
-                if (context.Connection.RemoteIpAddress.Equals(httpContextAccessor.HttpContext.Connection.LocalIpAddress) || IPAddress.IsLoopback(context.Connection.RemoteIpAddress))
-                {
-                    pageUrl = "";
-                }
-                else
+                if (widgetProperties.Page == null)
                 {
                     pageUrl = context.Request.GetDisplayUrl();
                     pageUrl = URLHelper.RemoveQuery(pageUrl);
                 }
-            }
-            else
-            {
-                pageUrl = pageUrlRetriever.Retrieve(widgetProperties.Page).AbsoluteUrl;
+                else
+                {
+                    pageUrl = pageUrlRetriever.Retrieve(widgetProperties.Page).AbsoluteUrl;
+                }
             }
 
             try
@@ -83,7 +80,7 @@ namespace Disqus.Components.DisqusComponent
                 thread.NodeID = widgetProperties.Page == null ? 0 : widgetProperties.Page.NodeID;
 
                 model.Thread = thread;
-                model.Posts = await disqusRepository.GetTopLevelPosts(threadId);
+                model.ParentPosts = await disqusRepository.GetTopLevelPosts(threadId, false);
                 model.Forum = await disqusRepository.GetForum(model.Thread.Forum, false);
             }
             catch (DisqusException e)

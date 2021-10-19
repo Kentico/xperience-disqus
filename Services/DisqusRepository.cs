@@ -1,4 +1,5 @@
 ﻿using CMS.Core;
+using CMS.Helpers;
 using Disqus.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,80 @@ namespace Disqus.Services
         {
             this.disqusService = disqusService;
             this.eventLogService = eventLogService;
+        }
+
+        /// <summary>
+        /// Gets the average thread rating among all post authors
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public async Task<double> GetThreadAverageRating(string threadId)
+        {
+            var numberOfRatings = await GetThreadNumberRatings(threadId);
+            var distinctAuthors = await GetDistinctAuthors(threadId);
+            var totalRating = distinctAuthors.Sum(a => a.ThreadRating);
+
+            if (numberOfRatings == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return totalRating / (double)numberOfRatings;
+            }
+        }
+
+        /// <summary>
+        /// Returns the count of thread authors that provided a rating when posting
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public async Task<int> GetThreadNumberRatings(string threadId)
+        {
+            var distinctAuthors = await GetDistinctAuthors(threadId);
+            return distinctAuthors.Where(a => a.ThreadRating > 0).Count();
+        }
+
+        /// <summary>
+        /// Returns a distinct list of users that have posted on the thread
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DisqusUser>> GetDistinctAuthors(string threadId)
+        {
+            var threadPosts = await GetAllPosts(threadId);
+            return threadPosts.Where(p => !p.IsDeleted).Select(p => p.Author)
+                .GroupBy(u => u.Id)
+                .Select(g => g.FirstOrDefault());
+        }
+
+        /// <summary>
+        /// Gets all posts of the thread and saves them to cache
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DisqusPost>> GetAllPosts(string threadId, bool useCache = true)
+        {
+            if (useCache)
+            {
+                return allPosts.Where(p => p.Thread == threadId);
+            }
+
+            try
+            {
+                var threadPosts = await disqusService.GetThreadPosts(threadId);
+                foreach (var post in threadPosts)
+                {
+                    AddPostCache(post);
+                }
+
+                return threadPosts;
+            }
+            catch (DisqusException ex)
+            {
+                LogError(ex, nameof(GetAllPosts));
+                return Enumerable.Empty<DisqusPost>();
+            }
         }
 
         /// <summary>
@@ -65,6 +140,23 @@ namespace Disqus.Services
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Tries to locate the current user's thread rating if they have already posted on the thread
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public async Task<int> GetCurrentUserThreadRating(string threadId)
+        {
+            var distinctAuthors = await GetDistinctAuthors(threadId);
+            var foundAuthors = distinctAuthors.Where(a => a.Id == disqusService.AuthCookie.User_Id);
+            if (foundAuthors.Count() > 0)
+            {
+                return foundAuthors.FirstOrDefault().ThreadRating;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -144,17 +236,18 @@ namespace Disqus.Services
             return null;
         }
 
-        public async Task<IEnumerable<DisqusPost>> GetTopLevelPosts(string threadId)
+        /// <summary>
+        /// Returns all thread posts that do not have a parent
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DisqusPost>> GetTopLevelPosts(string threadId, bool useCache = true)
         {
             try
             {
-                var threadPosts = await disqusService.GetThreadPosts(threadId);
-                foreach (var post in threadPosts)
-                {
-                    AddPostCache(post);
-                }
-
+                var threadPosts = await GetAllPosts(threadId, useCache);
                 var topLevelPosts = threadPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
+
                 return topLevelPosts;
             }
             catch (DisqusException ex)
@@ -290,6 +383,7 @@ namespace Disqus.Services
 
                     post.Message = data.message;
                     post.Raw_Message = data.message;
+                    post.Author.ThreadRating = ValidationHelper.GetInteger(data.rating, 0);
                     post.IsEdited = true;
                     return true;
             }

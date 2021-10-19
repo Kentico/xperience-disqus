@@ -1,4 +1,47 @@
-﻿function copyToClipboard(url) {
+﻿var quillEmbedEnabled = false;
+var quillPlaceholderText = "";
+
+function initQuillEditor(replyingTo, embedEnabled = null, placeholderText = null) {
+
+    if (embedEnabled) {
+        quillEmbedEnabled = embedEnabled;
+    }
+
+    if (placeholderText) {
+        quillPlaceholderText = placeholderText;
+    }
+
+    var mediaOptions = ['link'];
+    if (quillEmbedEnabled) {
+        mediaOptions.push('image', 'video');
+    }
+    var quill = new window.Quill(`#form_replyto_${replyingTo} #editor`, {
+        bounds: `#form_replyto_${replyingTo} #editor_container`,
+        theme: 'snow',
+        placeholder: quillPlaceholderText,
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'header': 1 }, { 'header': 2 }, 'blockquote'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+                mediaOptions
+            ]
+        },
+    });
+
+    var message = $(`#form_replyto_${replyingTo} #Message`).val();
+    const delta = quill.clipboard.convert(message);
+    quill.setContents(delta, 'silent');
+
+    // Update Message in form when Quill changes
+    quill.on('text-change', function (delta, oldDelta, source) {
+        var richText = quill.root.innerHTML;
+        $(`#form_replyto_${replyingTo} #Message`).val(richText);
+    });
+}
+
+function copyToClipboard(url) {
 
     var temp = $('<input>');
     $('body').append(temp);

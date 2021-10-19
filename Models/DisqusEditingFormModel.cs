@@ -16,6 +16,11 @@ namespace Disqus.Models
         [HiddenInput]
         public string ReplyTo { get; set; } = "";
 
+        [HiddenInput]
+        public int ThreadRating { get; set; }
+
+        public bool RatingsEnabled { get; set; } = false;
+
         public string AnonName { get; set; }
 
         public string AnonEmail { get; set; }

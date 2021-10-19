@@ -1,13 +1,13 @@
 ﻿using Azure.AI.TextAnalytics;
 using CMS.Activities;
-using Disqus.Models;
+using CMS.Helpers;
 
 namespace Disqus.OnlineMarketing
 {
     public class DisqusCommentActivityInitializer : CustomActivityInitializerBase
     {
         private readonly string message;
-        private readonly int nodeId;
+        private readonly int nodeId, rating;
         private readonly TextSentiment sentiment;
 
         public override string ActivityType
@@ -18,11 +18,12 @@ namespace Disqus.OnlineMarketing
             }
         }
 
-        public DisqusCommentActivityInitializer(string message, int nodeId, TextSentiment sentiment)
+        public DisqusCommentActivityInitializer(string message, int nodeId, TextSentiment sentiment, int rating)
         {
             this.message = message;
             this.nodeId = nodeId;
             this.sentiment = sentiment;
+            this.rating = rating;
         }
 
         public override void Initialize(IActivityInfo activity)
@@ -30,7 +31,16 @@ namespace Disqus.OnlineMarketing
             activity.ActivityTitle = $"Posted {sentiment.ToString().ToLower()} comment";
             activity.ActivityValue = sentiment.ToString().ToLower();
             activity.ActivityComment = message;
-            activity.ActivityNodeID = nodeId;
+
+            if(nodeId > 0)
+            {
+                activity.ActivityNodeID = nodeId;
+            }
+
+            if (rating > 0)
+            {
+                activity.ActivityItemDetailID = rating;
+            }
         }
     }
 }

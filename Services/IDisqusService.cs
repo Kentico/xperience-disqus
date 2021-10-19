@@ -96,16 +96,18 @@ namespace Disqus.Services
         /// <param name="parentId"></param>
         /// <param name="name"></param>
         /// <param name="email"></param>
+        /// <param name="threadRating"></param>
         /// <returns></returns>
-        public abstract Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "");
+        public abstract Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "", int threadRating = 0);
 
         /// <summary>
         /// Updates a post in Disqus
         /// </summary>
         /// <param name="postId"></param>
         /// <param name="message"></param>
+        /// <param name="threadRating"></param>
         /// <returns></returns>
-        public abstract Task<JObject> UpdatePost(string postId, string message);
+        public abstract Task<JObject> UpdatePost(string postId, string message, int threadRating = 0);
 
         /// <summary>
         /// Deletes a post in Disqus
