@@ -6,8 +6,6 @@ namespace Disqus.Models
 {
     public class DisqusThread
     {
-        private DisqusForum mForum;
-
         public string Id { get; set; }
 
         public JArray Identifiers { get; set; }
@@ -41,29 +39,5 @@ namespace Disqus.Models
         public string Forum { get; set; }
 
         public int NodeID { get; set; }
-
-        public DisqusForum ForumObject
-        {
-            get
-            {
-                if (mForum == null)
-                {
-                    var repository = Service.Resolve<DisqusRepository>();
-                    mForum = repository.GetForum(Forum).Result;
-                }
-
-                return mForum;
-            }
-
-            set => mForum = value;
-        }
-
-        public string PlaceholderText
-        {
-            get
-            {
-                return Posts > 0 ? ForumObject.CommentsPlaceholderTextPopulated : ForumObject.CommentsPlaceholderTextEmpty;
-            }
-        }
     }
 }

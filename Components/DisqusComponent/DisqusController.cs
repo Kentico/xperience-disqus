@@ -52,7 +52,7 @@ namespace Disqus.Components.DisqusComponent
             {
                 PostThread = post.Thread,
                 ReplyTo = post.Id,
-                RatingsEnabled = post.ThreadObject.RatingsEnabled && post.ForumObject.Settings.ThreadRatingsEnabled,
+                RatingsEnabled = post.ThreadObject.RatingsEnabled && disqusService.CurrentForum.Settings.ThreadRatingsEnabled,
                 ThreadRating = await disqusRepository.GetCurrentUserThreadRating(post.Thread)
             });
         }
@@ -296,7 +296,7 @@ namespace Disqus.Components.DisqusComponent
                 PostThread = post.Thread,
                 ReplyTo = id,
                 ThreadRating = post.Author.ThreadRating,
-                RatingsEnabled = post.ThreadObject.RatingsEnabled && post.ForumObject.Settings.ThreadRatingsEnabled
+                RatingsEnabled = post.ThreadObject.RatingsEnabled && disqusService.CurrentForum.Settings.ThreadRatingsEnabled
             };
 
             return View("~/Views/Shared/Components/DisqusComponent/_DisqusPostForm.cshtml", model);

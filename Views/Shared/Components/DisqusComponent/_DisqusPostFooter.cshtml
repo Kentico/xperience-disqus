@@ -12,17 +12,17 @@
     @if (Model.CanVote)
     {
         <div class="vote-buttons d-inline">
-            @if (Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DISABLED)
+            @if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DISABLED)
             {
                 <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="true" class="btn px-0 vote-button">
                 &#9650;<span>&nbsp;@Model.Likes</span>
             </button>
             }
-            @if (Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DISABLED && Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_DISABLED)
+            @if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DISABLED && disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_DISABLED)
             {
                 <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="false" class="btn px-0 vote-button">
                 &#9660;
-                @if (Model.ForumObject.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_LIMITED)
+                @if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_LIMITED)
                 {
                     <span>&nbsp;@Model.Dislikes</span>
                 }
@@ -48,7 +48,7 @@
     </div>
 
     <div class="social-sharing d-none">
-        @if (!Model.ForumObject.Settings.DisableSocialShare)
+        @if (!disqusService.CurrentForum.Settings.DisableSocialShare)
         {
             <button class="share-button facebook" title="Share on Facebook" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=@Model.Permalink', '_blank')">f</button>
             <button class="share-button twitter" title="Share on Twitter" onclick="window.open('http://www.twitter.com/share?url=@Model.Permalink', '_blank')">t</button>

@@ -29,7 +29,8 @@
                              POST_DETAILS = BASE_URL + "posts/details.json?post={0}",
                              POST_REPORT = BASE_URL + "posts/report.json";
 
-        public static string FORUM_DETAILS = BASE_URL + "forums/details.json?forum={0}";
+        public static string FORUM_DETAILS = BASE_URL + "forums/details.json?forum={0}",
+                             FORUM_MODERATORS = BASE_URL + "forums/listModerators.json?forum={0}";
         #endregion
 
         #region Authentication

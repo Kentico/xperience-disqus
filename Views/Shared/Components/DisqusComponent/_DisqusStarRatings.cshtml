@@ -6,26 +6,26 @@
 @{
     Layout = null;
     var disabled = Model.Disabled ? "disabled" : "";
-    var title = Model.Disabled ? $"{Model.Rating} star rating" : "Rate this thread";
+    var title = Model.Disabled ? $"{Model.Rating} star rating" : "Click to rate (or leave empty to skip rating)";
     var intRating = int.Parse(Math.Round(Model.Rating).ToString());
 }
 
 <div id="disqus_thread_rating" class="col-auto @Model.Classes">
     <div class="thread-ratings">
         <input type="radio" name="@GetName(5)" id="@GetId(5)" value="5" @disabled @(intRating == 5 ? "checked" : "") />
-        <label for="@GetId(5)" title="@title">&starf;</label>
+        <label for="@GetId(5)" title="@title" data-disabled="@disabled">&starf;</label>
 
         <input type="radio" name="@GetName(4)" id="@GetId(4)" value="4" @disabled @(intRating == 4 ? "checked" : "") />
-        <label for="@GetId(4)" title="@title">&starf;</label>
+        <label for="@GetId(4)" title="@title" data-disabled="@disabled">&starf;</label>
 
         <input type="radio" name="@GetName(3)" id="@GetId(3)" value="3" @disabled @(intRating == 3 ? "checked" : "") />
-        <label for="@GetId(3)" title="@title">&starf;</label>
+        <label for="@GetId(3)" title="@title" data-disabled="@disabled">&starf;</label>
 
         <input type="radio" name="@GetName(2)" id="@GetId(2)" value="2" @disabled @(intRating == 2 ? "checked" : "") />
-        <label for="@GetId(2)" title="@title">&starf;</label>
+        <label for="@GetId(2)" title="@title" data-disabled="@disabled">&starf;</label>
 
         <input type="radio" name="@GetName(1)" id="@GetId(1)" value="1" @disabled @(intRating == 1 ? "checked" : "") />
-        <label for="@GetId(1)" title="@title">&starf;</label>
+        <label for="@GetId(1)" title="@title" data-disabled="@disabled">&starf;</label>
     </div>
 
     @if (Model.DisplaySummary && Model.Rating > 0)
@@ -54,7 +54,7 @@
         </script>
         <div class="col-auto d-inline px-0">
             <a href="#disqus_thread" id="summary_link_@Model.StarId" class="summary-link">
-                (@await disqusRepository.GetThreadNumberRatings(Model.ThreadId))
+                (@numRatings ratings)
             </a>
         </div>
 

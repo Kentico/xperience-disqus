@@ -8,7 +8,6 @@ namespace Disqus.Models
     public class DisqusPost
     {
         private DisqusThread mThread;
-        private DisqusForum mForum;
 
         [HiddenInput]
         public string Id { get; set; }
@@ -72,24 +71,6 @@ namespace Disqus.Models
 
                 return mThread;
             }
-
-            set => mThread = value;
-        }
-
-        public DisqusForum ForumObject
-        {
-            get
-            {
-                if (mForum == null)
-                {
-                    var repository = Service.Resolve<DisqusRepository>();
-                    mForum = repository.GetForum(Forum).Result;
-                }
-
-                return mForum;
-            }
-
-            set => mForum = value;
         }
 
         public string Permalink

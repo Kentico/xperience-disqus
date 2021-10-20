@@ -278,20 +278,13 @@
 
 
 #disqus_thread_rating .thread-ratings > label {
-    color: #ddd;
+    color: #bbb;
     float: right;
     font-size: 24px;
 }
 
-#disqus_thread_rating .thread-ratings > input:checked ~ label, /* show gold star when clicked */
-#disqus_thread_rating .thread-ratings:not(:checked):not(:disabled) > label:hover, /* hover current star */
-#disqus_thread_rating .thread-ratings:not(:checked):not(disabled) > label:hover ~ label {
-    color: #FFD700;
-}
-
-#disqus_thread_rating .thread-ratings > input:checked + label:hover, /* hover current star when changing rating */
-#disqus_thread_rating .thread-ratings > input:checked ~ label:hover,
-#disqus_thread_rating .thread-ratings > label:hover ~ input:checked ~ label, /* lighten current selection */
-#disqus_thread_rating .thread-ratings > input:checked ~ label:hover ~ label {
-    color: #FFED85;
+#disqus_thread_rating .thread-ratings > input:checked ~ label,
+#disqus_thread_rating .thread-ratings:not(:checked):not(:disabled) > label[data-disabled=""]:hover,
+#disqus_thread_rating .thread-ratings:not(:checked):not(disabled) > label[data-disabled=""]:hover ~ label {
+    color: #fdae0d;
 }

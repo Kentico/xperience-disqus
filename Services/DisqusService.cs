@@ -22,6 +22,8 @@ namespace Disqus.Services
 
         private readonly IEventLogService eventLogService;
 
+        public DisqusForum CurrentForum { get; set; }
+
         public DisqusCookie AuthCookie
         {
             get
@@ -57,7 +59,7 @@ namespace Disqus.Services
         public bool UserCanReply(DisqusPost post)
         {
             return !post.ThreadObject.IsClosed &&
-                (IsAuthenticated() || (!IsAuthenticated() && post.ForumObject.Settings.AllowAnonPost));
+                (IsAuthenticated() || (!IsAuthenticated() && CurrentForum.Settings.AllowAnonPost));
         }
 
         public bool UserCanDelete(DisqusPost post)
@@ -103,6 +105,15 @@ namespace Disqus.Services
 
             var forumJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
             return JsonConvert.DeserializeObject<DisqusForum>(forumJson);
+        }
+
+        public async Task<IEnumerable<DisqusUser>> GetForumModerators(string forum)
+        {
+            var url = string.Format(DisqusConstants.FORUM_MODERATORS, forum);
+            var response = await MakeGetRequest(url);
+            var users = response.Value<JArray>("response");
+
+            return users.Select(o => JsonConvert.DeserializeObject<DisqusUser>(o.ToString())).ToList();
         }
 
         public async Task<DisqusThread> GetThread(string threadId)
@@ -152,16 +163,18 @@ namespace Disqus.Services
         public async Task<DisqusPost> GetPost(string id)
         {
             var url = string.Format(DisqusConstants.POST_DETAILS, id);
-            var postResult = await MakeGetRequest(url);
-            var postJson = JsonConvert.SerializeObject(postResult.Value<JToken>("response"));
+            var response = await MakeGetRequest(url);
+            var postJson = JsonConvert.SerializeObject(response.Value<JToken>("response"));
+
             return JsonConvert.DeserializeObject<DisqusPost>(postJson);
         }
 
         public async Task<IEnumerable<DisqusPost>> GetThreadPosts(string threadId)
         {
             var url = string.Format(DisqusConstants.THREAD_POSTS, threadId);
-            var result = await MakeGetRequest(url);
-            var posts = result.Value<JArray>("response");
+            var response = await MakeGetRequest(url);
+            var posts = response.Value<JArray>("response");
+
             return posts.Select(o => JsonConvert.DeserializeObject<DisqusPost>(o.ToString())).ToList();
         }
 

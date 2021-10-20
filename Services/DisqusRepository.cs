@@ -12,7 +12,7 @@ namespace Disqus.Services
         private readonly List<DisqusThread> allThreads = new List<DisqusThread>();
         private readonly List<DisqusPost> allPosts = new List<DisqusPost>();
         private readonly List<DisqusUser> allUsers = new List<DisqusUser>();
-        private readonly List<DisqusForum> allForums = new List<DisqusForum>();
+        private readonly List<DisqusUser> allModerators = new List<DisqusUser>();
 
         private readonly IDisqusService disqusService;
         private readonly IEventLogService eventLogService;
@@ -98,33 +98,13 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Get forum details from Disqus
+        /// Returns true if the specified user can moderator the forum
         /// </summary>
-        /// <param name="forumId">The Disqus internal ID</param>
-        /// <param name="useCache">If true, the forum is returned from cache (if found) instead of the Disqus API</param>
-        /// <returns>A Disqus user</returns>
-        public async Task<DisqusForum> GetForum(string forumId, bool useCache = true)
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<bool> IsModerator(string userId, string forum)
         {
-            if (useCache)
-            {
-                var foundForums = allForums.Where(f => f.Id == forumId);
-                if (foundForums.Count() > 0)
-                {
-                    return foundForums.FirstOrDefault();
-                }
-            }
-
-            try
-            {
-                var forum = await disqusService.GetForum(forumId);
-                AddForumCache(forum);
-                return forum;
-            }
-            catch (DisqusException ex)
-            {
-                LogError(ex, nameof(GetForum));
-                return null;
-            }
+            return true;
         }
 
         /// <summary>
@@ -288,21 +268,6 @@ namespace Disqus.Services
             }
 
             return allChildren;
-        }
-
-        /// <summary>
-        /// Adds a <see cref="DisqusForum"/> to the repository cache. Removes the forum from cache
-        /// first, if it exists
-        /// </summary>
-        /// <param name="post"></param>
-        public void AddForumCache(DisqusForum forum)
-        {
-            var existingForums = allForums.Where(f => f.Id == forum.Id);
-            if (existingForums.Count() > 0)
-            {
-                allForums.Remove(existingForums.FirstOrDefault());
-            }
-            allForums.Add(forum);
         }
 
         /// <summary>

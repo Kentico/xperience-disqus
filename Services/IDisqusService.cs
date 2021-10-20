@@ -17,6 +17,11 @@ namespace Disqus.Services
         public DisqusCookie AuthCookie { get; set; }
 
         /// <summary>
+        /// The forum used on the site, should be set upon initialization
+        /// </summary>
+        public DisqusForum CurrentForum { get; set; }
+
+        /// <summary>
         /// Returns true if the authenticated user is allowed to reply to a post
         /// </summary>
         /// <param name="post"></param>
@@ -49,6 +54,13 @@ namespace Disqus.Services
         /// <param name="forumId"></param>
         /// <returns></returns>
         public abstract Task<DisqusForum> GetForum(string forumId);
+
+        /// <summary>
+        /// Gets a list of <see cref="DisqusUser"/> that can moderate the forum
+        /// </summary>
+        /// <param name="forum"></param>
+        /// <returns></returns>
+        public abstract Task<IEnumerable<DisqusUser>> GetForumModerators(string forum);
 
         /// <summary>
         /// Returns the thread ID of an existing thread, or creates a new thread if one doesn't exist
