@@ -11,17 +11,10 @@
 @{
     Layout = null;
     var currentUser = await disqusRepository.GetCurrentUser();
-
-    if (User.Identity.IsAuthenticated)
-    {
-        var user = UserInfo.Provider.Get(User.Identity.Name);
-        Model.AnonName = user.FullName;
-        Model.AnonEmail = user.Email;
-    }
 }
 
 <div id="form_replyto_@Model.ReplyTo" class="post-form-container col mt-3">
-    @if (!disqusService.IsAuthenticated() && !Model.AllowAnon)
+    @if (!disqusService.IsAuthenticated())
     {
         await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
     }
@@ -49,17 +42,8 @@
                                     
                                 });
                             }
-                            @if (disqusService.IsAuthenticated())
-                            {
-                                <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus", new { returnUrl = Context.Request.GetEncodedUrl() })">Log out</a></span>
-                            }
-                            else
-                            {
-                                <span>Posting anonymously as</span>
-                                <input class="form-control-sm" placeholder="Name" asp-for="AnonName" />
-                                <input class="form-control-sm" placeholder="Email" asp-for="AnonEmail" />
-                                <span>or you can <a href="@disqusService.GetAuthenticationUrl()">log in</a></span>
-                            }
+                            
+                            <span class="form-posting-as">You're posting as @(currentUser.Name).</span>
                         </div>
                         <div id="editor"></div>
                     </div>

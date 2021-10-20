@@ -20,11 +20,5 @@ namespace Disqus.Models
         public int ThreadRating { get; set; }
 
         public bool RatingsEnabled { get; set; } = false;
-
-        public string AnonName { get; set; }
-
-        public string AnonEmail { get; set; }
-
-        public bool AllowAnon { get; set; } = false;
     }
 }

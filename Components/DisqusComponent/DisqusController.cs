@@ -52,7 +52,6 @@ namespace Disqus.Components.DisqusComponent
             {
                 PostThread = post.Thread,
                 ReplyTo = post.Id,
-                AllowAnon = post.ForumObject.Settings.AllowAnonPost,
                 RatingsEnabled = post.ThreadObject.RatingsEnabled && post.ForumObject.Settings.ThreadRatingsEnabled,
                 ThreadRating = await disqusRepository.GetCurrentUserThreadRating(post.Thread)
             });
@@ -98,14 +97,6 @@ namespace Disqus.Components.DisqusComponent
                 {
                     success = false,
                     message = "Please enter a message."
-                });
-            }
-            if (!disqusService.IsAuthenticated() && (string.IsNullOrEmpty(model.AnonName) || string.IsNullOrEmpty(model.AnonEmail)))
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "You must provide your name and email address."
                 });
             }
 
@@ -183,7 +174,7 @@ namespace Disqus.Components.DisqusComponent
         {
             try
             {
-                var response = await disqusService.CreatePost(model.Message, model.PostThread, model.ReplyTo, model.AnonName, model.AnonEmail, model.ThreadRating);
+                var response = await disqusService.CreatePost(model.Message, model.PostThread, model.ReplyTo, model.ThreadRating);
                 var responseJson = JsonConvert.SerializeObject(response.SelectToken("$.response"));
                 var newPost = JsonConvert.DeserializeObject<DisqusPost>(responseJson);
 
@@ -300,7 +291,6 @@ namespace Disqus.Components.DisqusComponent
             var post = disqusRepository.GetPost(id);
             var model = new DisqusEditingFormModel()
             {
-                AllowAnon = post.ForumObject.Settings.AllowAnonPost,
                 EditedPostId = id,
                 Message = post.Raw_Message,
                 PostThread = post.Thread,

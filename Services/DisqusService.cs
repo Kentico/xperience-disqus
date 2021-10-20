@@ -180,7 +180,7 @@ namespace Disqus.Services
             return await MakePostRequest(DisqusConstants.POST_UPDATE, data);
         }
 
-        public async Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "", int threadRating = 0)
+        public async Task<JObject> CreatePost(string message, string threadId, string parentId = "", int threadRating = 0)
         {
             var data = new List<KeyValuePair<string, string>>() {
                 new KeyValuePair<string, string>("message", message),
@@ -197,15 +197,7 @@ namespace Disqus.Services
                 data.Add(new KeyValuePair<string, string>("rating", threadRating.ToString()));
             }
 
-            var url = DisqusConstants.POST_CREATE;
-            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email))
-            {
-                url = DisqusConstants.POST_CREATE_ANON;
-                data.Add(new KeyValuePair<string, string>("author_name", name));
-                data.Add(new KeyValuePair<string, string>("author_email", email));
-            }
-
-            return await MakePostRequest(url, data);
+            return await MakePostRequest(DisqusConstants.POST_CREATE, data);
         }
 
         public async Task<JObject> DeletePost(string id)

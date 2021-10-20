@@ -43,7 +43,6 @@
         await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusEditingFormModel()
         {
             PostThread = Model.Thread.Id,
-            AllowAnon = Model.Forum.Settings.AllowAnonPost,
             RatingsEnabled = Model.Thread.RatingsEnabled && Model.Forum.Settings.ThreadRatingsEnabled,
             ThreadRating = await disqusRepository.GetCurrentUserThreadRating(Model.Thread.Id)
         });

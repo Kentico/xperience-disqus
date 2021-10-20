@@ -94,11 +94,9 @@ namespace Disqus.Services
         /// <param name="message"></param>
         /// <param name="threadId"></param>
         /// <param name="parentId"></param>
-        /// <param name="name"></param>
-        /// <param name="email"></param>
         /// <param name="threadRating"></param>
         /// <returns></returns>
-        public abstract Task<JObject> CreatePost(string message, string threadId, string parentId = "", string name = "", string email = "", int threadRating = 0);
+        public abstract Task<JObject> CreatePost(string message, string threadId, string parentId = "", int threadRating = 0);
 
         /// <summary>
         /// Updates a post in Disqus

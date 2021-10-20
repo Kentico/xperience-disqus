@@ -149,6 +149,11 @@ namespace Disqus.Services
         /// <returns></returns>
         public async Task<int> GetCurrentUserThreadRating(string threadId)
         {
+            if (!disqusService.IsAuthenticated())
+            {
+                return 0;
+            }
+
             var distinctAuthors = await GetDistinctAuthors(threadId);
             var foundAuthors = distinctAuthors.Where(a => a.Id == disqusService.AuthCookie.User_Id);
             if (foundAuthors.Count() > 0)
