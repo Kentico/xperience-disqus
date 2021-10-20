@@ -171,6 +171,7 @@ function showUser(sender) {
     });
 }
 
+// Opens or closes a post's reply form depending on whether it already exists
 function showOrHideReplyForm(sender) {
 
     var btn = $(sender);

@@ -48,7 +48,7 @@
                 await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel()
                 {
                     Disabled = true,
-                    Classes = "col-auto px-0 pt-1",
+                    Classes = "px-0 pt-1",
                     StarId = $"post-{Model.Id}",
                     Rating = Model.Author.ThreadRating
 

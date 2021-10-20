@@ -22,8 +22,22 @@
 </script>
 
 <div id="disqus_thread">
-    <span class="disqus-header">@Model.Header</span>
-
+    <div class="row mb-5">
+        <span class="disqus-header">@Model.Header</span>
+        @if (Model.Thread.RatingsEnabled && Model.Forum.Settings.ThreadRatingsEnabled)
+        {
+            await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel()
+            {
+                Disabled = true,
+                Classes = "mx-0",
+                StarId = "header",
+                Rating = await disqusRepository.GetThreadAverageRating(Model.Thread.Id),
+                DisplaySummary = true,
+                ThreadId = Model.Thread.Id
+            });
+        }
+    </div>
+    
     @if (!Model.Thread.IsClosed)
     {
         await Html.RenderPartialAsync("_DisqusPostForm.cshtml", new DisqusEditingFormModel()
