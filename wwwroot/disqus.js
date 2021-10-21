@@ -51,6 +51,26 @@ function copyToClipboard(url) {
     alert('Comment permalink copied!');
 }
 
+function closeThread(sender) {
+
+    var btn = $(sender);
+    var id = btn.data('thread-id');
+    var url = btn.data('url');
+    $.ajax({
+        method: 'POST',
+        url: url,
+        data: {
+            id: id
+        }
+    }).done(function (data, statusText, xhdr) {
+
+        window.location.reload();
+    }).fail(function (xhdr, statusText, errorText) {
+
+        alert(xhdr.responseText);
+    });
+}
+
 function subscribeThread(sender) {
 
     var btn = $(sender);

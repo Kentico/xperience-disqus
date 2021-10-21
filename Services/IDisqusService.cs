@@ -17,9 +17,9 @@ namespace Disqus.Services
         public DisqusCookie AuthCookie { get; set; }
 
         /// <summary>
-        /// The forum used on the site, should be set upon initialization
+        /// The forum used on the site
         /// </summary>
-        public DisqusForum CurrentForum { get; set; }
+        public DisqusForum CurrentForum { get; }
 
         /// <summary>
         /// Returns true if the authenticated user is allowed to reply to a post
@@ -56,11 +56,11 @@ namespace Disqus.Services
         public abstract Task<DisqusForum> GetForum(string forumId);
 
         /// <summary>
-        /// Gets a list of <see cref="DisqusUser"/> that can moderate the forum
+        /// Gets a list of <see cref="DisqusUser"/> that can moderate the current forum
         /// </summary>
         /// <param name="forum"></param>
         /// <returns></returns>
-        public abstract Task<IEnumerable<DisqusUser>> GetForumModerators(string forum);
+        public abstract Task<IEnumerable<DisqusUser>> GetForumModerators();
 
         /// <summary>
         /// Returns the thread ID of an existing thread, or creates a new thread if one doesn't exist
@@ -185,6 +185,13 @@ namespace Disqus.Services
         /// <param name="userId"></param>
         /// <returns></returns>
         public abstract Task<bool> IsUserFollowing(string userId);
+
+        /// <summary>
+        /// Closes the thread
+        /// </summary>
+        /// <param name="threadId"></param>
+        /// <returns></returns>
+        public abstract Task<JObject> CloseThread(string threadId);
 
         /// <summary>
         /// Sets the currently authenticated user to subscribe/unsubscribe to a thread

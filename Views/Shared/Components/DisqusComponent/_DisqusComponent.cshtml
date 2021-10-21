@@ -1,5 +1,4 @@
-﻿@using Disqus
-@using Disqus.Models
+﻿@using Disqus.Models
 @using Disqus.Services
 @model DisqusComponentViewModel
 @inject IDisqusService disqusService
@@ -26,7 +25,10 @@
 
 <div id="disqus_thread">
     <div class="row mb-5">
-        <span class="disqus-header">@Model.Header</span>
+        <div class="disqus-header">
+            @Model.Header
+        </div>
+        
         @if (Model.Thread.RatingsEnabled && disqusService.CurrentForum.Settings.ThreadRatingsEnabled)
         {
             await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel()

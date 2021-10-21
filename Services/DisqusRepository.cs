@@ -98,13 +98,19 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Returns true if the specified user can moderator the forum
+        /// Returns true if the specified user can moderate the current forum
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<bool> IsModerator(string userId, string forum)
+        public async Task<bool> IsModerator(string userId)
         {
-            return true;
+            if(allModerators.Count == 0)
+            {
+                var moderators = await disqusService.GetForumModerators();
+                allModerators.AddRange(moderators);
+            }
+
+            return allModerators.Any(u => u.Id == userId);
         }
 
         /// <summary>

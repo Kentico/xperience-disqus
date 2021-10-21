@@ -2,6 +2,7 @@
 @using Disqus.Services
 @model DisqusPost
 @inject IDisqusService disqusService
+@inject DisqusRepository disqusRepository
 
 @{
     Layout = null;
@@ -25,6 +26,10 @@
         <a class="cursor-pointer" onclick="showUser(this)" data-user-id="@Model.Author.Id" data-url="@Url.Action("GetUserDetailBody", "Disqus")">
             <img class="disqus-user-avatar" src="@Model.Author.AvatarUrl" />
         </a>
+        @if (await disqusRepository.IsModerator(Model.Author.Id))
+        {
+            <div class="user-badge badge-mod">MOD</div>
+        }
     </div>
 
     <div class="post-main col-auto">
@@ -43,7 +48,7 @@
                 </span>
             </div>
 
-            @if (Model.Author.ThreadRating > 0)
+            @if (Model.Author.ThreadRating > 0 && disqusService.CurrentForum.Settings.ThreadRatingsEnabled && Model.ThreadObject.RatingsEnabled)
             {
                 await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel()
                 {

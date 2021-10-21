@@ -79,9 +79,6 @@ namespace Disqus.Components.DisqusComponent
                 var thread = await disqusRepository.GetThread(threadId, false);
                 thread.NodeID = widgetProperties.Page == null ? 0 : widgetProperties.Page.NodeID;
 
-                var forum = await disqusService.GetForum(thread.Forum);
-                disqusService.CurrentForum = forum;
-
                 model.Thread = thread;
                 model.ParentPosts = await disqusRepository.GetTopLevelPosts(threadId, false);
             }

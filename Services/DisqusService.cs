@@ -19,10 +19,22 @@ namespace Disqus.Services
         private readonly string secret;
         private readonly string publicKey;
         private readonly string authRedirect;
-
         private readonly IEventLogService eventLogService;
 
-        public DisqusForum CurrentForum { get; set; }
+        private DisqusForum mForum;
+
+        public DisqusForum CurrentForum
+        {
+            get
+            {
+                if(mForum == null)
+                {
+                    mForum = GetForum(site).Result;
+                }
+
+                return mForum;
+            }
+        }
 
         public DisqusCookie AuthCookie
         {
@@ -107,13 +119,13 @@ namespace Disqus.Services
             return JsonConvert.DeserializeObject<DisqusForum>(forumJson);
         }
 
-        public async Task<IEnumerable<DisqusUser>> GetForumModerators(string forum)
+        public async Task<IEnumerable<DisqusUser>> GetForumModerators()
         {
-            var url = string.Format(DisqusConstants.FORUM_MODERATORS, forum);
+            var url = string.Format(DisqusConstants.FORUM_MODERATORS, CurrentForum.Id);
             var response = await MakeGetRequest(url);
-            var users = response.Value<JArray>("response");
+            var users = response.Value<JArray>("response").Select(o => o.Value<JToken>("user"));
 
-            return users.Select(o => JsonConvert.DeserializeObject<DisqusUser>(o.ToString())).ToList();
+            return users.Select(t => JsonConvert.DeserializeObject<DisqusUser>(t.ToString()));
         }
 
         public async Task<DisqusThread> GetThread(string threadId)
@@ -308,6 +320,15 @@ namespace Disqus.Services
             return false;
         }
 
+        public async Task<JObject> CloseThread(string threadId)
+        {
+            var data = new List<KeyValuePair<string, string>>() {
+                new KeyValuePair<string, string>("thread", threadId)
+            };
+
+            return await MakePostRequest(DisqusConstants.THREAD_CLOSE, data);
+        }
+
         public async Task<JObject> ReportPost(string postId, int reason)
         {
             var data = new List<KeyValuePair<string, string>>() {
@@ -380,19 +401,8 @@ namespace Disqus.Services
                     data.Add(new KeyValuePair<string, string>("access_token", AuthCookie.Access_Token));
                 }
 
-                // Special case for anonymous posts- must use api_key and pass headers
-                if (url == DisqusConstants.POST_CREATE_ANON)
-                {
-                    data.Add(new KeyValuePair<string, string>("api_key", publicKey));
-                    client.DefaultRequestHeaders.Add("Referer", RequestContext.CurrentDomain);
-                    client.DefaultRequestHeaders.Add("Host", RequestContext.CurrentDomain);
-
-                }
-                else
-                {
-                    data.Add(new KeyValuePair<string, string>("api_secret", secret));
-                }
-
+                data.Add(new KeyValuePair<string, string>("api_secret", secret));
+                
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 var response = await client.PostAsync(url, new FormUrlEncodedContent(data));
                 var content = await response.Content.ReadAsStringAsync();

@@ -402,6 +402,25 @@ namespace Disqus.Components.DisqusComponent
         }
 
         /// <summary>
+        /// Closes the specified thread
+        /// </summary>
+        /// <param name="id">The Disqus internal ID of the thread to close</param>
+        [HttpPost]
+        public async Task<ActionResult> CloseThread(string id)
+        {
+            var response = await disqusService.CloseThread(id);
+            var code = response.Value<int>("code");
+            if (code == 0)
+            {
+                return Content("");
+            }
+            else
+            {
+                throw new DisqusException(code, response.Value<string>("response"));
+            }
+        }
+
+        /// <summary>
         /// The endpoint called after a user authenticates with Disqus. This action retrieves a token
         /// from Disqus' endpoint and sets the <see cref="IDisqusService.AuthCookie"/>
         /// </summary>
@@ -430,10 +449,9 @@ namespace Disqus.Components.DisqusComponent
         [HttpGet]
         public ActionResult LogOut()
         {
-            var returnUrl = QueryHelper.GetString("returnUrl", "");
             CookieHelper.Remove(DisqusConstants.AUTH_COOKIE_DATA);
 
-            return new RedirectResult(returnUrl);
+            return new RedirectResult("/");
         }
     }
 }

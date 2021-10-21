@@ -19,7 +19,8 @@
                              THREAD_POSTS = BASE_URL + "threads/listPosts.json?thread={0}",
                              THREAD_SUBSCRIBE = BASE_URL + "threads/subscribe.json",
                              THREAD_UNSUBSCRIBE = BASE_URL + "threads/unsubscribe.json",
-                             THREAD_VOTE = BASE_URL + "threads/vote.json";
+                             THREAD_VOTE = BASE_URL + "threads/vote.json",
+                             THREAD_CLOSE = BASE_URL + "threads/close.json";
 
         public static string POST_CREATE = BASE_URL + "posts/create.json",
                              POST_CREATE_ANON = BASE_URL_HTTP + "posts/create.json",
@@ -31,6 +32,8 @@
 
         public static string FORUM_DETAILS = BASE_URL + "forums/details.json?forum={0}",
                              FORUM_MODERATORS = BASE_URL + "forums/listModerators.json?forum={0}";
+
+        public static string BADGES_LIST = BASE_URL + "badges/list.json?forum={0}";
         #endregion
 
         #region Authentication

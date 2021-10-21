@@ -42,7 +42,7 @@
                                 });
                             }
                             
-                            <span class="form-posting-as">You're posting as @(currentUser.Name).</span>
+                            <span class="form-posting-as">You're posting as @(currentUser.Name). <a href="@Url.Action("LogOut", "Disqus")">Log out</a></span>
                         </div>
                         <div id="editor"></div>
                     </div>

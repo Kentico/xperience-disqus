@@ -5,7 +5,7 @@
 @inject IDisqusService disqusService
 
 <div id="disqus_thread">
-    <span class="disqus-header">@Model.Header</span>
+    <div class="disqus-header">@Model.Header</div>
     @if (Model.Exception.ErrorCode == DisqusException.DisqusErrorCode.AUTHENTICATION_REQUIRED)
     {
         await Html.RenderPartialAsync("_DisqusLoginForm.cshtml");
