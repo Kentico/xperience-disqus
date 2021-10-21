@@ -28,7 +28,7 @@
         </a>
         @if (await disqusRepository.IsModerator(Model.Author.Id))
         {
-            <div class="user-badge badge-mod">MOD</div>
+            <div class="user-badge badge-mod">@disqusService.CurrentForum.ModeratorBadgeText</div>
         }
     </div>
 

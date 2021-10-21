@@ -49,5 +49,12 @@
             DOWNVOTE_DISABLED,
             DISABLED
         }
+
+        public enum SortMethod
+        {
+            OLDEST = 1,
+            NEWEST = 2,
+            HOT = 4
+        }
     }
 }

@@ -228,7 +228,8 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Returns all thread posts that do not have a parent
+        /// Returns all thread posts that do not have a parent, ordered according to
+        /// <see cref="DisqusForum.Sort"/>
         /// </summary>
         /// <param name="threadId"></param>
         /// <returns></returns>
@@ -239,7 +240,7 @@ namespace Disqus.Services
                 var threadPosts = await GetAllPosts(threadId, useCache);
                 var topLevelPosts = threadPosts.Where(p => string.IsNullOrEmpty(p.Parent)).ToList();
 
-                return topLevelPosts;
+                return SortPosts(topLevelPosts);
             }
             catch (DisqusException ex)
             {
@@ -249,13 +250,40 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Returns only the direct children of a post
+        /// Returns only the direct children of a post, ordered according to
+        /// <see cref="DisqusForum.Sort"/>
         /// </summary>
         /// <param name="postId"></param>
         /// <returns></returns>
         public IEnumerable<DisqusPost> GetDirectChildren(string postId)
         {
-            return allPosts.Where(p => p.Parent == postId);
+            var children = allPosts.Where(p => p.Parent == postId);
+            return SortPosts(children);
+        }
+
+        /// <summary>
+        /// Sorts posts according to <see cref="DisqusForum.Sort"/>
+        /// </summary>
+        /// <param name="posts"></param>
+        /// <returns></returns>
+        public IEnumerable<DisqusPost> SortPosts(IEnumerable<DisqusPost> posts)
+        {
+            IOrderedEnumerable<DisqusPost> orderedPosts = null;
+
+            switch (disqusService.CurrentForum.Sort)
+            {
+                case (int)DisqusConstants.SortMethod.HOT:
+                    orderedPosts = posts.OrderByDescending(p => p.Likes);
+                    break;
+                case (int)DisqusConstants.SortMethod.NEWEST:
+                    orderedPosts = posts.OrderByDescending(p => p.CreatedAt);
+                    break;
+                case (int)DisqusConstants.SortMethod.OLDEST:
+                    orderedPosts = posts.OrderBy(p => p.CreatedAt);
+                    break;
+            }
+
+            return orderedPosts;
         }
 
         /// <summary>

@@ -19,6 +19,8 @@ namespace Disqus.Models
 
         public string Url { get; set; }
 
+        public int Sort { get; set; }
+
         public string Founder { get; set; }
 
         public int VotingType { get; set; }
