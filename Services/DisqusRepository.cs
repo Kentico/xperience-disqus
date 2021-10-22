@@ -69,7 +69,7 @@ namespace Disqus.Services
         }
 
         /// <summary>
-        /// Gets all posts of the thread and saves them to cache
+        /// Gets all posts of the thread sorted in the order they should be rendered, and saves them to cache
         /// </summary>
         /// <param name="threadId"></param>
         /// <returns></returns>
@@ -88,13 +88,42 @@ namespace Disqus.Services
                     AddPostCache(post);
                 }
 
-                return threadPosts;
+                var orderedPosts = new List<DisqusPost>();
+                var topLevelPosts = await GetTopLevelPosts(threadId);
+                foreach(var post in topLevelPosts)
+                {
+                    orderedPosts.Add(post);
+                    orderedPosts.AddRange(GetAllPostsRecursive(post));
+                }
+
+                return orderedPosts;
             }
             catch (DisqusException ex)
             {
                 LogError(ex, nameof(GetAllPosts));
                 return Enumerable.Empty<DisqusPost>();
             }
+        }
+
+        /// <summary>
+        /// For a specified post, returns the all of the children in order they should be rendered.
+        /// Sets the <see cref="DisqusPost.NestingLevel"/> for each child post
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
+        private IEnumerable<DisqusPost> GetAllPostsRecursive(DisqusPost post, int currentNestingLevel = 0)
+        {
+            currentNestingLevel++;
+            var posts = new List<DisqusPost>();
+            var directChildren = GetDirectChildren(post.Id);
+            foreach(var child in directChildren)
+            {
+                child.NestingLevel = currentNestingLevel;
+                posts.Add(child);
+                posts.AddRange(GetAllPostsRecursive(child, currentNestingLevel));
+            }
+
+            return posts;
         }
 
         /// <summary>
@@ -233,7 +262,7 @@ namespace Disqus.Services
         /// </summary>
         /// <param name="threadId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<DisqusPost>> GetTopLevelPosts(string threadId, bool useCache = true)
+        private async Task<IEnumerable<DisqusPost>> GetTopLevelPosts(string threadId, bool useCache = true)
         {
             try
             {
@@ -255,7 +284,7 @@ namespace Disqus.Services
         /// </summary>
         /// <param name="postId"></param>
         /// <returns></returns>
-        public IEnumerable<DisqusPost> GetDirectChildren(string postId)
+        private IEnumerable<DisqusPost> GetDirectChildren(string postId)
         {
             var children = allPosts.Where(p => p.Parent == postId);
             return SortPosts(children);
@@ -266,7 +295,7 @@ namespace Disqus.Services
         /// </summary>
         /// <param name="posts"></param>
         /// <returns></returns>
-        public IEnumerable<DisqusPost> SortPosts(IEnumerable<DisqusPost> posts)
+        private IEnumerable<DisqusPost> SortPosts(IEnumerable<DisqusPost> posts)
         {
             IOrderedEnumerable<DisqusPost> orderedPosts = null;
 

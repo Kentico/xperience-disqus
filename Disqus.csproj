@@ -8,12 +8,18 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <Title>Xperience Disqus Widget</Title>
     <PackageId>Xperience.Core.Disqus</PackageId>
-    <Version>13.0.32.136</Version>
+    <Version>13.0.32</Version>
     <Authors>Eric Dugre</Authors>
     <Company>Kentico</Company>
-    <PackageIconUrl>https://github.com/Kentico/Home/raw/master/images/logo_nuget.png</PackageIconUrl>
-    <Description></Description>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>kentico xperience mvc core disqus comments</PackageTags>
+    <Description>A pagebuilder widget which enables Disqus commenting on your .NET Core website</Description>
+    <RepositoryUrl>https://github.com/kentico-ericd/kentico-xperience-disqus</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,6 +35,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\**\*" />
+    <None Include="img\icon.png" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup>

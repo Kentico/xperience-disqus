@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -40,9 +41,8 @@ namespace Disqus.Components.DisqusComponent
                 throw new ArgumentNullException(nameof(widgetProperties));
             }
 
-            var model = new DisqusComponentViewModel() {
-                Header = widgetProperties.Properties.Header
-            };
+            var model = new DisqusComponentViewModel();
+            var header = widgetProperties.Properties.Header;
             var title = widgetProperties.Page == null ? SiteContext.CurrentSite.DisplayName : widgetProperties.Page.DocumentName;
             var guid = widgetProperties.Page == null ? "" : widgetProperties.Page.DocumentGUID.ToString();
             var identifier = string.IsNullOrEmpty(widgetProperties.Properties.ThreadIdentifier) ?
@@ -51,7 +51,7 @@ namespace Disqus.Components.DisqusComponent
             if(string.IsNullOrEmpty(identifier))
             {
                 return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() {
-                    Header = model.Header,
+                    Header = header.Replace("{num}", "0"),
                     Exception = new DisqusException(500, "An indentifier must be specified for non-Xperience pages.")
                 });
             }
@@ -79,20 +79,26 @@ namespace Disqus.Components.DisqusComponent
                 var thread = await disqusRepository.GetThread(threadId, false);
                 thread.NodeID = widgetProperties.Page == null ? 0 : widgetProperties.Page.NodeID;
 
+                // Load all posts into cache and get count
+                var posts = await disqusRepository.GetAllPosts(threadId, false);
+                var postCount = posts.Where(p => !p.IsDeleted).Count();
+                model.Header = header.Replace("{num}", postCount.ToString());
+
                 model.Thread = thread;
-                model.ParentPosts = await disqusRepository.GetTopLevelPosts(threadId, false);
+                model.Posts = posts;
+                
             }
             catch (DisqusException e)
             {
                 return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() {
-                    Header = model.Header,
+                    Header = header.Replace("{num}", "0"),
                     Exception = e
                 });
             }
             catch (Exception e)
             {
                 return View("~/Views/Shared/Components/DisqusComponent/_DisqusException.cshtml", new DisqusExceptionViewModel() {
-                    Header = model.Header,
+                    Header = header.Replace("{num}", "0"),
                     Exception = new DisqusException(500, e.Message)
                 });
             }

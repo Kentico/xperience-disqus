@@ -74,10 +74,9 @@
         </div>
     </div>
 
-    @foreach (var post in Model.ParentPosts)
+    @foreach (var post in Model.Posts)
     {
         await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
-        await RenderChildren(post.Id);
     }
 
     <div class="d-flex flex-row justify-content-between mt-3">
@@ -105,18 +104,4 @@
 
 @{
     await Html.RenderPartialAsync("_DisqusReportReason.cshtml");
-}
-
-@functions {
-    async Task RenderChildren(string postId, int currentNestingLevel = 0)
-    {
-        currentNestingLevel += 1;
-        var children = disqusRepository.GetDirectChildren(postId);
-        foreach (var post in children)
-        {
-            post.NestingLevel = currentNestingLevel;
-            await Html.RenderPartialAsync("_DisqusPost.cshtml", post);
-            await RenderChildren(post.Id, currentNestingLevel);
-        }
-    }
 }

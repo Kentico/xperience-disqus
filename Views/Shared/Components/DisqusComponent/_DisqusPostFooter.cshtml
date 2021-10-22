@@ -15,17 +15,13 @@
             @if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DISABLED)
             {
                 <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="true" class="btn px-0 vote-button">
-                &#9650;<span>&nbsp;@Model.Likes</span>
-            </button>
+                    &#9650;<span>&nbsp;@Model.Likes</span>
+                </button>
             }
             @if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DISABLED && disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_DISABLED)
             {
-                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="false" class="btn px-0 vote-button">
-                &#9660;
-                @if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_LIMITED)
-                {
-                    <span>&nbsp;@Model.Dislikes</span>
-                }
+                <button onclick="voteClick(this)" data-post-id="@Model.Id" data-url="@Url.Action("VotePost", "Disqus")" data-is-like="false" class="btn px-1 vote-button">
+                    &#9660;@if (disqusService.CurrentForum.VotingType != (int)DisqusConstants.VotingType.DOWNVOTE_LIMITED) {<span>&nbsp;@Model.Dislikes</span>}
                 </button>
             }
         </div>

@@ -9,6 +9,6 @@ namespace Disqus.Models
 
         public DisqusThread Thread { get; set; }
 
-        public IEnumerable<DisqusPost> ParentPosts { get; set; } = Enumerable.Empty<DisqusPost>();
+        public IEnumerable<DisqusPost> Posts { get; set; } = Enumerable.Empty<DisqusPost>();
     }
 }
