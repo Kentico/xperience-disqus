@@ -1,6 +1,6 @@
-# Xperience Disqus Widget
+[![Nuget](https://img.shields.io/nuget/v/Xperience.Core.Disqus)](https://www.nuget.org/packages/Xperience.Core.Disqus)
 
-Readme under construction
+# Xperience Disqus Widget
 
 ## Installation
 
