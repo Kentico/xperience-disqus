@@ -170,12 +170,14 @@ Most customization of the Disqus widget can be accomplished using standard CSS p
 
 For more complex alterations to the layout, you can use default MVC functionality to modify the generated HTML output of the widget. If you place a view in your .NET Core project with the same name and location as this repository, that view will be used instead. This means you can refer to [our default views](/Views/Shared/Components/DisqusComponent), copy the code there, add it to your project, and remove elements, add elements, and move them around.
 
+> :warning: Much of the functionality, including asynchronous updates to the DOM, rely on certain IDs, classes, and attributes on elements. In general, moving elements and adding new ones should not interfere with this functionality. However, we recommend refraining from removing classes from elements or making heavy modifications to the layouts. Always test your modifications thoroughly before deploying the changes!
+
 For example, I'm working in the Dancing Goat sample project and I'd like each comment to have a more "compact" layout. In Visual Studio I create 2 new folders:
 
 - /Views/Shared/Components
 - /Views/Shared/Components/DisqusComponent
 
-I can then create a new view called `_DisqusPost.cshtml` in that folder and copy the code from [the default view](/Views/Shared/Components/DisqusComponent/DisqusPost.cshtml). If I alter the `div` which contains the post to the following:
+I can then create a new view called `_DisqusPost.cshtml` in that folder and copy the code from [the default view](/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml). If I alter the `div` which contains the post to the following:
 
 ```cs
 ...
