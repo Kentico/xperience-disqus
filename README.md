@@ -100,6 +100,26 @@ If you'd like to also display the number of comments, you can use the [default D
 <a href="@(urlRetriever.Retrieve(node).AbsoluteUrl)#disqus_thread"></a>
 ```
 
+# Disqus administration
+
+The following is a summary of the features implemented in this widget which are configurable from the [Disqus administration](https://disqus.com/admin/):
+
+- __General tab__
+  - Comment Policy URL
+  - Comment Policy Summary
+  - Default Commenter Avatar
+  - Disqus Branding
+- __Community tab__
+  - Comment Count Link (default Disqus functionality)
+  - Default Sort
+  - Moderator Badge Text
+  - Star Ratings
+  - Hide Social Share
+  - Voting
+  - Comment Prompt
+- __Moderation tab__
+  - Images and Videos
+
 # On-line marketing
 
 ## Logging On-line marketing activities
