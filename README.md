@@ -172,9 +172,8 @@ For more complex alterations to the layout, you can use default MVC functionalit
 
 > :warning: Much of the functionality, including asynchronous updates to the DOM, rely on certain IDs, classes, and attributes on elements. In general, moving elements and adding new ones should not interfere with this functionality. However, we recommend refraining from removing classes from elements or making heavy modifications to the layouts. Always test your modifications thoroughly before deploying the changes!
 
-For example, I'm working in the Dancing Goat sample project and I'd like each comment to have a more "compact" layout. In Visual Studio I create 2 new folders:
+For example, I'm working in the Dancing Goat sample project and I'd like each comment to have a more "compact" layout. In Visual Studio I create the following folder(s):
 
-- /Views/Shared/Components
 - /Views/Shared/Components/DisqusComponent
 
 I can then create a new view called `_DisqusPost.cshtml` in that folder and copy the code from [the default view](/Views/Shared/Components/DisqusComponent/_DisqusPost.cshtml). If I alter the `div` which contains the post to the following:
