@@ -27,7 +27,7 @@ namespace Disqus.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public string ModeratorBadgeText { get; set; }
+        public string ModeratorBadgeText { get; set; } = "Mod";
 
         public string CommentsLinkOne { get; set; }
 

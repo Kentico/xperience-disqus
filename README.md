@@ -152,3 +152,86 @@ These activities can be used in conditional [contact groups](https://docs.xperie
 Your users can now reference this rule when creating contact groups:
 
 ![Rule designer](/img/rule-designer.png)
+
+# Customizing your comments
+
+Most customization of the Disqus widget can be accomplished using standard CSS practices. Refer to [disqus.css](/wwwroot/disqus.css) to see the default styles and classes you can override. For example, you change the background color and border of a comment and it's replies by adding this to your site's stylesheet:
+
+```css
+#disqus_thread .disqus-post {
+    background-color: #ddd !important;
+}
+
+#disqus_thread .child-post {
+    background-color: #fff !important;
+    border-left: 2px dotted #888 !important;
+}
+```
+
+For more complex alterations to the layout, you can use default MVC functionality to modify the generated HTML output of the widget. If you place a view in your .NET Core project with the same name and location as this repository, that view will be used instead. This means you can refer to [our default views](/Views/Shared/Components/DisqusComponent), copy the code there, add it to your project, and remove elements, add elements, and move them around.
+
+For example, I'm working in the Dancing Goat sample project and I'd like each comment to have a more "compact" layout. In Visual Studio I create 2 new folders:
+
+- /Views/Shared/Components
+- /Views/Shared/Components/DisqusComponent
+
+I can then create a new view called `_DisqusPost.cshtml` in that folder and copy the code from [the default view](/Views/Shared/Components/DisqusComponent/DisqusPost.cshtml). If I alter the `div` which contains the post to the following:
+
+```cs
+...
+
+<div id="post_@Model.Id" class="row row-cols-1 @cssClass" style="padding-left:@margin">
+    <div class="post-sidebar col-auto">
+        <a id="comment-@Model.Id"></a>
+        <a class="cursor-pointer" onclick="showUser(this)" data-user-id="@Model.Author.Id" data-url="@Url.Action("GetUserDetailBody", "Disqus")">
+            <img class="disqus-user-avatar-xs" src="@Model.Author.AvatarUrl" />
+        </a>
+    </div>
+    <div class="post-main col-auto">
+        <div class="row row-cols-1">
+            <div class="col px-0">
+                @if (Model.Author.ThreadRating > 0 && disqusService.CurrentForum.Settings.ThreadRatingsEnabled && Model.ThreadObject.RatingsEnabled)
+                {
+                    await Html.RenderPartialAsync("_DisqusStarRatings.cshtml", new DisqusRatingViewModel()
+                    {
+                        Disabled = true,
+                        Classes = "px-0 pt-1",
+                        StarId = $"post-{Model.Id}",
+                        Rating = Model.Author.ThreadRating
+                    });
+                }
+                @if (await disqusRepository.IsModerator(Model.Author.Id))
+                {
+                    <div class="user-badge badge-mod">@disqusService.CurrentForum.ModeratorBadgeText</div>
+                }
+                <span class="post-author">
+                    <a onclick="showUser(this)" class="user-link cursor-pointer" data-user-id="@Model.Author.Id" data-url="@Url.Action("GetUserDetailBody", "Disqus")">@Model.Author.Name</a>
+                </span>
+                <span class="post-date">
+                    &commat; @Model.CreatedAt.ToString()
+                    @if (Model.IsEdited)
+                    {
+                        <i>(Edited)</i>
+                    }
+                </span>
+            </div>
+            <div class="post-content col px-0">
+                @Html.Raw(Model.Raw_Message)
+            </div>
+            @{
+                await Html.RenderPartialAsync("_DisqusPostFooter.cshtml", Model);
+            }
+        </div>
+    </div>
+
+    <div class="post-flag-container d-none">
+        <button class="report-button" title="Report post" onclick="$('#reportReasonModal #report_button').data('post-id', '@Model.Id');" data-toggle="modal" data-target="#reportReasonModal">
+            &#127988
+        </button>
+    </div>
+</div>
+```
+
+When I run the Dancing Goat project, I can see that the posts have changed slightly:
+
+![Layout comapre](/img/layout-compare.png)
