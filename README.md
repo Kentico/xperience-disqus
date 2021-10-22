@@ -1,4 +1,4 @@
-[![Nuget](https://img.shields.io/nuget/v/Xperience.Core.Disqus)](https://www.nuget.org/packages/Xperience.Core.Disqus)
+[![Nuget](https://img.shields.io/nuget/v/Xperience.Core.Disqus)](https://www.nuget.org/packages/Xperience.Core.Disqus) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
 
 # Xperience Disqus Widget
 
