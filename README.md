@@ -1,4 +1,4 @@
-[![Nuget](https://img.shields.io/nuget/v/Xperience.Core.Disqus)](https://www.nuget.org/packages/Xperience.Core.Disqus) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
+[![Nuget](https://img.shields.io/nuget/v/Xperience.Core.Disqus)](https://www.nuget.org/packages/Xperience.Core.Disqus) ![Kentico.Xperience.Libraries 13.0.32](https://img.shields.io/badge/Kentico.Xperience.Libraries-v13.0.32-orange) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
 
 # Xperience Disqus Widget
 
