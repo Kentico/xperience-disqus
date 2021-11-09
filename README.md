@@ -5,7 +5,7 @@
 ## Installation
 
 1. Install the [Xperience.Core.Disqus](https://www.nuget.org/packages/Xperience.Core.Disqus) in your .NET Core project
-1. Create a Disqus [new application](https://disqus.com/api/applications/register/)
+1. Create a new [Disqus application](https://disqus.com/api/applications/register/)
 1. On the __Settings__ tab, set the __Callback URL__ to `https://<your MVC site>/disqus/auth`
 1. Switch to the __Details__ tab and note the keys under the __OAuth Settings__ section
 1. Open the [Disqus Admin](https://disqus.com/admin/)
