@@ -1,11 +1,11 @@
 ﻿using CMS.Core;
 using CMS.Helpers;
-using Disqus.Models;
+using Kentico.Xperience.Disqus.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Disqus.Services
+namespace Kentico.Xperience.Disqus.Services
 {
     public class DisqusRepository
     {

@@ -1,4 +1,4 @@
-﻿namespace Disqus
+﻿namespace Kentico.Xperience.Disqus
 {
     //https://disqus.com/api/docs/posts/report/
     public enum ReportReason

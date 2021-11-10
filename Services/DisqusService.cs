@@ -1,6 +1,6 @@
 ﻿using CMS.Core;
 using CMS.Helpers;
-using Disqus.Models;
+using Kentico.Xperience.Disqus.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Disqus.Services
+namespace Kentico.Xperience.Disqus.Services
 {
     public class DisqusService : IDisqusService
     {

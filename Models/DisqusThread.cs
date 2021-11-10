@@ -1,8 +1,6 @@
-﻿using CMS.Core;
-using Disqus.Services;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
-namespace Disqus.Models
+namespace Kentico.Xperience.Disqus.Models
 {
     public class DisqusThread
     {

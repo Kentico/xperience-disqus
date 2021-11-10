@@ -1,7 +1,7 @@
 ﻿using Kentico.Forms.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc;
 
-namespace Disqus.Components.DisqusComponent
+namespace Kentico.Xperience.Disqus.Components.DisqusComponent
 {
     public class DisqusComponentProperties : IWidgetProperties
     {

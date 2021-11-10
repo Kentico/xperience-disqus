@@ -1,7 +1,7 @@
 ﻿using CMS.Helpers;
 using CMS.SiteProvider;
-using Disqus.Models;
-using Disqus.Services;
+using Kentico.Xperience.Disqus.Models;
+using Kentico.Xperience.Disqus.Services;
 using Kentico.Content.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Disqus.Components.DisqusComponent
+namespace Kentico.Xperience.Disqus.Components.DisqusComponent
 {
     public class DisqusComponent : ViewComponent
     {

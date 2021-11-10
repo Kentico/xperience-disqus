@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 
-namespace Disqus.Models
+namespace Kentico.Xperience.Disqus.Models
 {
     public class DisqusUser
     {

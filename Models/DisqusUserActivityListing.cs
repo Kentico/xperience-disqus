@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Disqus.Models
+namespace Kentico.Xperience.Disqus.Models
 {
     public class DisqusUserActivityListing
     {

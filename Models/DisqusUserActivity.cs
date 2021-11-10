@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Disqus.Models
+namespace Kentico.Xperience.Disqus.Models
 {
     [JsonConverter(typeof(JsonPathConverter))]
     public class DisqusUserActivity

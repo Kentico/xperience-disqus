@@ -1,7 +1,6 @@
 ﻿using CMS.Activities;
-using Disqus.Models;
 
-namespace Disqus.OnlineMarketing
+namespace Kentico.Xperience.Disqus.OnlineMarketing
 {
     public class DisqusReportActivityInitializer : CustomActivityInitializerBase
     {

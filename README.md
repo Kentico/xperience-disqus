@@ -1,10 +1,10 @@
-[![Nuget](https://img.shields.io/nuget/v/Xperience.Core.Disqus)](https://www.nuget.org/packages/Xperience.Core.Disqus) ![Kentico.Xperience.Libraries 13.0.32](https://img.shields.io/badge/Kentico.Xperience.Libraries-v13.0.32-orange) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
+[![Nuget](https://img.shields.io/nuget/v/Kentico.Xperience.Disqus)](https://www.nuget.org/packages/Kentico.Xperience.Disqus) ![Kentico.Xperience.Libraries 13.0.32](https://img.shields.io/badge/Kentico.Xperience.Libraries-v13.0.32-orange) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
 
 # Xperience Disqus Widget
 
 ## Installation
 
-1. Install the [Xperience.Core.Disqus](https://www.nuget.org/packages/Xperience.Core.Disqus) in your .NET Core project
+1. Install [Kentico.Xperience.Disqus](https://www.nuget.org/packages/Kentico.Xperience.Disqus) in your .NET Core project
 1. Create a new [Disqus application](https://disqus.com/api/applications/register/)
 1. On the __Settings__ tab, set the __Callback URL__ to `https://<your MVC site>/disqus/auth`
 1. Switch to the __Details__ tab and note the keys under the __OAuth Settings__ section

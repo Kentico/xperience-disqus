@@ -5,9 +5,9 @@ using CMS.DataEngine;
 using CMS.Helpers;
 using CMS.SiteProvider;
 using CMS.TextAnalytics.Azure;
-using Disqus.Models;
-using Disqus.OnlineMarketing;
-using Disqus.Services;
+using Kentico.Xperience.Disqus.Models;
+using Kentico.Xperience.Disqus.OnlineMarketing;
+using Kentico.Xperience.Disqus.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -16,7 +16,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Disqus.Components.DisqusComponent
+namespace Kentico.Xperience.Disqus.Components.DisqusComponent
 {
     public class DisqusController : Controller
     {

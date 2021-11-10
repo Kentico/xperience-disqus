@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace Disqus
+namespace Kentico.Xperience.Disqus
 {
     /// <summary>
     /// JsonPathConverter; adapted from code located at: https://stackoverflow.com/a/33094930/398630

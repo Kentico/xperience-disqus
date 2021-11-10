@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Disqus
+namespace Kentico.Xperience.Disqus
 {
     public class DisqusException : Exception
     {

@@ -1,8 +1,7 @@
 ﻿using Azure.AI.TextAnalytics;
 using CMS.Activities;
-using CMS.Helpers;
 
-namespace Disqus.OnlineMarketing
+namespace Kentico.Xperience.Disqus.OnlineMarketing
 {
     public class DisqusCommentActivityInitializer : CustomActivityInitializerBase
     {

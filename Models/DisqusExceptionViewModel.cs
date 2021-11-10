@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Disqus.Models
+namespace Kentico.Xperience.Disqus.Models
 {
     public class DisqusExceptionViewModel
     {

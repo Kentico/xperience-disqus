@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using CMS;
-using Disqus.Components.DisqusComponent;
+using Kentico.Xperience.Disqus.Components.DisqusComponent;
 using Kentico.PageBuilder.Web.Mvc;
-using Disqus.Services;
+using Kentico.Xperience.Disqus.Services;
 
 [assembly: AssemblyDiscoverable]
 [assembly: RegisterWidget(DisqusComponent.IDENTIFIER,
@@ -12,7 +12,7 @@ using Disqus.Services;
     Description = "",
     IconClass = "icon-bubbles")]
 
-namespace Disqus
+namespace Kentico.Xperience.Disqus
 {
     public static class DiscusServiceExtensions
     {

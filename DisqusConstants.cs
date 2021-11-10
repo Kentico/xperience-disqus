@@ -1,4 +1,4 @@
-﻿namespace Disqus
+﻿namespace Kentico.Xperience.Disqus
 {
     public static class DisqusConstants
     {

@@ -1,10 +1,10 @@
-﻿using Disqus.Models;
+﻿using Kentico.Xperience.Disqus.Models;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Disqus.Services
+namespace Kentico.Xperience.Disqus.Services
 {
     /// <summary>
     /// A service for interfacing with the Disqus API: https://disqus.com/api/docs/

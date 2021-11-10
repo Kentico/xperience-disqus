@@ -1,9 +1,9 @@
 ﻿using CMS.Core;
-using Disqus.Services;
+using Kentico.Xperience.Disqus.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace Disqus.Models
+namespace Kentico.Xperience.Disqus.Models
 {
     public class DisqusPost
     {
