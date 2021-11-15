@@ -1,0 +1,53 @@
+﻿@using Kentico.Xperience.Disqus.Components
+@model DisqusComponentViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
+@functions
+{
+    public string GetAntiXsrfToken()
+    {
+        var tokenSet = antiforgery.GetAndStoreTokens(Context);
+        return $"{tokenSet.HeaderName}:{tokenSet.RequestToken}";
+    }
+}
+
+<div id="disqus_thread" class="@Model.CssClass"></div>
+
+<script>
+    function logActivity(comment)
+    {
+        httpRequest = new XMLHttpRequest();
+
+        if (!httpRequest) {
+          return;
+        }
+
+        var tokenSet = '@GetAntiXsrfToken()';
+        var headerAndToken = tokenSet.split(':');
+
+        if (headerAndToken.length === 2) {
+            httpRequest.open('POST', '@Url.Action("LogCommentActivity", "Disqus")');
+            httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            httpRequest.setRequestHeader(headerAndToken[0], headerAndToken[1]);
+            httpRequest.send('message=' + encodeURIComponent(comment.text));
+        }
+    }
+
+    var disqus_config = function () {
+        this.page.url = '@Model.Url';
+        this.page.identifier = '@Model.Identifier';
+        this.callbacks.onNewComment = [(c) => logActivity(c)];
+
+        if ('@Model.Title' !== '') {
+            this.page.title = '@Model.Title';
+        }
+    };
+
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = '//@(Model.Site).disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
