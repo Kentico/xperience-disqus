@@ -35,19 +35,25 @@ namespace Kentico.Xperience.Disqus
         /// with the results set to <see cref="ActivityInfo.ActivityValue"/>
         /// </summary>
         /// <param name="message">The contents of the comment</param>
+        /// <param name="nodeId">The page on which the comment was submitted</param>
+        /// <param name="culture">The culture of the page</param>
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public void LogCommentActivity(string message)
+        public void LogCommentActivity(string message, int nodeId, string culture)
         {
+            if (String.IsNullOrEmpty(culture))
+            {
+                culture = Thread.CurrentThread.CurrentCulture.Name;
+            }
+
             var sentiment = TextSentiment.Neutral;
             if (SettingsKeyInfoProvider.GetBoolValue("CMSEnableSentimentAnalysis") &&
-                !string.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIEndpoint")) &&
-                !string.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIKey")))
+                !String.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIEndpoint")) &&
+                !String.IsNullOrEmpty(SettingsKeyInfoProvider.GetValue("CMSAzureTextAnalyticsAPIKey")))
             {
                 try
                 {
-                    var culture = Thread.CurrentThread.CurrentCulture.Name;
                     DocumentSentiment result = sentimentAnalysisService.AnalyzeText(message, culture, SiteContext.CurrentSiteName);
                     sentiment = result.Sentiment;
                 }
@@ -57,7 +63,7 @@ namespace Kentico.Xperience.Disqus
                 }
             }
 
-            var activityInitializer = new DisqusCommentActivityInitializer(message, sentiment);
+            var activityInitializer = new DisqusCommentActivityInitializer(message, sentiment, nodeId, culture);
             activityLogService.Log(activityInitializer);
         }
     }

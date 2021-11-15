@@ -26,10 +26,14 @@
         var headerAndToken = tokenSet.split(':');
 
         if (headerAndToken.length === 2) {
+            var message = encodeURIComponent(comment.text);
+            var nodeId = @(Model.Node == null ? 0 : Model.Node.NodeID);
+            var culture = '@(Model.Node == null ? "" : Model.Node.DocumentCulture)';
+
             httpRequest.open('POST', '@Url.Action("LogCommentActivity", "Disqus")');
             httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             httpRequest.setRequestHeader(headerAndToken[0], headerAndToken[1]);
-            httpRequest.send('message=' + encodeURIComponent(comment.text));
+            httpRequest.send(`message=${message}&nodeId=${nodeId}&culture=${culture}`);
         }
     }
 

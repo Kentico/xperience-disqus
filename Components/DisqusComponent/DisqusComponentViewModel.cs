@@ -1,7 +1,19 @@
-﻿namespace Kentico.Xperience.Disqus.Components
+﻿using CMS.DocumentEngine;
+
+namespace Kentico.Xperience.Disqus.Components
 {
     public class DisqusComponentViewModel
     {
+        /// <summary>
+        /// The page that the widget is being rendered on. May be null in cases where
+        /// the widget is placed on arbitrary views
+        /// </summary>
+        public TreeNode Node
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// CSS classes added to the containing DIV
         /// </summary>

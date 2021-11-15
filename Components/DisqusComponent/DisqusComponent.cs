@@ -77,6 +77,7 @@ namespace Kentico.Xperience.Disqus.Components
                 Site = site,
                 Url = pageUrl,
                 Title = title,
+                Node = widgetProperties.Page,
                 CssClass = widgetProperties.Properties.CssClass
             });
         }
