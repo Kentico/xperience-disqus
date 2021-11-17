@@ -13,10 +13,13 @@ using System;
     typeof(DisqusComponent),
     "Disqus comments",
     typeof(DisqusComponentProperties),
-    Description = "",
+    Description = "Enables commenting, ratings, and reactions on Xperience pages.",
     IconClass = "icon-bubbles")]
 namespace Kentico.Xperience.Disqus.Components
 {
+    /// <summary>
+    /// Class which constructs the <see cref="DisqusComponentViewModel"/> and renders the widget.
+    /// </summary>
     public class DisqusComponent : ViewComponent
     {
         public const string IDENTIFIER = "Xperience.DisqusComponent";
@@ -33,6 +36,13 @@ namespace Kentico.Xperience.Disqus.Components
             this.configuration = config;
         }
 
+        /// <summary>
+        /// Populates the <see cref="DisqusComponentViewModel"/> and returns the appropriate view.
+        /// </summary>
+        /// <param name="widgetProperties">User populated properties from the page builder or view.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the widget properties aren't provided, the
+        /// "DisqusShortName" application setting isn't set, or the widget was placed on a non-Xperience page and
+        /// <see cref="DisqusComponentProperties.PageIdentifier"/> isn't set.</exception>
         public IViewComponentResult Invoke(ComponentViewModel<DisqusComponentProperties> widgetProperties)
         {
             if (widgetProperties is null)

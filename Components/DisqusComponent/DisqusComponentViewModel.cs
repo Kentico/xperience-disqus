@@ -2,11 +2,14 @@
 
 namespace Kentico.Xperience.Disqus.Components
 {
+    /// <summary>
+    /// The properties to be set when rendering the widget on a view.
+    /// </summary>
     public class DisqusComponentViewModel
     {
         /// <summary>
         /// The page that the widget is being rendered on. May be null in cases where
-        /// the widget is placed on arbitrary views
+        /// the widget is placed on arbitrary views.
         /// </summary>
         public TreeNode Node
         {
@@ -15,16 +18,16 @@ namespace Kentico.Xperience.Disqus.Components
         }
 
         /// <summary>
-        /// CSS classes added to the containing DIV
+        /// CSS classes added to the containing DIV.
         /// </summary>
         public string CssClass
         {
             get;
             set;
-        } //= "disqus-thread";
+        }
 
         /// <summary>
-        /// The unique identifier of the current page
+        /// The unique identifier of the current page.
         /// </summary>
         public string Identifier
         {
@@ -33,7 +36,7 @@ namespace Kentico.Xperience.Disqus.Components
         }
 
         /// <summary>
-        /// The absolute URL of the current page
+        /// The absolute URL of the current page.
         /// </summary>
         public string Url
         {
@@ -42,7 +45,7 @@ namespace Kentico.Xperience.Disqus.Components
         }
 
         /// <summary>
-        /// The name of the current page
+        /// The name of the current page.
         /// </summary>
         public string Title
         {
@@ -51,7 +54,7 @@ namespace Kentico.Xperience.Disqus.Components
         }
 
         /// <summary>
-        /// The short name of the Disqus site
+        /// The short name of the Disqus site.
         /// </summary>
         public string Site
         {

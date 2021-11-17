@@ -4,6 +4,9 @@ using System;
 
 namespace Kentico.Xperience.Disqus.OnlineMarketing
 {
+    /// <summary>
+    /// Initializes the required variables for logging an activity after a comment is created.
+    /// </summary>
     public class DisqusCommentActivityInitializer : CustomActivityInitializerBase
     {
         private readonly int nodeId;
@@ -12,7 +15,7 @@ namespace Kentico.Xperience.Disqus.OnlineMarketing
         private readonly TextSentiment sentiment;
 
         /// <summary>
-        /// The identifier of the activity type
+        /// The identifier of the activity type.
         /// </summary>
         public override string ActivityType
         {
@@ -23,12 +26,12 @@ namespace Kentico.Xperience.Disqus.OnlineMarketing
         }
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
-        /// <param name="message">The contents of the comment</param>
-        /// <param name="sentiment">The result of Sentiment Analysis, or <see cref="TextSentiment.Neutral"/> if not enabled</param>
-        /// <param name="nodeId">The page on which the comment was submitted</param>
-        /// <param name="culture">The culture of the page</param>
+        /// <param name="message">The contents of the comment.</param>
+        /// <param name="sentiment">The result of Sentiment Analysis, or <see cref="TextSentiment.Neutral"/> if not enabled.</param>
+        /// <param name="nodeId">The page on which the comment was submitted.</param>
+        /// <param name="culture">The culture of the page.</param>
         public DisqusCommentActivityInitializer(string message, TextSentiment sentiment, int nodeId, string culture)
         {
             this.nodeId = nodeId;

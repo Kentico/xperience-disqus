@@ -12,6 +12,9 @@ using System.Threading;
 
 namespace Kentico.Xperience.Disqus
 {
+    /// <summary>
+    /// A Controller which recieves AJAX requests from the Disqus widget to log On-line marketing activities.
+    /// </summary>
     public class DisqusController : Controller
     {
         private readonly IActivityLogService activityLogService;
@@ -19,6 +22,9 @@ namespace Kentico.Xperience.Disqus
         private readonly IEventLogService eventLogService;
         private readonly IHttpContextAccessor httpContextAccessor;
 
+        /// <summary>
+        /// Constructor for dependency injection.
+        /// </summary>
         public DisqusController(IActivityLogService activityLogService,
             ISentimentAnalysisService sentimentAnalysisService,
             IEventLogService eventLogService,
@@ -32,12 +38,11 @@ namespace Kentico.Xperience.Disqus
 
         /// <summary>
         /// Performs Sentiment Analysis on a comment, then logs an On-line Marketing activity
-        /// with the results set to <see cref="ActivityInfo.ActivityValue"/>
+        /// with the results set to <see cref="ActivityInfo.ActivityValue"/>.
         /// </summary>
-        /// <param name="message">The contents of the comment</param>
-        /// <param name="nodeId">The page on which the comment was submitted</param>
-        /// <param name="culture">The culture of the page</param>
-        /// <returns></returns>
+        /// <param name="message">The contents of the comment.</param>
+        /// <param name="nodeId">The page on which the comment was submitted.</param>
+        /// <param name="culture">The culture of the page.</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public void LogCommentActivity(string message, int nodeId, string culture)
