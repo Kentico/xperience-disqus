@@ -1,4 +1,4 @@
-[![Nuget](https://img.shields.io/nuget/v/Kentico.Xperience.Disqus)](https://www.nuget.org/packages/Kentico.Xperience.Disqus) ![Kentico.Xperience.Libraries 13.0.32](https://img.shields.io/badge/Kentico.Xperience.Libraries-v13.0.32-orange) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
+[![Nuget](https://img.shields.io/nuget/v/Kentico.Xperience.Disqus)](https://www.nuget.org/packages/Kentico.Xperience.Disqus) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
 
 # Xperience Disqus Widget
 
@@ -11,45 +11,20 @@
 1. In your MVC project's `appsettings.json`, add the following setting:
 
 ```json
-"DisqusShortName":  "my-awesome-site"
+"xperience.disqus":  {
+    "siteShortname": "my-awesome-site"
+}
 ```
 ## Requirements
 
 The integration is currently built on __Kentico.Xperience.AspNetCore.WebApp__ 13.0.32
-
----
-
-Your MVC project's routing must contain a "catch-all" route:
-
-```cs
-endpoints.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action}",
-    defaults: new {
-        controller = "Home",
-        action = "Index"
-    }
-);
-```
-
-Or, you can register a custom route for Disqus:
-
-```cs
-endpoints.MapControllerRoute(
-    name: "Disqus",
-    pattern: "disqus/{action}",
-    defaults: new {
-        controller = "Disqus"
-    }
-);
-```
 
 ## Adding Disqus to your pages
 
 The Disqus widget can be added as a standard pagebuilder widget, or directly to your views as a [standalone widget](https://docs.xperience.io/developing-websites/page-builder-development/rendering-widgets-in-code):
 
 ```cs
-@using Kentico.Xperience.Disqus.Components
+@using Kentico.Xperience.Disqus
 
 <standalone-widget widget-type-identifier="@DisqusComponent.IDENTIFIER" widget-properties="new DisqusComponentProperties()" />
 ```
@@ -86,6 +61,19 @@ To begin logging activities, configure the following custom [activity type](http
 
 ![Comment activity](img/activity-comment.png)
 
+Your MVC project's routing must add comment activity route:
+
+```cs
+app.UseEndpoints(endpoints =>
+{
+    endpoints.Kentico().MapRoutes();
+
+    ...
+
+    endpoints.MapDisqusActivityTracking();
+
+...
+```
 ## Triggering marketing automation processes
 
 You can reference these activies to trigger [marketing automation](https://docs.xperience.io/on-line-marketing-features/managing-your-on-line-marketing-features/marketing-automation) processes. For example, you may want to trigger a process when a positive comment is left on a specific page:
