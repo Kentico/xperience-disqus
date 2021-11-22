@@ -14,7 +14,7 @@
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>kentico xperience mvc core disqus comments</PackageTags>
-		<Description>A pagebuilder widget which enables Disqus commenting on your .NET Core website with optional tracking of marketing activities and sentiment analysis.</Description>
+		<Description>A page builder widget which enables Disqus comments on your .NET Core website with optional tracking of marketing activities and sentiment analysis.</Description>
 		<RepositoryUrl>https://github.com/kentico/xperience-disqus</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
