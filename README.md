@@ -13,7 +13,7 @@ This integration is compatible with any __Kentico Xperience 13 (version 13.0.32 
 1. Install the [Kentico.Xperience.Disqus](https://www.nuget.org/packages/Kentico.Xperience.Disqus) NuGet package in your live site Xperience project.
 1. Open the [Disqus Admin](https://disqus.com/admin/) website.
     1. Select the "I want to install Disqus on my site" option if you haven't done so before.
-    1. Create a new site (or select an existing one) and note the __Shortname__ from the __Settings -> General__ tab.
+    1. Create a new site (or select an existing one) and note the __Shortname__ from the __Settings__ application -> __General__ tab.
 1. In your live-site project's `appsettings.json`, add the following setting:
 
 ```json
@@ -64,7 +64,7 @@ If you'd like to also display the number of comments, you can use the [default D
 
 With this integration, you can log activities whenever a new comment is posted. If you have [text analytics](https://docs.xperience.io/x/XxffBw) enabled, the sentiment of the comment will be also logged with the activity. This is helpful during the creation of [marketing automation](https://docs.xperience.io/x/UgiRBg) processes or [contact groups](https://docs.xperience.io/x/ngiRBg). For example, if a contact leaves a positive comment on an article, you may want to send them an email offering a discount on the products advertised in the article.
 
-To begin logging activities, configure the following custom [activity type](https://docs.xperience.io/x/_wiRBg) in __Contact management > Configuration > Activity types__. Only the code name of the activity type needs to match exactly, the rest can be altered to meet your needs.
+To begin logging activities, configure the following custom [activity type](https://docs.xperience.io/x/_wiRBg) in __Contact management__ application -> __Configuration__ -> __Activity types__. Only the code name of the activity type needs to match exactly, the rest can be altered to meet your needs.
 
 ![Comment activity](img/activity-comment.png)
 
@@ -102,8 +102,8 @@ In this example, if the comment is negative the contact will be sent an email af
 
 These activities can be used in conditional [contact groups](https://docs.xperience.io/x/ngiRBg) and other on-line marketing functionality by creating your own [macro rules](https://docs.xperience.io/x/7gyRBg). The following steps create a macro rule that can be used in a contact group which contains contacts who left a comment with the chosen sentiment in the last X days:
 
-1. In __Contact management__ application > __Configuration__ tab > __Macro rules__, click "Create new macro rule":
-    - __Display name__: "Contact commented on Disqus"
+1. In __Contact management__ application -> __Configuration__  -> __Macro rules__, click __New macro rule__:
+    - __Display name__:"Contact commented on Disqus"
     - __User text__: "Contact left a {sentiment} comment in the last {days} days"
     - __Condition__: `Contact.DidActivity("disquscomment", "", {days}, "ActivityValue='{sentiment}'")`
 2. Save and switch to the __Parameters tab__
