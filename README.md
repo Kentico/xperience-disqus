@@ -42,6 +42,8 @@ There are 3 optional properties that you can configure:
 
 The widget can be placed on _any_ view in your .NET Core project. However, if it is placed on a view without representation in the Xperience content tree, the __PageIdentifier__ property must be specified.
 
+> :warning: Do not add more than one instance of the Discuss widget on a single page as only one instance can be loaded at once.
+
 ## Displaying links with comment counts
 
 You can place a link to the comments section of any page by appending `#disqus_thread` to the URL. The link can also contain the number of comments on that page:
@@ -60,7 +62,7 @@ If you'd like to also display the number of comments, you can use the [default D
 
 ## Logging On-line marketing activities
 
-With this integration, you can log activities whenever a new comment is posted. If you have [text analytics](https://docs.xperience.io/x/XxffBw) enabled, the sentiment of the comment will be logged with the activity, otherwise all comments have "neutral" sentiment. This is helpful during the creation of [marketing automation](https://docs.xperience.io/x/UgiRBg) processes or [contact groups](https://docs.xperience.io/x/ngiRBg). For example, if a contact leaves a positive comment on an article, you may want to send them an email offering a discount on the products advertised in the article.
+With this integration, you can log activities whenever a new comment is posted. If you have [text analytics](https://docs.xperience.io/x/XxffBw) enabled, the sentiment of the comment will be also logged with the activity. This is helpful during the creation of [marketing automation](https://docs.xperience.io/x/UgiRBg) processes or [contact groups](https://docs.xperience.io/x/ngiRBg). For example, if a contact leaves a positive comment on an article, you may want to send them an email offering a discount on the products advertised in the article.
 
 To begin logging activities, configure the following custom [activity type](https://docs.xperience.io/x/_wiRBg) in __Contact management > Configuration > Activity types__. Only the code name of the activity type needs to match exactly, the rest can be altered to meet your needs.
 
