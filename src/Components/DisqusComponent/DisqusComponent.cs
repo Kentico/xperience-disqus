@@ -66,7 +66,7 @@ namespace Kentico.Xperience.Disqus
             var options = configuration.GetSection(DisqusOptions.SECTION_NAME).Get<DisqusOptions>();
             if (String.IsNullOrEmpty(options?.SiteShortName))
             {
-                LogWidgetLoadError($"{nameof(DisqusOptions.SiteShortName)} is null or empty. Please set the SiteShortName option under the xperience.disqus section in your appsettings.json file.");
+                LogWidgetLoadError($"{nameof(DisqusOptions.SiteShortName)} is null or empty. Please set the siteShortName option under the xperience.disqus section in your appsettings.json file.");
                 return Content(String.Empty);
             }
 
