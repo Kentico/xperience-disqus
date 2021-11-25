@@ -13,7 +13,7 @@ This integration is compatible with any __Kentico Xperience 13 (version 13.0.32 
 1. Install the [Kentico.Xperience.Disqus](https://www.nuget.org/packages/Kentico.Xperience.Disqus) NuGet package in your live site Xperience project.
 1. Open the [Disqus Admin](https://disqus.com/admin/) website.
     1. Select the "I want to install Disqus on my site" option if you haven't done so before.
-    1. Create a new site (or select an existing one) and note the __Shortname__ from the __Settings__ application -> __General__ tab.
+    1. Create a new site (or select an existing one) and note the __Shortname__ from __Settings__ -> __General__ tab.
 1. In your live-site project's `appsettings.json`, add the following setting:
 
 ```json
@@ -102,25 +102,22 @@ In this example, if the comment is negative the contact will be sent an email af
 
 These activities can be used in conditional [contact groups](https://docs.xperience.io/x/ngiRBg) and other on-line marketing functionality by creating your own [macro rules](https://docs.xperience.io/x/7gyRBg). The following steps create a macro rule that can be used in a contact group which contains contacts who left a comment with the chosen sentiment in the last X days:
 
-1. In __Contact management__ application -> __Configuration__  -> __Macro rules__, click __New macro rule__:
+1. Navigate to __Contact management__ application -> __Configuration__  -> __Macro rules__ and select __New macro rule__:
     - __Display name__:"Contact commented on Disqus"
     - __User text__: "Contact left a {sentiment} comment in the last {days} days"
     - __Condition__: `Contact.DidActivity("disquscomment", "", {days}, "ActivityValue='{sentiment}'")`
 2. Save and switch to the __Parameters tab__
-3. On the __sentiment__ property, change the control to "Drop-down list" and under __List of options__, add:
+3. On the __sentiment__ property, change the control to __Drop-down list__ and under __List of options__, add:
     - positive
     - negative
     - neutral
     - mixed
-4. On the __days__ property, change the __Data type__ to "Integer number".
+4. On the __days__ property, change the __Data type__ to __Integer number__.
 
 Your marketers can now use this rule when creating contact groups:
 
 ![Rule designer](/img/rule-designer.png)
 
-## Support
+## Questions & Support
 
-Please note that the level of provided support is always determined by the LICENSE file of a given open-source project. Unless stated otherwise, Kentico Software does not provide support nor testing for open source software. OS projects are developed by volunteers and maintained by Kentico employees in their spare time. The software is distributed as it is, without any guarantee.
-
-* Use [Stack Overflow](https://stackoverflow.com/tags/kentico) to ask questions about using Kentico's OS projects. Make sure you label them with the `kentico-kontent`, `kentico-xperience`, or `kentico` tag to make it easy for the community to find them.
-* Use GitHub Issues for submitting bugs and feature requests related to OS projects.
+See the [Kentico home repository](https://github.com/Kentico/Home/blob/master/README.md) for more information about the product(s) and general advice on submitting questions.
