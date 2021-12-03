@@ -1,4 +1,6 @@
-﻿@using Kentico.Xperience.Disqus
+﻿@using Kentico.Web.Mvc
+@using Kentico.Content.Web.Mvc
+@using Kentico.Xperience.Disqus
 @model DisqusComponentViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
@@ -16,7 +18,7 @@
             this.page.title = '@Model.Title';
         }
 
-        @if (DisqusHelper.CommentActivityTrackingEnabled)
+        @if (DisqusHelper.CommentActivityTrackingEnabled && !Context.Kentico().Preview().Enabled)
         {
         <text>
         this.callbacks.onNewComment = [(comment) => {
