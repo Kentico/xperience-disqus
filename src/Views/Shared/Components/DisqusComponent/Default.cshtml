@@ -1,41 +1,14 @@
-﻿@using Kentico.Web.Mvc
-@using Kentico.Content.Web.Mvc
-@using Kentico.Xperience.Disqus
-@model DisqusComponentViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+﻿@using Kentico.Xperience.Disqus
 
-@{
-    var token = antiforgery.GetAndStoreTokens(Context);
-}
+@model DisqusComponentViewModel
 
 <div id="disqus_thread" class="@Model.CssClass"></div>
-
 <script>
     var disqus_config = function () {
         this.page.url = '@Model.Url';
         this.page.identifier = '@Model.Identifier';
         if ('@Model.Title' !== '') {
             this.page.title = '@Model.Title';
-        }
-
-        @if (DisqusHelper.CommentActivityTrackingEnabled && !Context.Kentico().Preview().Enabled)
-        {
-        <text>
-        this.callbacks.onNewComment = [(comment) => {
-            var formData = new FormData();
-            formData.append('message', comment.text);
-            formData.append('nodeId', @(Model.Node == null ? 0 : Model.Node.NodeID));
-            formData.append('culture', '@(Model.Node == null ? "" : Model.Node.DocumentCulture)');
-            fetch('~/kentico.xperience.disqus/LogCommentActivity', {
-                method: 'post',
-                mode: 'same-origin',
-                headers: {
-                    '@token.HeaderName': '@token.RequestToken'
-                },
-                body: formData
-            });
-        }];
-        </text>
         }
     };
 

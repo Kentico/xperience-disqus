@@ -28,13 +28,21 @@ namespace Kentico.Xperience.Disqus
     /// </summary>
     public class DisqusComponent : ViewComponent
     {
+        /// <summary>
+        /// The internal identifier of the Disqus widget.
+        /// </summary>
         public const string IDENTIFIER = "Kentico.Xperience.DisqusComponent";
+
+
         private readonly IPageUrlRetriever pageUrlRetriever;
         private readonly IConfiguration configuration;
         private readonly IEventLogService eventLogService;
         private readonly ISiteService siteService;
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DisqusComponent"/> class.
+        /// </summary>
         public DisqusComponent(IPageUrlRetriever pageUrlRetriever,
             IConfiguration configuration,
             IEventLogService eventLogService,
@@ -46,19 +54,19 @@ namespace Kentico.Xperience.Disqus
             this.configuration = configuration;
         }
 
+
         /// <summary>
         /// Populates the <see cref="DisqusComponentViewModel"/> and returns the appropriate view.
         /// </summary>
         /// <param name="widgetProperties">User populated properties from the page builder or view.</param>
         public IViewComponentResult Invoke(ComponentViewModel<DisqusComponentProperties> widgetProperties)
         {
-            if (widgetProperties is null)
+            if (widgetProperties == null)
             {
                 LogWidgetLoadError("Widget properties were not provided.");
                 return Content(String.Empty);
             }
 
-            string pageUrl;
             var title = widgetProperties.Properties.Title;
             var identifier = String.IsNullOrEmpty(widgetProperties.Properties.PageIdentifier) ?
                 widgetProperties.Page?.DocumentGUID.ToString() : widgetProperties.Properties.PageIdentifier;
@@ -72,10 +80,11 @@ namespace Kentico.Xperience.Disqus
 
             if (String.IsNullOrEmpty(identifier))
             {
-                LogWidgetLoadError("A page identifier used for Disqus thread must be specified for non-Xperience pages.");
+                LogWidgetLoadError("A page identifier used for the Disqus thread must be specified for non-Xperience pages.");
                 return Content(String.Empty);
             }
 
+            string pageUrl;
             if (widgetProperties.Page == null)
             {
                 pageUrl = HttpContext.Request.GetDisplayUrl();
@@ -104,8 +113,8 @@ namespace Kentico.Xperience.Disqus
 
         private void LogWidgetLoadError(string description)
         {
-            eventLogService.LogError("DisqusWidget",
-                    "Load",
+            eventLogService.LogError(nameof(DisqusComponent),
+                    nameof(Invoke),
                     description,
                     siteService.CurrentSite?.SiteID ?? 0,
                     new LoggingPolicy(TimeSpan.FromMinutes(1)));
