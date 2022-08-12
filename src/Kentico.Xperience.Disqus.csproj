@@ -15,7 +15,7 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>kentico xperience mvc core disqus comments</PackageTags>
 		<Description>A page builder widget which enables Disqus comments on your Xperience by Kentico website.</Description>
-		<RepositoryUrl>https://github.com/kentico/kentico-xperience-disqus</RepositoryUrl>
+		<RepositoryUrl>https://github.com/Kentico/xperience-disqus/tree/xbk</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
