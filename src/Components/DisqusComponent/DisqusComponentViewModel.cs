@@ -17,6 +17,7 @@ namespace Kentico.Xperience.Disqus
             set;
         }
 
+
         /// <summary>
         /// CSS classes added to the containing DIV.
         /// </summary>
@@ -25,6 +26,7 @@ namespace Kentico.Xperience.Disqus
             get;
             set;
         }
+
 
         /// <summary>
         /// The unique identifier of the current page.
@@ -35,6 +37,7 @@ namespace Kentico.Xperience.Disqus
             set;
         }
 
+
         /// <summary>
         /// The absolute URL of the current page.
         /// </summary>
@@ -44,6 +47,7 @@ namespace Kentico.Xperience.Disqus
             set;
         }
 
+
         /// <summary>
         /// The name of the current page.
         /// </summary>
@@ -52,6 +56,7 @@ namespace Kentico.Xperience.Disqus
             get;
             set;
         }
+
 
         /// <summary>
         /// The short name of the Disqus site.

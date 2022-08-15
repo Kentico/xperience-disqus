@@ -28,13 +28,21 @@ namespace Kentico.Xperience.Disqus
     /// </summary>
     public class DisqusComponent : ViewComponent
     {
+        /// <summary>
+        /// The internal identifier of the Disqus widget.
+        /// </summary>
         public const string IDENTIFIER = "Kentico.Xperience.DisqusComponent";
+
+
         private readonly IPageUrlRetriever pageUrlRetriever;
         private readonly IConfiguration configuration;
         private readonly IEventLogService eventLogService;
         private readonly ISiteService siteService;
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DisqusComponent"/> class.
+        /// </summary>
         public DisqusComponent(IPageUrlRetriever pageUrlRetriever,
             IConfiguration configuration,
             IEventLogService eventLogService,
@@ -45,6 +53,7 @@ namespace Kentico.Xperience.Disqus
             this.siteService = siteService;
             this.configuration = configuration;
         }
+
 
         /// <summary>
         /// Populates the <see cref="DisqusComponentViewModel"/> and returns the appropriate view.

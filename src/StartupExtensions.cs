@@ -11,7 +11,6 @@ namespace Kentico.Xperience.Disqus
         /// <summary>
         /// Maps Disqus activity tracking route into the system.
         /// </summary>
-        /// <param name="endpoints"></param>
         public static void MapDisqusActivityTracking(this IEndpointRouteBuilder endpoints)
         {
             DisqusHelper.CommentActivityTrackingEnabled = true;

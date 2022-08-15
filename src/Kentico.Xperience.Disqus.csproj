@@ -8,7 +8,7 @@
 	<PropertyGroup>
 		<Title>Xperience Disqus Widget</Title>
 		<PackageId>Kentico.Xperience.Disqus</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Authors>Kentico Software</Authors>
 		<Company>Kentico Software</Company>
 		<PackageIcon>icon.png</PackageIcon>
@@ -17,6 +17,8 @@
 		<Description>A page builder widget which enables Disqus comments on your .NET Core website with optional tracking of marketing activities and sentiment analysis.</Description>
 		<RepositoryUrl>https://github.com/kentico/xperience-disqus</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>

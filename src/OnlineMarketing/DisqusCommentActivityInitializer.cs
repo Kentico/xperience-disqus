@@ -1,4 +1,5 @@
 ﻿using CMS.Activities;
+
 using System;
 
 namespace Kentico.Xperience.Disqus.OnlineMarketing
@@ -12,6 +13,7 @@ namespace Kentico.Xperience.Disqus.OnlineMarketing
         private readonly string culture;
         private readonly DisqusTextSentiment sentiment;
 
+
         /// <summary>
         /// The identifier of the activity type.
         /// </summary>
@@ -23,10 +25,11 @@ namespace Kentico.Xperience.Disqus.OnlineMarketing
             }
         }
 
+
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="DisqusCommentActivityInitializer"/> class.
         /// </summary>
-        /// <param name="sentiment">The result of Sentiment Analysis, or <see cref="TextSentiment.Neutral"/> if not enabled.</param>
+        /// <param name="sentiment">The result of Sentiment Analysis, or <see cref="DisqusTextSentiment.Neutral"/> if not enabled.</param>
         /// <param name="nodeId">The page on which the comment was submitted.</param>
         /// <param name="culture">The culture of the page.</param>
         public DisqusCommentActivityInitializer(DisqusTextSentiment sentiment, int nodeId, string culture)
