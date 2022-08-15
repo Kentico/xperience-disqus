@@ -6,7 +6,7 @@ The __Disqus comments__ widget for Xperience by Kentico provides an option to ad
 
 ## Installation
 
-1. Install the [Kentico.Xperience.Disqus](https://www.nuget.org/packages/Kentico.Xperience.Disqus) NuGet package in your Xperience by Kentico project.
+1. Install the latest [Kentico.Xperience.Disqus](https://www.nuget.org/packages/Kentico.Xperience.Disqus) __2.x.x__ NuGet package in your Xperience by Kentico project.
 1. Open the [Disqus Admin](https://disqus.com/admin/) website.
     1. Select the "I want to install Disqus on my site" option if you haven't done so before.
     1. Create a new site (or select an existing one) and note the __Shortname__ from __Settings__ -> __General__ tab.
