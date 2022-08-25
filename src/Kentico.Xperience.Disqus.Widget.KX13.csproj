@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Title>Xperience Disqus Widget</Title>
+		<PackageId>Kentico.Xperience.Disqus.Widget.KX13</PackageId>
+		<Version>1.0.2</Version>
+		<Authors>Kentico Software</Authors>
+		<Company>Kentico Software</Company>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>kentico xperience mvc core disqus comments</PackageTags>
+		<Description>A page builder widget which enables Disqus comments on your .NET Core website with optional tracking of marketing activities and sentiment analysis.</Description>
+		<RepositoryUrl>https://github.com/kentico/xperience-disqus</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\img\icon.png" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Kentico.Xperience.AspNetCore.WebApp" Version="[13.0.32,14.0)" />
+	</ItemGroup>
+
+</Project>

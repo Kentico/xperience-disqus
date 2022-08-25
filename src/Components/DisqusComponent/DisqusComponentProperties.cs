@@ -2,7 +2,7 @@
 
 using Kentico.PageBuilder.Web.Mvc;
 
-namespace Kentico.Xperience.Disqus
+namespace Kentico.Xperience.Disqus.Widget.KX13
 {
     /// <summary>
     /// The configurable properties for the Disqus widget.

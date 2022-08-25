@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace Kentico.Xperience.Disqus
+namespace Kentico.Xperience.Disqus.Widget.KX13
 {
     /// <summary>
     /// Application startup extension methods.
@@ -17,7 +17,7 @@ namespace Kentico.Xperience.Disqus
 
             endpoints.MapControllerRoute(
                 name: "Kentico.Xperience.Disqus",
-                pattern: "kentico.xperience.disqus/LogCommentActivity",
+                pattern: "Kentico.Xperience.Disqus/LogCommentActivity",
                 defaults: new
                 {
                     controller = "KenticoDisqusLog",

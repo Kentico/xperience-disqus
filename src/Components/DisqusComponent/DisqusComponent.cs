@@ -4,7 +4,7 @@ using CMS.Helpers;
 
 using Kentico.Content.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc;
-using Kentico.Xperience.Disqus;
+using Kentico.Xperience.Disqus.Widget.KX13;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -21,7 +21,7 @@ using System;
     Description = "Enables commenting, ratings, and reactions on Xperience pages.",
     IconClass = "icon-bubbles")]
 
-namespace Kentico.Xperience.Disqus
+namespace Kentico.Xperience.Disqus.Widget.KX13
 {
     /// <summary>
     /// Class which constructs the <see cref="DisqusComponentViewModel"/> and renders the widget.
@@ -31,7 +31,7 @@ namespace Kentico.Xperience.Disqus
         /// <summary>
         /// The internal identifier of the Disqus widget.
         /// </summary>
-        public const string IDENTIFIER = "Kentico.Xperience.DisqusComponent";
+        public const string IDENTIFIER = "Kentico.Xperience.Disqus.Widget.KX13.DisqusComponent";
 
 
         private readonly IPageUrlRetriever pageUrlRetriever;

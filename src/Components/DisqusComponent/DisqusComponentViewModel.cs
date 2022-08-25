@@ -1,6 +1,6 @@
 ﻿using CMS.DocumentEngine;
 
-namespace Kentico.Xperience.Disqus
+namespace Kentico.Xperience.Disqus.Widget.KX13
 {
     /// <summary>
     /// The properties to be set when rendering the widget on a view.
