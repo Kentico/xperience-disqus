@@ -1,6 +1,6 @@
 ﻿@using Kentico.Web.Mvc
 @using Kentico.Content.Web.Mvc
-@using Kentico.Xperience.Disqus.Widget.KX13
+@using Kentico.Xperience.Disqus
 @model DisqusComponentViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
@@ -26,7 +26,7 @@
             formData.append('message', comment.text);
             formData.append('nodeId', @(Model.Node == null ? 0 : Model.Node.NodeID));
             formData.append('culture', '@(Model.Node == null ? "" : Model.Node.DocumentCulture)');
-            fetch('~/Kentico.Xperience.Disqus/LogCommentActivity', {
+            fetch('~/kentico.xperience.disqus/LogCommentActivity', {
                 method: 'post',
                 mode: 'same-origin',
                 headers: {

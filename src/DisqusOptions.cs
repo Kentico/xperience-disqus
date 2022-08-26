@@ -1,4 +1,4 @@
-﻿namespace Kentico.Xperience.Disqus.Widget.KX13
+﻿namespace Kentico.Xperience.Disqus
 {
     /// <summary>
     /// Disqus integration options.

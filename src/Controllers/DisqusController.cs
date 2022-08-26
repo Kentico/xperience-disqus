@@ -7,14 +7,14 @@ using CMS.DataEngine;
 using CMS.SiteProvider;
 using CMS.TextAnalytics.Azure;
 
-using Kentico.Xperience.Disqus.Widget.KX13.OnlineMarketing;
+using Kentico.Xperience.Disqus.OnlineMarketing;
 
 using Microsoft.AspNetCore.Mvc;
 
 using System;
 using System.Threading;
 
-namespace Kentico.Xperience.Disqus.Widget.KX13
+namespace Kentico.Xperience.Disqus
 {
     /// <summary>
     /// A Controller which receives AJAX requests from the Disqus widget to log On-line marketing activities.

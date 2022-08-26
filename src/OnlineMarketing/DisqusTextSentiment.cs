@@ -1,4 +1,4 @@
-﻿namespace Kentico.Xperience.Disqus.Widget.KX13.OnlineMarketing
+﻿namespace Kentico.Xperience.Disqus.OnlineMarketing
 {
     internal enum DisqusTextSentiment
     {

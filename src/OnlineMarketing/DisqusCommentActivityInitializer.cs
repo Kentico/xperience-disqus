@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Kentico.Xperience.Disqus.Widget.KX13.OnlineMarketing
+namespace Kentico.Xperience.Disqus.OnlineMarketing
 {
     /// <summary>
     /// Initializes the required variables for logging an activity after a comment is created.

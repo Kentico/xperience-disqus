@@ -1,6 +1,6 @@
 ﻿using Azure.AI.TextAnalytics;
 
-namespace Kentico.Xperience.Disqus.Widget.KX13.OnlineMarketing
+namespace Kentico.Xperience.Disqus.OnlineMarketing
 {
     /// <summary>
     /// Maps the <see cref="TextSentiment"/> type to the <see cref="DisqusTextSentiment"/> type.

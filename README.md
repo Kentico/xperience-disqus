@@ -30,7 +30,7 @@ The __Disqus comments__ widget can be added as a standard page builder widget to
 Alternatively, the widget can be added directly to your views as a [standalone widget](https://docs.xperience.io/x/SQ2RBg):
 
 ```cs
-@using Kentico.Xperience.Disqus.Widget.KX13
+@using Kentico.Xperience.Disqus
 
 <standalone-widget widget-type-identifier="@DisqusComponent.IDENTIFIER" widget-properties="new DisqusComponentProperties()" />
 ```
