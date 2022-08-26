@@ -3,7 +3,7 @@
 using Kentico.PageBuilder.Web.Mvc;
 using Kentico.Xperience.Admin.Base.FormAnnotations;
 
-namespace Kentico.Xperience.Disqus.Widget
+namespace Kentico.Xperience.Disqus
 {
     /// <summary>
     /// The configurable properties for the Disqus widget.
