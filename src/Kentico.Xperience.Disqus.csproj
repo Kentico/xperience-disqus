@@ -7,7 +7,7 @@
 
 	<PropertyGroup>
 		<Title>Xperience Disqus Widget</Title>
-		<PackageId>Kentico.Xperience.Disqus</PackageId>
+		<PackageId>Kentico.Xperience.Disqus.Widget.KX13</PackageId>
 		<Version>1.0.2</Version>
 		<Authors>Kentico Software</Authors>
 		<Company>Kentico Software</Company>

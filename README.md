@@ -1,4 +1,4 @@
-[![Nuget](https://img.shields.io/nuget/v/Kentico.Xperience.Disqus)](https://www.nuget.org/packages/Kentico.Xperience.Disqus)
+[![Nuget](https://img.shields.io/nuget/v/Kentico.Xperience.Disqus.Widget.KX13)](https://www.nuget.org/packages/Kentico.Xperience.Disqus.Widget.KX13)
 [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
 
 # Xperience Disqus Widget
@@ -11,7 +11,7 @@ This integration is compatible with any __Kentico Xperience 13 (version 13.0.32 
 
 ## Installation
 
-1. Install the [Kentico.Xperience.Disqus](https://www.nuget.org/packages/Kentico.Xperience.Disqus) __1.x.x__ NuGet package in your live site Xperience project.
+1. Install the [Kentico.Xperience.Disqus.Widget.KX13](https://www.nuget.org/packages/Kentico.Xperience.Disqus.Widget.KX13) NuGet package in your live site Xperience project.
 1. Open the [Disqus Admin](https://disqus.com/admin/) website.
     1. Select the "I want to install Disqus on my site" option if you haven't done so before.
     1. Create a new site (or select an existing one) and note the __Shortname__ from __Settings__ -> __General__ tab.
