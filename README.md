@@ -2,11 +2,11 @@
 
 # Xperience by Kentico Disqus Widget
 
-The __Disqus comments__ widget for Xperience by Kentico provides an option to add a comment section to any page on your website. Disqus offers advanced moderation tools, analytics and monetization options.
+The __Disqus comments__ widget for Xperience by Kentico provides an option to add a comment section to any page on your website. Disqus offers advanced moderation tools, analytics, and monetization options.
 
 ## Installation
 
-1. Install the latest [Kentico.Xperience.Disqus.Widget](https://www.nuget.org/packages/Kentico.Xperience.Disqus.Widget) NuGet package in your Xperience by Kentico project.
+1. Install the latest [Kentico.Xperience.Disqus.Widget](https://www.nuget.org/packages/Kentico.Xperience.Disqus.Widget#versions-body-tab) NuGet package in your Xperience by Kentico project.
 1. Open the [Disqus Admin](https://disqus.com/admin/) website.
     1. Select the "I want to install Disqus on my site" option if you haven't done so before.
     1. Create a new site (or select an existing one) and note the __Shortname__ from __Settings__ -> __General__ tab.
@@ -20,9 +20,9 @@ The __Disqus comments__ widget for Xperience by Kentico provides an option to ad
 
 ## Adding Disqus widget to your pages
 
-The __Disqus comments__ widget can be added as a standard page builder widget to any page with the page builder where editable area restrictions and widget zone restrictions were adjusted accordingly.
+The __Disqus comments__ widget can be added as a standard Page Builder widget to any page with the Page Builder where editable area restrictions and widget zone restrictions were adjusted accordingly.
 
-Alternatively, the widget can be added directly to your views as a [standalone widget](https://docs.xperience.io/x/SQ2RBg):
+Alternatively, the widget can be added directly to your views as a [standalone widget](https://docs.xperience.io/x/_AWiCQ):
 
 ```cs
 @using Kentico.Xperience.Disqus
