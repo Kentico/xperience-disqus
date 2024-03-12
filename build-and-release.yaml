@@ -12,12 +12,22 @@ parameters:
   - name: AgentPoolName
     displayName: Agent pool name
     type: string
-    default: Default
+    default: ADO Windows Server 2022
 
   - name: AgentName
     displayName: Agent name - single char for any
     type: string
     default: ' '
+
+resources:
+  repositories:
+    - repository: self
+      type: git
+
+  containers:
+    - container: Windows
+      image: base/mcr-dotnet-sdk-8.0-servercore-ltsc2022:release
+      endpoint: xperienceagentshub.azurecr.io
 
 stages:
   - stage: Build
@@ -30,6 +40,7 @@ stages:
           ${{ if ne(length(parameters.AgentName), 1) }}:
             demands:
               - Agent.Name -equals ${{ parameters.AgentName }}
+        container: Windows
 
         workspace:
           clean: resources
@@ -44,12 +55,6 @@ stages:
             value: 5.0.x
 
         steps:
-          - task: UseDotNet@2
-            displayName: Select dotnet version
-            inputs:
-              packageType: sdk
-              version: ${{ variables.DotNetSdkVersion }}
-
           - task: DotNetCoreCLI@2
             displayName: Restore dotnet tools
             inputs:
@@ -96,6 +101,8 @@ stages:
               arguments: --no-restore --configuration ${{ variables.Configuration }}
             env:
               AuthenticodeClientSecret: $(AuthenticodeClientSecret)
+              # Roll-forward behavior set for AzureSignTool dotnet tool (see .config\dotnet-tools.json) which requires .Net 6.0 runtime
+              DOTNET_ROLL_FORWARD: Major
 
           - task: DotNetCoreCLI@2
             displayName: Test
@@ -134,6 +141,7 @@ stages:
               ${{ if ne(length(parameters.AgentName), 1) }}:
                 demands:
                   - Agent.Name -equals ${{ parameters.AgentName }}
+            container: Windows
 
             workspace:
               clean: resources
