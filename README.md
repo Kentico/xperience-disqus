@@ -1,5 +1,7 @@
 [![Nuget](https://img.shields.io/nuget/v/Kentico.Xperience.Disqus.Widget)](https://www.nuget.org/packages/Kentico.Xperience.Disqus.Widget) [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white)](https://stackoverflow.com/tags/kentico)
 
+**Note: This branch is deprecated. The Xperience by Kentico: Disqus integration [has a new home in a separate repository](https://github.com/Kentico/xperience-by-kentico-disqus).**
+
 # Xperience by Kentico Disqus Widget
 
 The __Disqus comments__ widget for Xperience by Kentico provides an option to add a comment section to any page on your website. Disqus offers advanced moderation tools, analytics, and monetization options.
