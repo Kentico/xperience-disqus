@@ -8,26 +8,13 @@ pr:
     include:
       - master
 
-parameters:
-  - name: AgentPoolName
-    displayName: Agent pool name
-    type: string
-    default: ADO Windows Server 2022
-
-  - name: AgentName
-    displayName: Agent name - single char for any
-    type: string
-    default: ' '
+pool:
+  vmImage: windows-latest
 
 resources:
   repositories:
     - repository: self
       type: git
-
-  containers:
-    - container: Windows
-      image: base/mcr-dotnet-sdk-8.0-servercore-ltsc2022:release
-      endpoint: xperienceagentshub.azurecr.io
 
 stages:
   - stage: Build
@@ -35,24 +22,11 @@ stages:
       - job: Build
         displayName: Build, Sign, Test & Pack
 
-        pool:
-          name: ${{ parameters.AgentPoolName }}
-          ${{ if ne(length(parameters.AgentName), 1) }}:
-            demands:
-              - Agent.Name -equals ${{ parameters.AgentName }}
-        container: Windows
-
-        workspace:
-          clean: resources
-
         variables:
           - group: Code Sign KV Auth
 
           - name: Configuration
             value: Release
-
-          - name: DotNetSdkVersion
-            value: 5.0.x
 
         steps:
           - task: DotNetCoreCLI@2
@@ -135,16 +109,6 @@ stages:
         jobs:
           - deployment: PublishNuGetPackages
             displayName: Publish NuGet packages
-
-            pool:
-              name: ${{ parameters.AgentPoolName }}
-              ${{ if ne(length(parameters.AgentName), 1) }}:
-                demands:
-                  - Agent.Name -equals ${{ parameters.AgentName }}
-            container: Windows
-
-            workspace:
-              clean: resources
 
             environment: integrations-release-nuget
             strategy:
